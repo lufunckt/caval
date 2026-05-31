@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { useFirebase } from "../context/FirebaseCtx";
 import { 
   collection, 
@@ -46,7 +46,12 @@ import {
   ThumbsUp,
   ExternalLink,
   Laptop,
-  Clock
+  Clock,
+  Search,
+  X,
+  Camera,
+  Heart,
+  Upload
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
@@ -67,6 +72,20 @@ interface ForumPost {
   likes: number;
   hasLiked?: boolean;
   comments: { author: string; text: string }[];
+}
+
+interface DogPhotoPost {
+  id: string;
+  author: string;
+  dog: string;
+  time: string;
+  caption: string;
+  imageUrl: string;
+  avatarLetter: string;
+  likes: number;
+  hasLiked?: boolean;
+  comments: { author: string; text: string }[];
+  createdAt?: any;
 }
 
 interface ChatMessage {
@@ -235,6 +254,101 @@ export const TutorArea: React.FC = () => {
     }
   ]);
   const [newPostContent, setNewPostContent] = useState("");
+  const [forumSearchQuery, setForumSearchQuery] = useState("");
+
+  // Forum sub-tabs: discussions or photos
+  const [forumSubTab, setForumSubTab] = useState<"discussao" | "fotos">("discussao");
+
+  // In-memory inputs for quick-replies (keyed by post/photo id)
+  const [forumCommentInput, setForumCommentInput] = useState<{ [postId: string]: string }>({});
+  const [photoCommentInput, setPhotoCommentInput] = useState<{ [photoId: string]: string }>({});
+
+  // Dog photo sharing feed states
+  const [dogPhotos, setDogPhotos] = useState<DogPhotoPost[]>([
+    {
+      id: "photo-1",
+      author: "Mariana Silva",
+      dog: "Luna (Border Collie)",
+      time: "Há 1 hora",
+      caption: "Luna relaxadíssima na passadeira após o nosso treino de desbaste de estímulos! 🧘‍♀️🐾 Foco e exaustão mental positiva.",
+      imageUrl: "https://images.unsplash.com/photo-1503256207526-0d5d80fa2f47?auto=format&fit=crop&q=80&w=600",
+      avatarLetter: "M",
+      likes: 12,
+      comments: [
+        { author: "Carlos & Thor (Golden)", text: "Ela parece uma estátua! Que exemplo incrível de autocontrole assistido!" },
+        { author: "Érico Cavalheiro", text: "Excelente aplicação do ócio passivo estruturado, Mariana. A curvatura do pescoço relaxada mostra que ela não está tesa." }
+      ]
+    },
+    {
+      id: "photo-2",
+      author: "Rodrigo Cavalheiro",
+      dog: "Max (Pastor Alemão)",
+      time: "Há 4 horas",
+      caption: "Treino do tapete funcionando perfeitamente hoje. Max deitou-se voluntariamente diante de mim enquanto durou o almoço de domingo! 💖🍖",
+      imageUrl: "https://images.unsplash.com/photo-1589941013453-ec89f33b5e95?auto=format&fit=crop&q=80&w=600",
+      avatarLetter: "R",
+      likes: 9,
+      comments: [
+        { author: "Mariana & Luna (Border)", text: "Parabéns, Rodrigo! Ele é lindo! Que carinha de focado." }
+      ]
+    },
+    {
+      id: "photo-3",
+      author: "Carlos Mendonça",
+      dog: "Thor (Golden Retriever)",
+      time: "Há 1 dia",
+      caption: "Nossos rituais de desativação pré-passeio deram certo! Thor esperando com tranquilidade absoluta eu amarrar o tênis. 🐕🦺",
+      imageUrl: "https://images.unsplash.com/photo-1552053831-71594a27632d?auto=format&fit=crop&q=80&w=600",
+      avatarLetter: "C",
+      likes: 15,
+      comments: []
+    }
+  ]);
+
+  const [showPhotoForm, setShowPhotoForm] = useState(false);
+  const [newPhotoCaption, setNewPhotoCaption] = useState("");
+  const [photoSourceMode, setPhotoSourceMode] = useState<"preset" | "upload" | "url">("preset");
+  const [selectedPresetUrl, setSelectedPresetUrl] = useState("https://images.unsplash.com/photo-1534361960057-19889db9621e?auto=format&fit=crop&q=80&w=600");
+  const [photoUploadBase64, setPhotoUploadBase64] = useState("");
+  const [customPhotoUrl, setCustomPhotoUrl] = useState("");
+
+  const PRESET_DOG_PHOTOS = [
+    { id: "relax", url: "https://images.unsplash.com/photo-1544568100-847a948585b9?auto=format&fit=crop&q=80&w=600", label: "Feliz e calmo" },
+    { id: "focus", url: "https://images.unsplash.com/photo-1534361960057-19889db9621e?auto=format&fit=crop&q=80&w=600", label: "Foco no tutor" },
+    { id: "sleep", url: "https://images.unsplash.com/photo-1518717758536-85ae29035b6d?auto=format&fit=crop&q=80&w=600", label: "Tapete relaxado" },
+    { id: "play", url: "https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?auto=format&fit=crop&q=80&w=600", label: "Brinquedo cognitivo" },
+    { id: "outside", url: "https://images.unsplash.com/photo-1530281700549-e82e7bf110d6?auto=format&fit=crop&q=80&w=600", label: "Limiar externo" }
+  ];
+
+  const profileToUse = isRealDb ? userProfile : tutorProfile;
+
+  const filteredDogPhotos = useMemo(() => {
+    if (!forumSearchQuery.trim()) return dogPhotos;
+    const queryLower = forumSearchQuery.toLowerCase().trim();
+    return dogPhotos.filter(photo =>
+      photo.caption.toLowerCase().includes(queryLower) ||
+      photo.author.toLowerCase().includes(queryLower) ||
+      photo.dog.toLowerCase().includes(queryLower) ||
+      (photo.comments && photo.comments.some(comment =>
+        comment.author.toLowerCase().includes(queryLower) ||
+        comment.text.toLowerCase().includes(queryLower)
+      ))
+    );
+  }, [dogPhotos, forumSearchQuery]);
+
+  const filteredForumPosts = useMemo(() => {
+    if (!forumSearchQuery.trim()) return forumPosts;
+    const queryLower = forumSearchQuery.toLowerCase().trim();
+    return forumPosts.filter(post => 
+      post.content.toLowerCase().includes(queryLower) ||
+      post.author.toLowerCase().includes(queryLower) ||
+      post.dog.toLowerCase().includes(queryLower) ||
+      post.comments.some(comment => 
+        comment.author.toLowerCase().includes(queryLower) ||
+        comment.text.toLowerCase().includes(queryLower)
+      )
+    );
+  }, [forumPosts, forumSearchQuery]);
 
   // Clinical Consultation Chat Simulator State
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
@@ -320,7 +434,20 @@ export const TutorArea: React.FC = () => {
     }, (err) => {
       console.error("Error fetching forum", err);
     });
-    return () => unsub();
+
+    const photosQ = query(collection(db, "dog_photos"), orderBy("createdAt", "desc"));
+    const unsubPhotos = onSnapshot(photosQ, (snap) => {
+      if (!snap.empty) {
+        setDogPhotos(snap.docs.map(d => d.data() as DogPhotoPost));
+      }
+    }, (err) => {
+      console.error("Error fetching dog photos", err);
+    });
+
+    return () => {
+      unsub();
+      unsubPhotos();
+    };
   }, [user]);
 
   useEffect(() => {
@@ -547,6 +674,155 @@ export const TutorArea: React.FC = () => {
         });
       } catch (err) {
         console.error("Error updating likes on Firestore", err);
+      }
+    }
+  };
+
+  const handlePhotoUploadChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      if (typeof reader.result === "string") {
+        setPhotoUploadBase64(reader.result);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleAddPhotoPost = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newPhotoCaption.trim()) return;
+
+    const profileToUse = isRealDb ? userProfile : tutorProfile;
+    if (!profileToUse) return;
+
+    let finalImageUrl = selectedPresetUrl;
+    if (photoSourceMode === "upload" && photoUploadBase64) {
+      finalImageUrl = photoUploadBase64;
+    } else if (photoSourceMode === "url" && customPhotoUrl.trim()) {
+      finalImageUrl = customPhotoUrl.trim();
+    }
+
+    const photoId = "photo-" + Date.now();
+    const newPhotoPost: DogPhotoPost = {
+      id: photoId,
+      author: profileToUse.name,
+      dog: `${profileToUse.dogName} (${profileToUse.dogBreed})`,
+      time: "Agora mesmo",
+      caption: newPhotoCaption.trim(),
+      imageUrl: finalImageUrl,
+      avatarLetter: profileToUse.name.charAt(0).toUpperCase(),
+      likes: 0,
+      comments: []
+    };
+
+    if (isRealDb && user) {
+      try {
+        const firebasePostObj = {
+          ...newPhotoPost,
+          id: photoId,
+          createdAt: serverTimestamp()
+        };
+        await setDoc(doc(db, "dog_photos", photoId), firebasePostObj);
+        await updateXpAndProgress(50, 1); // +50 XP for sharing a photo
+      } catch (err) {
+        console.error("Error creating dog photo post on firestore", err);
+      }
+    } else {
+      setDogPhotos(prev => [newPhotoPost, ...prev]);
+      setXpPoints(p => p + 50); // +50 XP locally
+    }
+
+    // Reset fields
+    setNewPhotoCaption("");
+    setPhotoUploadBase64("");
+    setCustomPhotoUrl("");
+    setShowPhotoForm(false);
+  };
+
+  const handleLikePhotoPost = async (id: string) => {
+    let updatedLikes = 0;
+    setDogPhotos(prev =>
+      prev.map(p => {
+        if (p.id === id) {
+          const freshHasLiked = !p.hasLiked;
+          updatedLikes = freshHasLiked ? p.likes + 1 : Math.max(0, p.likes - 1);
+          return {
+            ...p,
+            hasLiked: freshHasLiked,
+            likes: updatedLikes
+          };
+        }
+        return p;
+      })
+    );
+
+    if (user) {
+      try {
+        await updateDoc(doc(db, "dog_photos", id), {
+          likes: updatedLikes
+        });
+      } catch (err) {
+        console.error("Error updating photo likes on Firestore", err);
+      }
+    }
+  };
+
+  const handleAddComment = async (postId: string, type: "forum" | "photo", commentText: string) => {
+    if (!commentText.trim()) return;
+    const profileToUse = isRealDb ? userProfile : tutorProfile;
+    if (!profileToUse) return;
+
+    const authorName = profileToUse.name;
+    const newComment = { author: authorName, text: commentText.trim() };
+
+    if (type === "forum") {
+      let updatedComments: { author: string; text: string }[] = [];
+      setForumPosts(prev =>
+        prev.map(p => {
+          if (p.id === postId) {
+            updatedComments = [...p.comments, newComment];
+            return { ...p, comments: updatedComments };
+          }
+          return p;
+        })
+      );
+      // Clear input
+      setForumCommentInput(prev => ({ ...prev, [postId]: "" }));
+
+      if (user) {
+        try {
+          await updateDoc(doc(db, "forum_posts", postId), {
+            comments: updatedComments
+          });
+        } catch (err) {
+          console.error("Error saving forum comment to Firestore", err);
+        }
+      }
+    } else {
+      let updatedComments: { author: string; text: string }[] = [];
+      setDogPhotos(prev =>
+        prev.map(p => {
+          if (p.id === postId) {
+            updatedComments = [...(p.comments || []), newComment];
+            return { ...p, comments: updatedComments };
+          }
+          return p;
+        })
+      );
+      // Clear input
+      setPhotoCommentInput(prev => ({ ...prev, [postId]: "" }));
+
+      if (user) {
+        try {
+          await updateDoc(doc(db, "dog_photos", postId), {
+            comments: updatedComments
+          });
+        } catch (err) {
+          console.error("Error saving photo comment to Firestore", err);
+        }
       }
     }
   };
@@ -1651,86 +1927,456 @@ export const TutorArea: React.FC = () => {
                     </div>
 
 
-                    {/* RIGHT 6 COLUMNS: CLOSED PRIVATE TUTORS FORUM COMMUNITY */}
-                    <div className="lg:col-span-6 flex flex-col justify-between border border-plum-brand/20 bg-plum-deep/30 rounded-xl p-6 text-left">
+                    {/* RIGHT 6 COLUMNS: CLOSED PRIVATE TUTORS FORUM COMMUNITY with tabs */}
+                    <div className="lg:col-span-6 flex flex-col justify-between border border-plum-brand/20 bg-plum-deep/30 rounded-xl p-6 text-left relative" id="community-tab-container">
+                      <div className="absolute top-0 right-0 w-16 h-16 bg-[#efe7e7]/5 blur-lg rounded-full pointer-events-none" />
                       
-                      <div>
-                        <div className="flex items-center justify-between border-b border-plum-brand/15 pb-4 mb-4">
+                      <div className="flex-1 flex flex-col min-h-0">
+                        {/* Tab header */}
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-plum-brand/15 pb-4 mb-4">
                           <div className="flex items-center gap-2">
-                            <Users size={18} className="text-peach" />
+                            <Users size={18} className="text-peach animate-pulse" />
                             <div>
-                              <h4 className="font-serif text-sm font-bold text-ivory">Fórum Fechado de Parceria Canina</h4>
-                              <p className="text-[10px] text-sand-deep">Discussões privadas entre alunos e tutores VIP.</p>
+                              <h4 className="font-serif text-sm font-bold text-ivory">Fórum & Galeria</h4>
+                              <p className="text-[10px] text-sand-deep">Discussões privadas e fotos de evolução canina.</p>
                             </div>
                           </div>
-                        </div>
-
-                        {/* Submit post form */}
-                        <form onSubmit={handleAddPost} className="mb-6 bg-charcoal/50 p-3 rounded border border-plum-brand/15 space-y-2.5">
-                          <textarea
-                            value={newPostContent}
-                            onChange={(e) => setNewPostContent(e.target.value)}
-                            placeholder="Compartilhe uma vitória ou dúvida de treino hoje com outros tutores..."
-                            rows={2}
-                            className="w-full bg-transparent text-xs text-ivory placeholder:text-sand-deep/65 border-none p-1 focus:outline-none focus:ring-0 no-scrollbar"
-                          />
-                          <div className="flex justify-between items-center bg-charcoal/20 pt-1">
-                            <span className="text-[9px] text-[#efe4d0]/60 font-sans">Garanta respeito e foco no comportamento natural.</span>
+                          
+                          {/* Segment Selector tabs */}
+                          <div className="flex bg-charcoal/50 p-0.5 rounded border border-plum-brand/25 text-[10px] self-start sm:self-auto shrink-0 select-none">
                             <button
-                              type="submit"
-                              disabled={!newPostContent.trim()}
-                              className="px-3.5 py-1.5 bg-gradient-clay text-charcoal font-sans text-[10px] font-bold uppercase tracking-wider rounded-sm hover:scale-[1.01] transition-all cursor-pointer"
+                              type="button"
+                              onClick={() => { setForumSubTab("discussao"); }}
+                              className={`px-3 py-1.5 rounded transition-all flex items-center gap-1.5 font-bold cursor-pointer font-sans ${
+                                forumSubTab === "discussao"
+                                  ? "bg-gradient-clay text-charcoal shadow-sm"
+                                  : "text-sand-deep hover:text-ivory"
+                              }`}
                             >
-                              Publicar no Fórum (+40 XP)
+                              <span>💬 Feed</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => { setForumSubTab("fotos"); }}
+                              className={`px-3 py-1.5 rounded transition-all flex items-center gap-1.5 font-bold cursor-pointer font-sans relative ${
+                                forumSubTab === "fotos"
+                                  ? "bg-gradient-clay text-charcoal shadow-sm"
+                                  : "text-sand-deep hover:text-ivory"
+                              }`}
+                            >
+                              <span>📸 Galeria</span>
+                              <span className="absolute -top-1.5 -right-1.5 bg-rose-brand text-white text-[7px] scale-90 px-1 py-0.5 rounded-full font-sans font-extrabold tracking-tight">
+                                NOVO
+                              </span>
                             </button>
                           </div>
-                        </form>
+                        </div>
 
-                        {/* Private forum timeline feeds */}
-                        <div className="space-y-4 max-h-[220px] overflow-y-auto no-scrollbar">
-                          {forumPosts.map((post) => (
-                            <div key={post.id} className="p-3.5 bg-charcoal/40 rounded border border-plum-brand/10 space-y-2.5">
-                              {/* Post Author stats */}
-                              <div className="flex justify-between items-center">
-                                <div className="flex items-center gap-2.5">
-                                  <div className="w-8 h-8 rounded-full bg-plum-brand/35 text-ivory flex items-center justify-center font-bold text-xs uppercase">
-                                    {post.avatarLetter}
-                                  </div>
-                                  <div>
-                                    <h5 className="font-sans text-[11px] font-bold text-ivory leading-none">{post.author}</h5>
-                                    <span className="text-[9px] text-forest block mt-1">Cão: {post.dog}</span>
-                                  </div>
-                                </div>
-                                <span className="text-[9px] text-sand-deep font-mono">{post.time}</span>
-                              </div>
+                        {/* Search Bar */}
+                        <div className="mb-4 relative">
+                          <input
+                            type="text"
+                            value={forumSearchQuery}
+                            onChange={(e) => setForumSearchQuery(e.target.value)}
+                            placeholder={forumSubTab === "discussao" ? "Buscar no fórum por palavra-chave..." : "Buscar fotos por cão ou legenda..."}
+                            className="w-full h-10 pl-9 pr-8 bg-charcoal/40 border border-plum-brand/20 text-xs text-ivory rounded focus:outline-none focus:border-peach transition-all placeholder:text-sand-deep/60"
+                          />
+                          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-sand-deep/70 pointer-events-none">
+                            <Search size={14} />
+                          </div>
+                          {forumSearchQuery && (
+                            <button
+                              type="button"
+                              onClick={() => setForumSearchQuery("")}
+                              className="absolute right-3 top-1/2 -translate-y-1/2 text-sand-deep/75 hover:text-ivory transition-colors cursor-pointer"
+                              title="Limpar busca"
+                            >
+                              <X size={14} />
+                            </button>
+                          )}
+                        </div>
 
-                              <p className="font-sans text-xs text-sand leading-relaxed">{post.content}</p>
-
-                              {/* Actions and Comments listing */}
-                              <div className="flex items-center justify-between border-t border-plum-brand/5 pt-2.5">
-                                <button 
-                                  onClick={() => handleLikePost(post.id)}
-                                  className={`flex items-center gap-1 text-[10px] font-sans ${post.hasLiked ? "text-rose-brand font-bold" : "text-sand-deep hover:text-rose-brand"} cursor-pointer`}
+                        {/* ======================= SUB-TAB: DISCUSSÃO ======================= */}
+                        {forumSubTab === "discussao" && (
+                          <div className="flex-1 flex flex-col min-h-0" id="forum-discussions-tab-content">
+                            {/* Submit post form */}
+                            <form onSubmit={handleAddPost} className="mb-4 bg-charcoal/50 p-3 rounded border border-plum-brand/15 space-y-2.5">
+                              <textarea
+                                value={newPostContent}
+                                onChange={(e) => setNewPostContent(e.target.value)}
+                                placeholder="Compartilhe uma vitória ou dúvida de treino hoje com outros tutores..."
+                                rows={2}
+                                className="w-full bg-transparent text-xs text-ivory placeholder:text-sand-deep/65 border-none p-1 focus:outline-none focus:ring-0 no-scrollbar resize-none"
+                              />
+                              <div className="flex justify-between items-center bg-charcoal/20 pt-1">
+                                <span className="text-[9px] text-[#efe4d0]/60 font-sans">Garanta respeito e foco no comportamento natural.</span>
+                                <button
+                                  type="submit"
+                                  disabled={!newPostContent.trim()}
+                                  className="px-3.5 py-1.5 bg-gradient-clay text-charcoal font-sans text-[10px] font-bold uppercase tracking-wider rounded-sm hover:scale-[1.01] transition-all cursor-pointer disabled:opacity-50"
                                 >
-                                  <ThumbsUp size={11} />
-                                  <span>{post.likes} Apoio{post.likes !== 1 ? "s" : ""}</span>
+                                  Publicar no Fórum (+40 XP)
                                 </button>
-                                <span className="text-[10px] text-sand-deep font-sans">{post.comments.length} respostas</span>
                               </div>
+                            </form>
 
-                              {post.comments.length > 0 && (
-                                <div className="bg-plum-deep/15 p-2 rounded text-[10px] space-y-2 border border-white/5">
-                                  {post.comments.map((comment, cIndex) => (
-                                    <div key={cIndex} className="text-left leading-normal border-b border-white/5 last:border-b-0 pb-1.5 last:pb-0">
-                                      <strong className="text-[#efe4d0] block">{comment.author}:</strong>
-                                      <span className="text-sand-deep">{comment.text}</span>
-                                    </div>
-                                  ))}
+                            {/* Private forum timeline feeds */}
+                            <div className="space-y-4 max-h-[220px] overflow-y-auto no-scrollbar pr-1 flex-1">
+                              {filteredForumPosts.length === 0 ? (
+                                <div className="p-6 text-center text-xs text-sand-deep border border-dashed border-plum-brand/20 bg-charcoal/10 rounded-lg">
+                                  <p className="font-medium text-sand mb-1">Nenhum post encontrado</p>
+                                  <p className="text-[10px] opacity-75">Tente usar outros termos de busca para achar publicações.</p>
                                 </div>
+                              ) : (
+                                filteredForumPosts.map((post) => (
+                                  <div key={post.id} className="p-3.5 bg-charcoal/40 rounded border border-plum-brand/10 space-y-2.5 hover:border-plum-brand/20 transition-all">
+                                    {/* Post Author stats */}
+                                    <div className="flex justify-between items-center">
+                                      <div className="flex items-center gap-2.5">
+                                        <div className="w-8 h-8 rounded-full bg-plum-brand/35 text-ivory flex items-center justify-center font-bold text-xs uppercase border border-plum-brand/10">
+                                          {post.avatarLetter}
+                                        </div>
+                                        <div>
+                                          <h5 className="font-sans text-[11px] font-bold text-ivory leading-none">{post.author}</h5>
+                                          <span className="text-[9px] text-forest block mt-1">Cão: {post.dog}</span>
+                                        </div>
+                                      </div>
+                                      <span className="text-[9px] text-sand-deep font-mono">{post.time}</span>
+                                    </div>
+
+                                    <p className="font-sans text-xs text-sand leading-relaxed whitespace-pre-wrap">{post.content}</p>
+
+                                    {/* Actions and Comments listing */}
+                                    <div className="flex items-center justify-between border-t border-plum-brand/5 pt-2.5">
+                                      <button 
+                                        onClick={() => handleLikePost(post.id)}
+                                        className={`flex items-center gap-1 text-[10px] font-sans ${post.hasLiked ? "text-rose-brand font-bold" : "text-sand-deep hover:text-rose-brand"} transition-colors cursor-pointer`}
+                                        type="button"
+                                      >
+                                        <ThumbsUp size={11} className={post.hasLiked ? "fill-rose-brand text-rose-brand animate-ping-once" : ""} />
+                                        <span>{post.likes} Apoio{post.likes !== 1 ? "s" : ""}</span>
+                                      </button>
+                                      <span className="text-[10px] text-sand-deep font-sans">{post.comments ? post.comments.length : 0} respostas</span>
+                                    </div>
+
+                                    {/* Comments Block with Inline Post commenting form */}
+                                    <div className="bg-plum-deep/20 p-2.5 rounded-lg text-[10px] space-y-2 border border-white/5">
+                                      {post.comments && post.comments.length > 0 && (
+                                        <div className="space-y-2 max-h-[120px] overflow-y-auto no-scrollbar pr-1">
+                                          {post.comments.map((comment, cIndex) => (
+                                            <div key={cIndex} className="text-left leading-normal border-b border-plum-brand/5 last:border-b-0 pb-1.5 last:pb-0">
+                                              <strong className="text-[#efe4d0] block text-[9px] font-sans">{comment.author}:</strong>
+                                              <span className="text-sand/90 font-sans">{comment.text}</span>
+                                            </div>
+                                          ))}
+                                        </div>
+                                      )}
+                                      
+                                      {/* Quick Reply Form */}
+                                      <form
+                                        onSubmit={(e) => {
+                                          e.preventDefault();
+                                          const text = forumCommentInput[post.id] || "";
+                                          handleAddComment(post.id, "forum", text);
+                                        }}
+                                        className="flex gap-1.5 pt-1.5 border-t border-plum-brand/5 mt-1"
+                                      >
+                                        <input
+                                          type="text"
+                                          value={forumCommentInput[post.id] || ""}
+                                          onChange={(e) => setForumCommentInput(prev => ({ ...prev, [post.id]: e.target.value }))}
+                                          placeholder="Responder com uma palavra de apoio ou conselho..."
+                                          className="flex-1 h-7 bg-charcoal/50 border border-plum-brand/15 text-[10px] text-ivory placeholder:text-sand-deep/40 px-2.5 rounded focus:outline-none focus:border-peach/60 transition-colors"
+                                        />
+                                        <button 
+                                          type="submit"
+                                          disabled={!(forumCommentInput[post.id]?.trim())}
+                                          className="px-3 h-7 bg-plum-brand/20 hover:bg-plum-brand/40 text-peach rounded-sm text-[9px] font-sans font-bold uppercase transition-all duration-150 disabled:opacity-40"
+                                        >
+                                          Enviar
+                                        </button>
+                                      </form>
+                                    </div>
+
+                                  </div>
+                                ))
                               )}
                             </div>
-                          ))}
-                        </div>
+                          </div>
+                        )}
+
+                        {/* ======================= SUB-TAB: GALERIA DE FOTOS ======================= */}
+                        {forumSubTab === "fotos" && (
+                          <div className="flex-1 flex flex-col min-h-0" id="forum-photos-tab-content">
+                            
+                            {/* Toggle Photo Uploader Button */}
+                            <div className="flex justify-between items-center mb-4 text-left">
+                              <span className="text-[10px] text-sand border-l-2 border-peach pl-2 font-mono uppercase tracking-wider font-bold">Mural de Fotos VIP</span>
+                              <button
+                                type="button"
+                                onClick={() => setShowPhotoForm(!showPhotoForm)}
+                                className="px-3 py-1 bg-peach/10 hover:bg-peach/25 text-peach rounded text-[10px] font-sans font-bold flex items-center gap-1 transition-all cursor-pointer"
+                              >
+                                {showPhotoForm ? (
+                                  <>
+                                    <X size={11} />
+                                    <span>Fechar Painel</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <Camera size={11} />
+                                    <span>Compartilhar Foto (+50 XP)</span>
+                                  </>
+                                )}
+                              </button>
+                            </div>
+
+                            {/* Photo Post Form */}
+                            <AnimatePresence>
+                              {showPhotoForm && (
+                                <motion.form
+                                  initial={{ opacity: 0, height: 0 }}
+                                  animate={{ opacity: 1, height: "auto" }}
+                                  exit={{ opacity: 0, height: 0 }}
+                                  onSubmit={handleAddPhotoPost}
+                                  className="mb-4 bg-charcoal/50 p-3 rounded border border-peach/20 space-y-3.5 overflow-hidden text-xs text-left"
+                                >
+                                  <div>
+                                    <label className="block text-[10px] text-sand-deep font-sans mb-1 uppercase font-bold tracking-wider">Legenda / Relato de Sucesso</label>
+                                    <textarea
+                                      value={newPhotoCaption}
+                                      onChange={(e) => setNewPhotoCaption(e.target.value)}
+                                      placeholder="Ex: Luna relaxando na passadeira hoje no treino..."
+                                      rows={2}
+                                      className="w-full bg-charcoal/60 border border-plum-brand/20 rounded p-1.5 text-xs text-ivory placeholder:text-sand-deep/50 focus:outline-none focus:border-peach resize-none"
+                                      required
+                                    />
+                                  </div>
+
+                                  {/* Source Toggle selector */}
+                                  <div>
+                                    <span className="block text-[10px] text-sand-deep font-sans mb-1.5 uppercase font-bold tracking-wider">Foto do Dog</span>
+                                    <div className="grid grid-cols-3 gap-2 bg-charcoal/30 p-1 rounded border border-plum-brand/10">
+                                      <button
+                                        type="button"
+                                        onClick={() => setPhotoSourceMode("preset")}
+                                        className={`py-1 text-center text-[9px] rounded font-bold cursor-pointer transition-all ${photoSourceMode === "preset" ? "bg-plum-brand text-ivory" : "text-sand-deep hover:text-sand"}`}
+                                      >
+                                        Imagens Modelos
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={() => setPhotoSourceMode("upload")}
+                                        className={`py-1 text-center text-[9px] rounded font-bold cursor-pointer transition-all ${photoSourceMode === "upload" ? "bg-plum-brand text-ivory" : "text-sand-deep hover:text-sand"}`}
+                                      >
+                                        Upload Arquivo
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={() => setPhotoSourceMode("url")}
+                                        className={`py-1 text-center text-[9px] rounded font-bold cursor-pointer transition-all ${photoSourceMode === "url" ? "bg-plum-brand text-ivory" : "text-sand-deep hover:text-sand"}`}
+                                      >
+                                        Link Web (URL)
+                                      </button>
+                                    </div>
+                                  </div>
+
+                                  {/* Render inputs according to chosen Mode */}
+                                  {photoSourceMode === "preset" && (
+                                    <div className="space-y-1.5">
+                                      <span className="text-[9px] text-sand-deep block">Escolha uma imagem temática de alta resolução:</span>
+                                      <div className="flex gap-2.5 overflow-x-auto py-1 no-scrollbar justify-start">
+                                        {PRESET_DOG_PHOTOS.map((preset) => (
+                                          <button
+                                            key={preset.id}
+                                            type="button"
+                                            onClick={() => setSelectedPresetUrl(preset.url)}
+                                            className={`relative w-12 h-12 rounded-lg overflow-hidden shrink-0 border-2 transition-all cursor-pointer ${selectedPresetUrl === preset.url ? "border-peach scale-[1.05] shadow" : "border-plum-brand/20 opacity-60 hover:opacity-100"}`}
+                                            title={preset.label}
+                                          >
+                                            <img src={preset.url} alt={preset.label} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                                          </button>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  )}
+
+                                  {photoSourceMode === "upload" && (
+                                    <div className="space-y-1.5">
+                                      <span className="text-[9px] text-sand-deep block">Suba a foto real do seu pet:</span>
+                                      <label htmlFor="upload-img-input" className="flex flex-col items-center justify-center p-4 bg-charcoal/60 border border-dashed border-plum-brand/35 rounded-lg cursor-pointer hover:border-peach hover:bg-charcoal/80 transition-all text-center">
+                                        <Upload size={18} className="text-peach mb-1 animate-pulse" />
+                                        <span className="text-[10px] text-ivory font-bold block">Escolher Arquivo</span>
+                                        <span className="text-[8px] text-sand-deep">Formatos aceitos: JPG, PNG</span>
+                                        <input
+                                          id="upload-img-input"
+                                          type="file"
+                                          accept="image/*"
+                                          onChange={handlePhotoUploadChange}
+                                          className="hidden"
+                                        />
+                                      </label>
+                                      {photoUploadBase64 && (
+                                        <div className="text-[9px] text-[#efe4d0] flex items-center gap-1 bg-forest/10 px-2 py-1 border border-forest/20 rounded">
+                                          <span>✓ Foto carregada com sucesso!</span>
+                                          <button type="button" onClick={() => setPhotoUploadBase64("")} className="text-rose-brand font-bold underline ml-auto">Remover</button>
+                                        </div>
+                                      )}
+                                    </div>
+                                  )}
+
+                                  {photoSourceMode === "url" && (
+                                    <div>
+                                      <label className="block text-[10px] text-sand-deep font-sans mb-1">Cole a URL pública da imagem:</label>
+                                      <input
+                                        type="url"
+                                        value={customPhotoUrl}
+                                        onChange={(e) => setCustomPhotoUrl(e.target.value)}
+                                        placeholder="Ex: https://site.com/minha-foto.jpg"
+                                        className="w-full bg-charcoal/60 border border-plum-brand/20 rounded p-1.5 text-xs text-ivory focus:outline-none focus:border-peach"
+                                      />
+                                    </div>
+                                  )}
+
+                                  {/* File Preview */}
+                                  <div className="p-2 border border-white/5 bg-plum-deep/20 rounded-md">
+                                    <span className="text-[9px] text-sand-deep block mb-1">Visualização do Post:</span>
+                                    <div className="flex gap-2.5 items-center">
+                                      <div className="w-14 h-14 rounded overflow-hidden shrink-0 border border-plum-brand/20 bg-charcoal">
+                                        <img
+                                          src={
+                                            photoSourceMode === "upload"
+                                              ? (photoUploadBase64 || "https://images.unsplash.com/photo-1544377193-33dcf4d68fb5?q=80&w=40")
+                                              : (photoSourceMode === "url" ? customPhotoUrl : selectedPresetUrl)
+                                          }
+                                          alt="Dog Preview"
+                                          className="w-full h-full object-cover"
+                                          referrerPolicy="no-referrer"
+                                        />
+                                      </div>
+                                      <div>
+                                        <p className="font-bold text-ivory text-[10px] leading-tight">Postado sob: {profileToUse.name}</p>
+                                        <p className="text-[9px] text-sand opacity-80 italic max-w-[200px] truncate">{newPhotoCaption || "Deixe uma legenda..."}</p>
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  <button
+                                    type="submit"
+                                    disabled={!newPhotoCaption.trim() || (photoSourceMode === "upload" && !photoUploadBase64) || (photoSourceMode === "url" && !customPhotoUrl.trim())}
+                                    className="w-full py-2 bg-gradient-clay text-charcoal font-sans text-xs font-bold uppercase tracking-wider rounded-sm hover:scale-[1.01] transition-all cursor-pointer disabled:opacity-50"
+                                  >
+                                    Publicar Foto (+50 XP)
+                                  </button>
+
+                                </motion.form>
+                              )}
+                            </AnimatePresence>
+
+                            {/* Feed de Fotos */}
+                            <div className="space-y-4 max-h-[300px] overflow-y-auto no-scrollbar pr-1 flex-1 text-left">
+                              {filteredDogPhotos.length === 0 ? (
+                                <div className="p-6 text-center text-xs text-sand-deep border border-dashed border-plum-brand/20 bg-charcoal/10 rounded-lg">
+                                  <p className="font-medium text-sand mb-1">Nenhuma foto encontrada</p>
+                                  <p className="text-[10px] opacity-75">Seja o primeiro a compartilhar uma foto fofa do seu pet!</p>
+                                </div>
+                              ) : (
+                                filteredDogPhotos.map((photo) => (
+                                  <div key={photo.id} className="p-3 bg-charcoal/40 rounded-lg border border-plum-brand/10 space-y-3 hover:border-peach/20 transition-all">
+                                    
+                                    {/* Author Info */}
+                                    <div className="flex justify-between items-center">
+                                      <div className="flex items-center gap-2.5">
+                                        <div className="w-8 h-8 rounded-full bg-peach/25 text-peach flex items-center justify-center font-bold text-xs uppercase border border-peach/5 text-center">
+                                          {photo.avatarLetter}
+                                        </div>
+                                        <div>
+                                          <h5 className="font-sans text-[11px] font-bold text-ivory leading-none">{photo.author}</h5>
+                                          <span className="text-[9px] text-[#efe4d0]/65 block mt-0.5">Pet: <span className="font-semibold text-peach">{photo.dog}</span></span>
+                                        </div>
+                                      </div>
+                                      <span className="text-[9px] text-sand-deep font-mono">{photo.time}</span>
+                                    </div>
+
+                                    {/* Visual Representation */}
+                                    <div className="relative rounded overflow-hidden shadow-soft border border-white/5 bg-black/20">
+                                      <img
+                                        src={photo.imageUrl}
+                                        alt={photo.caption}
+                                        className="w-full max-h-48 object-cover hover:scale-[1.01] transition-all duration-300"
+                                        referrerPolicy="no-referrer"
+                                      />
+                                      <div className="absolute top-2 left-2 bg-charcoal/85 backdrop-blur-sm px-1.5 py-0.5 rounded text-[8px] text-peach font-bold font-mono tracking-wider border border-white/5 select-none uppercase">
+                                        🐾 Galeria Canina
+                                      </div>
+                                    </div>
+
+                                    {/* Caption text */}
+                                    <p className="font-sans text-xs text-sand leading-relaxed">{photo.caption}</p>
+
+                                    {/* Likes interaction bar */}
+                                    <div className="flex items-center justify-between border-t border-plum-brand/5 pt-2">
+                                      <button 
+                                        onClick={() => handleLikePhotoPost(photo.id)}
+                                        className={`flex items-center gap-1.5 text-[10px] font-sans ${photo.hasLiked ? "text-rose-brand font-bold" : "text-sand-deep hover:text-rose-brand"} transition-colors cursor-pointer`}
+                                        type="button"
+                                      >
+                                        <Heart size={12} className={photo.hasLiked ? "fill-rose-brand text-rose-brand animate-pulse" : ""} />
+                                        <span>Gostar ({photo.likes})</span>
+                                      </button>
+                                      
+                                      <span className="text-[10px] text-sand-deep font-sans flex items-center gap-1">
+                                        <MessageCircle size={10} />
+                                        <span>{photo.comments ? photo.comments.length : 0} comentários</span>
+                                      </span>
+                                    </div>
+
+                                    {/* Photo Comment section list and input form */}
+                                    <div className="bg-plum-deep/20 p-2.5 rounded-lg text-[10px] space-y-2 border border-white/5">
+                                      {photo.comments && photo.comments.length > 0 && (
+                                        <div className="space-y-1.5 max-h-[100px] overflow-y-auto no-scrollbar pr-1">
+                                          {photo.comments.map((comment, cIndex) => (
+                                            <div key={cIndex} className="text-left leading-normal border-b border-plum-brand/5 last:border-b-0 pb-1.5 last:pb-0">
+                                              <strong className="text-peach block text-[9px] font-sans">{comment.author}:</strong>
+                                              <span className="text-sand/90 font-sans">{comment.text}</span>
+                                            </div>
+                                          ))}
+                                        </div>
+                                      )}
+                                      
+                                      {/* Photo commenting form */}
+                                      <form
+                                        onSubmit={(e) => {
+                                          e.preventDefault();
+                                          const text = photoCommentInput[photo.id] || "";
+                                          handleAddComment(photo.id, "photo", text);
+                                        }}
+                                        className="flex gap-1.5 pt-1.5 border-t border-plum-brand/5 mt-1"
+                                      >
+                                        <input
+                                          type="text"
+                                          value={photoCommentInput[photo.id] || ""}
+                                          onChange={(e) => setPhotoCommentInput(prev => ({ ...prev, [photo.id]: e.target.value }))}
+                                          placeholder="Elogiar conduta ou tirar dúvidas..."
+                                          className="flex-1 h-7 bg-charcoal/50 border border-plum-brand/15 text-[10px] text-ivory placeholder:text-sand-deep/40 px-2.5 rounded focus:outline-none focus:border-peach/60 transition-colors"
+                                        />
+                                        <button 
+                                          type="submit"
+                                          disabled={!(photoCommentInput[photo.id]?.trim())}
+                                          className="px-3 h-7 bg-plum-brand/20 hover:bg-plum-brand/40 text-[#efe4d0] rounded-sm text-[9px] font-sans font-bold uppercase transition-all duration-150 disabled:opacity-40"
+                                        >
+                                          Comentar
+                                        </button>
+                                      </form>
+                                    </div>
+
+                                  </div>
+                                ))
+                              )}
+                            </div>
+
+                          </div>
+                        )}
 
                       </div>
 
