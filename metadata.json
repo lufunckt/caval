@@ -1,0 +1,6 @@
+{
+  "name": "Érico Cavalheiro - Educação Relacional",
+  "description": "Landing page premium de alta conversão para Érico Cavalheiro, profissional de Comportamento Canino e Educação Relacional. Foco em autoridade e vínculo emocional.",
+  "requestFramePermissions": ["camera", "microphone"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

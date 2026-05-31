@@ -1,0 +1,147 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&family=Oswald:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+
+:root {
+  --themed-charcoal: #160E1A; /* Luxurious deep grape-black instead of generic pure black */
+  --themed-plum-deep: #22162a; /* Deep purple background surface */
+  --themed-ivory: #FCF3E3; /* Official Cream page color for high contrast elegant text */
+  --themed-sand: #EAE3D5; /* Elegant warm beige support */
+  --themed-sand-deep: #B3A1BA; /* Highly readable lavender-gray for muted text */
+  --themed-plum-brand: #63526E; /* Official Main Grape/Plum #63526E */
+}
+
+html[data-theme="light"] {
+  --themed-charcoal: #FCF3E3; /* Light theme main background: Ivory */
+  --themed-plum-deep: #F3ECE0; /* Light theme card surface: slightly deeper beige/ivory */
+  --themed-ivory: #160E1A; /* Light theme text color: Luxurious grape-black */
+  --themed-sand: #2F2137; /* Light theme subheads / strong content */
+  --themed-sand-deep: #63546F; /* Light theme muted text: readable muted dark plum */
+  --themed-plum-brand: #B1A2BB; /* Muted borders and dividers */
+}
+
+@theme {
+  /* Fonts */
+  --font-serif: "Cormorant Garamond", serif;
+  --font-sans: "Inter", sans-serif;
+  --font-display: "Oswald", sans-serif;
+
+  /* Theme-aware Luxury refined palette - Exact match of Érico Cavalheiro brand guidelines */
+  --color-charcoal: var(--themed-charcoal);
+  --color-plum-brand: var(--themed-plum-brand);
+  --color-plum-deep: var(--themed-plum-deep);
+  --color-plum-light: var(--themed-charcoal);
+  --color-ivory: var(--themed-ivory);
+  --color-sand: var(--themed-sand);
+  --color-sand-deep: var(--themed-sand-deep);
+  --color-forest: #6CBAA4; /* Official Mint/Sage Green #6CBAA4 */
+  --color-forest-deep: #23453C; /* Sophisticated deep pine green */
+  --color-rose-brand: #ED4C87; /* Official Vibrant Raspberry Pink #ED4C87 */
+  --color-terracotta: #ED4C87; /* Raspberry Pink for buttons and call-to-actions */
+  --color-terracotta-soft: #ECA4BC; /* Soft pastel pink */
+  --color-copper: #D0873B; /* Warm copper accent */
+  --color-peach: #F2AD5E; /* Official Warm Amber/Orange #F2AD5E */
+  --color-peach-soft: #ECCBC1;
+  --color-olive: #3E5142;
+  --color-gray-blue: #3E4C5E;
+}
+
+@layer utilities {
+  /* Gradientes */
+  .gradient-warm {
+    background: radial-gradient(circle at 10% 20%, rgba(226, 114, 91, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(45, 74, 62, 0.08) 0%, transparent 45%),
+                linear-gradient(180deg, var(--themed-charcoal) 0%, var(--themed-plum-deep) 100%);
+  }
+
+  .gradient-clay {
+    background: linear-gradient(135deg, #E2725B 0%, #B87333 100%);
+  }
+
+  .gradient-forest {
+    background: linear-gradient(135deg, #2D4A3E 0%, #0A0A0A 100%);
+  }
+
+  /* Sombras */
+  .shadow-soft {
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  }
+
+  .shadow-warm {
+    box-shadow: 0 10px 40px rgba(211, 90, 66, 0.08);
+  }
+
+  .shadow-lift {
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+  }
+
+  /* Efeitos e utilitários */
+  .lift {
+    transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease;
+  }
+  .lift:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+  }
+
+  /* Marquee animation flow */
+  @keyframes marquee {
+    0% { transform: translateX(0%); }
+    100% { transform: translateX(-50%); }
+  }
+
+  .animate-marquee {
+    display: flex;
+    width: max-content;
+    animation: marquee 25s linear infinite;
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  /* Reveal on Scroll */
+  .reveal {
+    opacity: 0;
+    transform: translateY(35px);
+    transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1), transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: opacity, transform;
+  }
+
+  .reveal.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Delay utilities for staggered animations */
+  .delay-100 { transition-delay: 100ms; }
+  .delay-200 { transition-delay: 200ms; }
+  .delay-300 { transition-delay: 300ms; }
+  .delay-400 { transition-delay: 400ms; }
+  .delay-500 { transition-delay: 500ms; }
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--themed-charcoal);
+  color: var(--themed-ivory);
+  font-family: 'Inter', sans-serif;
+  overflow-x: hidden;
+  transition: background-color 0.35s cubic-bezier(0.4, 0, 0.2, 1), color 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Sutil textura grain */
+.grain-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.02'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9999;
+}

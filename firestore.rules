@@ -1,0 +1,160 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global Safety Net: Default Deny All
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- Global Helpers ---
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isErico() {
+      return isSignedIn() && 
+             request.auth.token.email == "ericocavalheiro.psico@gmail.com" && 
+             request.auth.token.email_verified == true;
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // --- Validation Blueprints ---
+
+    function isValidUserProfile(data, userId) {
+      return data.uid is string && data.uid == userId &&
+             data.name is string && data.name.size() > 0 && data.name.size() <= 120 &&
+             data.dogName is string && data.dogName.size() > 0 && data.dogName.size() <= 80 &&
+             data.dogBreed is string && data.dogBreed.size() > 0 && data.dogBreed.size() <= 80 &&
+             data.dogAge is string && data.dogAge.size() > 0 && data.dogAge.size() <= 40 &&
+             data.focusArea is string && data.focusArea.size() <= 200 &&
+             data.nextConsult is string && data.nextConsult.size() <= 200 &&
+             data.consultProgress is number && data.consultProgress >= 0 && data.consultProgress <= 100 &&
+             data.xpPoints is number && data.xpPoints >= 0 &&
+             data.streakCount is number && data.streakCount >= 0 &&
+             data.unlockedBadges is list && data.unlockedBadges.size() <= 50 &&
+             data.isAuthorized is bool;
+    }
+
+    function isValidTrainingLog(data, userId) {
+      return data.id is string && data.id.size() <= 128 &&
+             data.userId is string && data.userId == userId &&
+             data.date is string && data.date.size() <= 24 &&
+             data.emotion is string && (data.emotion == 'focado' || data.emotion == 'calmo' || data.emotion == 'ansioso' || data.emotion == 'disperso') &&
+             data.notes is string && data.notes.size() <= 5000;
+    }
+
+    function isValidForumPost(data) {
+      return data.id is string && data.id.size() <= 128 &&
+             data.author is string && data.author.size() <= 120 &&
+             data.dog is string && data.dog.size() <= 120 &&
+             data.content is string && data.content.size() > 0 && data.content.size() <= 3000 &&
+             data.likes is number && data.likes >= 0 &&
+             data.likes <= 1000000;
+    }
+
+    function isValidChatMessage(data) {
+      return data.id is string && data.id.size() <= 128 &&
+             data.sender is string && (data.sender == 'erico' || data.sender == 'tutor') &&
+             data.text is string && data.text.size() > 0 && data.text.size() <= 4000;
+    }
+
+    // --- Path Specific Matchers ---
+
+    // 1. UsersProfiles (authorized)
+    match /users/{userId} {
+      allow get: if isOwner(userId) || isErico();
+      // Allow searching or seeing profiles for social elements, but with zero PII exposure or list restrictions
+      allow list: if isErico() || (isSignedIn() && resource.data.uid == request.auth.uid);
+
+      allow create: if isOwner(userId) && 
+                       isValidUserProfile(incoming(), userId) &&
+                       (isErico() || incoming().isAuthorized == false) &&
+                       incoming().createdAt == request.time;
+
+      allow update: if (isOwner(userId) && 
+                        isValidUserProfile(incoming(), userId) &&
+                        incoming().uid == existing().uid &&
+                        incoming().isAuthorized == existing().isAuthorized && // User cannot change authorization
+                        incoming().createdAt == existing().createdAt &&
+                        incoming().updatedAt == request.time) ||
+                       (isErico() && 
+                        isValidUserProfile(incoming(), userId) &&
+                        incoming().uid == existing().uid &&
+                        incoming().createdAt == existing().createdAt &&
+                        incoming().updatedAt == request.time);
+                        
+      allow delete: if false; // Profiles are immortal to maintain consultation history
+    }
+
+    // 2. Sub-collection: TrainingLogs (Relational Sync)
+    match /users/{userId}/logs/{logId} {
+      allow read: if isOwner(userId) || isErico();
+      
+      allow create: if isOwner(userId) && 
+                        isValidId(logId) &&
+                        isValidTrainingLog(incoming(), userId) &&
+                        incoming().createdAt == request.time;
+                        
+      allow update: if isOwner(userId) && 
+                        isValidId(logId) &&
+                        isValidTrainingLog(incoming(), userId) &&
+                        incoming().createdAt == existing().createdAt &&
+                        incoming().diff(existing()).affectedKeys().hasOnly(['emotion', 'notes', 'date']);
+                        
+      allow delete: if isOwner(userId) || isErico();
+    }
+
+    // 3. Sub-collection: ChatMessages (Private Clinical Communication)
+    match /users/{userId}/messages/{messageId} {
+      allow read: if isOwner(userId) || isErico();
+      
+      allow create: if (isOwner(userId) || isErico()) &&
+                        isValidId(messageId) &&
+                        isValidChatMessage(incoming()) &&
+                        incoming().createdAt == request.time;
+                        
+      allow update: if false; // Messages are immutable once sent
+      allow delete: if isErico(); // Only Érico can archive/moderate private logs
+    }
+
+    // 4. Closed Forum / Public Community Collection
+    match /forum_posts/{postId} {
+      allow read: if isSignedIn();
+      
+      allow create: if isSignedIn() &&
+                        isValidId(postId) &&
+                        isValidForumPost(incoming()) &&
+                        incoming().likes == 0 &&
+                        incoming().createdAt == request.time;
+                        
+      allow update: if isSignedIn() &&
+                        isValidId(postId) &&
+                        isValidForumPost(incoming()) &&
+                        incoming().createdAt == existing().createdAt &&
+                        (
+                          // Action: Like increment/decrement
+                          incoming().diff(existing()).affectedKeys().hasOnly(['likes']) ||
+                          // Action: Poster edits content
+                          (incoming().author == existing().author && isErico())
+                        );
+                        
+      allow delete: if isErico(); // Moderation ONLY
+    }
+  }
+}

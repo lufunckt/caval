@@ -1,0 +1,87 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Dados cadastrais e progresso relacional do tutor e seu cão.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "ID exclusivo de autenticação do usuário." },
+        "name": { "type": "string", "description": "Nome completo do tutor." },
+        "dogName": { "type": "string", "description": "Nome do cão." },
+        "dogBreed": { "type": "string", "description": "Raça do cão." },
+        "dogAge": { "type": "string", "description": "Idade aproximada do cão." },
+        "focusArea": { "type": "string", "description": "Área de foco clínico." },
+        "nextConsult": { "type": "string", "description": "Informações da próxima consulta marcada." },
+        "consultProgress": { "type": "number", "description": "Progresso da educação em porcentagem." },
+        "xpPoints": { "type": "number", "description": "Pontos de experiência conquistados." },
+        "streakCount": { "type": "number", "description": "Dias seguidos registrando diários." },
+        "unlockedBadges": { "type": "array", "description": "Fisgas/badges de gamificação desbloqueados." },
+        "isAuthorized": { "type": "boolean", "description": "Se o tutor foi autorizado de forma real pelo administrador Érico." },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "name", "dogName", "dogBreed", "dogAge"]
+    },
+    "TrainingLog": {
+      "title": "TrainingLog",
+      "description": "Registro diário sobre a evolução emocional e notas do treino do cão.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "ID exclusivo da nota." },
+        "userId": { "type": "string", "description": "ID do tutor autor da nota." },
+        "date": { "type": "string", "description": "Data amigável da nota (ex: DD/MM/AAAA)." },
+        "emotion": { "type": "string", "enum": ["focado", "calmo", "ansioso", "disperso"] },
+        "notes": { "type": "string", "description": "Anotações textuais sobre o comportamento observável." },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "userId", "date", "emotion", "notes", "createdAt"]
+    },
+    "ForumPost": {
+      "title": "ForumPost",
+      "description": "Postagem compartilhada na comunidade fechada de Educação Relacional.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "author": { "type": "string" },
+        "dog": { "type": "string" },
+        "time": { "type": "string" },
+        "content": { "type": "string" },
+        "avatarLetter": { "type": "string" },
+        "likes": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "author", "content", "likes", "createdAt"]
+    },
+    "ChatMessage": {
+      "title": "ChatMessage",
+      "description": "Mensagem privada do chat com Érico.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "sender": { "type": "string", "enum": ["erico", "tutor"] },
+        "text": { "type": "string" },
+        "time": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "sender", "text", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "Collection storing tutor and dog profiles."
+    },
+    "/users/{userId}/logs/{logId}": {
+      "schema": "TrainingLog",
+      "description": "Subcollection to store private training logs."
+    },
+    "/users/{userId}/messages/{messageId}": {
+      "schema": "ChatMessage",
+      "description": "Subcollection to store private psychologist chat."
+    },
+    "/forum_posts/{postId}": {
+      "schema": "ForumPost",
+      "description": "Root collection for global relational community postings."
+    }
+  }
+}
