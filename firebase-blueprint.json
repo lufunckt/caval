@@ -80,6 +80,8 @@
         "intensity": { "type": "string", "enum": ["leve", "moderada", "grave"] },
         "additionalNotes": { "type": "string" },
         "submitted": { "type": "boolean" },
+        "stepTimes": { "type": "object" },
+        "stepErrors": { "type": "object" },
         "createdAt": { "type": "string", "format": "date-time" },
         "updatedAt": { "type": "string", "format": "date-time" }
       },

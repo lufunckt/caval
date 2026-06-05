@@ -116,6 +116,10 @@ export const TutorArea: React.FC = () => {
   const [errorMsg, setErrorMsg] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [dashboardTab, setDashboardTab] = useState<"progresso" | "comunidade" | "teleatendimento" | "admin">("progresso");
+  
+  // Real-time telemetry tracking questionnaire states for analytics
+  const [questionnaires, setQuestionnaires] = useState<any[]>([]);
+  const [adminViewMode, setAdminViewMode] = useState<"individual" | "telemetry">("individual");
   const [communityMobileTab, setCommunityMobileTab] = useState<"chat" | "forum">("chat");
   const [progressoMobileTab, setProgressoMobileTab] = useState<"checklist" | "diario">("diario");
   
@@ -138,6 +142,84 @@ export const TutorArea: React.FC = () => {
   const [adminXpPoints, setAdminXpPoints] = useState(380);
   const [adminStreakCount, setAdminStreakCount] = useState(5);
   const [adminSuccessMsg, setAdminSuccessMsg] = useState("");
+
+  // Memoized questionnaire analytics and insights calculation
+  const qStats = useMemo(() => {
+    if (!questionnaires || questionnaires.length === 0) return null;
+    
+    const total = questionnaires.length;
+    const submittedCount = questionnaires.filter(q => q.submitted).length;
+    const draftCount = total - submittedCount;
+    
+    // Aggregations for stepTimes and stepErrors
+    const timesSum = { step1: 0, step2: 0, step3: 0, step4: 0 };
+    const timesCount = { step1: 0, step2: 0, step3: 0, step4: 0 };
+    const errorsSum = { step1: 0, step2: 0, step3: 0, step4: 0 };
+    
+    // Distribution of primaryIssue
+    const issueDist: Record<string, number> = {
+      reactivity: 0,
+      separation_anxiety: 0,
+      excessive_excitement: 0,
+      puppy_frustration: 0,
+      fears_phobias: 0
+    };
+    
+    // Distribution of intensity
+    const intensityDist: Record<string, number> = {
+      leve: 0,
+      moderada: 0,
+      grave: 0
+    };
+    
+    questionnaires.forEach(q => {
+      // stepTimes
+      if (q.stepTimes) {
+        Object.keys(timesSum).forEach(stepKey => {
+          if (typeof q.stepTimes[stepKey] === 'number') {
+            timesSum[stepKey as keyof typeof timesSum] += q.stepTimes[stepKey];
+            timesCount[stepKey as keyof typeof timesCount] += 1;
+          }
+        });
+      }
+      
+      // stepErrors
+      if (q.stepErrors) {
+        Object.keys(errorsSum).forEach(stepKey => {
+          if (typeof q.stepErrors[stepKey] === 'number') {
+            errorsSum[stepKey as keyof typeof errorsSum] += q.stepErrors[stepKey];
+          }
+        });
+      }
+      
+      // primaryIssue
+      if (q.primaryIssue && q.primaryIssue in issueDist) {
+        issueDist[q.primaryIssue] += 1;
+      }
+      
+      // intensity
+      if (q.intensity && q.intensity in intensityDist) {
+        intensityDist[q.intensity as keyof typeof intensityDist] += 1;
+      }
+    });
+    
+    const timesAvg = {
+      step1: timesCount.step1 ? Math.round(timesSum.step1 / timesCount.step1) : 0,
+      step2: timesCount.step2 ? Math.round(timesSum.step2 / timesCount.step2) : 0,
+      step3: timesCount.step3 ? Math.round(timesSum.step3 / timesCount.step3) : 0,
+      step4: timesCount.step4 ? Math.round(timesSum.step4 / timesCount.step4) : 0
+    };
+    
+    return {
+      total,
+      submittedCount,
+      draftCount,
+      timesAvg,
+      errorsSum,
+      issueDist,
+      intensityDist
+    };
+  }, [questionnaires]);
 
   // Sync onboardName when user changes
   useEffect(() => {
@@ -387,6 +469,16 @@ export const TutorArea: React.FC = () => {
       if (list.length > 0 && !selectedTutorId) {
         setSelectedTutorId(list[0].uid);
       }
+    });
+    return () => unsub();
+  }, [isEricoAdmin]);
+
+  useEffect(() => {
+    if (!isEricoAdmin) return;
+    const unsub = onSnapshot(collection(db, "dog_questionnaires"), (snap) => {
+      setQuestionnaires(snap.docs.map(d => d.data()));
+    }, (err) => {
+      console.error("Erro ao carregar telemetria de questionarios: ", err);
     });
     return () => unsub();
   }, [isEricoAdmin]);
@@ -1339,147 +1431,452 @@ export const TutorArea: React.FC = () => {
                  ========================================================= */}
               {isEricoAdmin && (
                 <div className="bg-plum-deep/45 border border-plum-brand/25 rounded-xl p-5 md:p-6 shadow-lift text-left space-y-4" id="clinical-admin-board">
-                  <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-white/5 pb-4">
-                    <div>
-                      <h3 className="text-sm font-sans font-bold uppercase tracking-wider text-peach flex items-center gap-1.5">
-                        📂 Seletor de Prontuário Digital
-                      </h3>
-                      <p className="text-[11px] text-sand-deep leading-relaxed">
-                        Escolha um de seus tutores ativos para carregar os logs de treino, chat clínico e progresso dele.
-                      </p>
-                    </div>
-
-                    <div className="w-full md:w-72">
-                      <select
-                        id="tutor-selector-dropdown"
-                        value={selectedTutorId || ""}
-                        onChange={(e) => setSelectedTutorId(e.target.value)}
-                        className="w-full h-10 px-3 bg-charcoal/80 border border-plum-brand/30 text-ivory text-xs rounded focus:outline-none focus:border-peach transition-colors"
+                  {/* Sub-tab Navigation */}
+                  <div className="flex border-b border-white/5 pb-2 justify-between items-center bg-transparent">
+                    <div className="flex gap-4">
+                      <button
+                        type="button"
+                        onClick={() => setAdminViewMode("individual")}
+                        className={`text-[11px] sm:text-xs uppercase tracking-wider font-bold pb-2 cursor-pointer transition-all focus:outline-none ${
+                          adminViewMode === "individual"
+                            ? "text-peach border-b-2 border-peach font-black"
+                            : "text-sand-deep hover:text-sand"
+                        }`}
                       >
-                        {allTutors.length === 0 ? (
-                          <option value="">Nenhum aluno cadastrado no banco</option>
-                        ) : (
-                           allTutors.map((tut) => (
-                             <option key={tut.uid} value={tut.uid}>
-                               {tut.name} ({tut.dogName}){!tut.isAuthorized ? " ⚠️ (Pendente)" : ""}
-                             </option>
-                           ))
-                        )}
-                      </select>
+                        Prontuários de Alunos
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setAdminViewMode("telemetry")}
+                        className={`text-[11px] sm:text-xs uppercase tracking-wider font-bold pb-2 cursor-pointer transition-all focus:outline-none ${
+                          adminViewMode === "telemetry"
+                            ? "text-peach border-b-2 border-peach font-black"
+                            : "text-sand-deep hover:text-sand"
+                        }`}
+                      >
+                        Telemetria & Insights do Diagnóstico 📈
+                      </button>
                     </div>
+                    {adminViewMode === "telemetry" && (
+                      <span className="text-[9px] sm:text-[10px] font-mono text-sand bg-white/5 px-2 py-0.5 rounded-sm uppercase tracking-wide">
+                        {questionnaires.length} Form(s)
+                      </span>
+                    )}
                   </div>
 
-                  {selectedTutorProfile ? (
-                    <div className="space-y-4">
-                      {/* Interactive Real-Time Authorization Toggle Controller */}
-                      <div className="p-4 bg-plum-deep/45 border border-plum-brand/25 rounded-lg flex flex-col sm:flex-row items-center justify-between gap-3 text-left">
-                        <div className="space-y-1">
-                          <span className={`${selectedTutorProfile.isAuthorized ? "text-forest bg-forest/10" : "text-peach bg-peach/10"} text-[10px] font-sans font-bold uppercase tracking-wider px-2 py-0.5 rounded flex items-center gap-1.5 w-fit`}>
-                            {selectedTutorProfile.isAuthorized ? "✔️ ACESSO AUTORIZADO" : "⚠️ ACESSO PENDENTE"}
-                          </span>
-                          <p className="text-xs text-sand/90">
-                            {selectedTutorProfile.isAuthorized 
-                              ? `Este tutor (${selectedTutorProfile.name}) está com permissão total para acessar o portal.` 
-                              : `Este tutor está pendente de autorização. Aprove para liberar o acesso remoto dele.`}
+                  {adminViewMode === "individual" ? (
+                    <>
+                      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-white/5 pb-4">
+                        <div>
+                          <h3 className="text-sm font-sans font-bold uppercase tracking-wider text-peach flex items-center gap-1.5">
+                            📂 Seletor de Prontuário Digital
+                          </h3>
+                          <p className="text-[11px] text-sand-deep leading-relaxed">
+                            Escolha um de seus tutores ativos para carregar os logs de treino, chat clínico e progresso dele.
                           </p>
                         </div>
-                        <button
-                          type="button"
-                          onClick={async () => {
-                            try {
-                              await updateDoc(doc(db, "users", selectedTutorId), {
-                                isAuthorized: !selectedTutorProfile.isAuthorized,
-                                updatedAt: serverTimestamp()
-                              });
-                              setAdminSuccessMsg(`Acesso de ${selectedTutorProfile.name} ${selectedTutorProfile.isAuthorized ? "REVOGADO" : "AUTORIZADO COM SUCESSO"}!`);
-                              setTimeout(() => setAdminSuccessMsg(""), 4000);
-                            } catch (err) {
-                              console.error("Erro ao alterar autorizacao:", err);
-                            }
-                          }}
-                          className={`shrink-0 h-9 px-4 rounded font-sans text-xs font-bold uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow active:scale-[0.98] ${
-                            selectedTutorProfile.isAuthorized 
-                              ? "bg-rose-950/40 text-rose-300 border border-rose-800/30 hover:bg-rose-900/50" 
-                              : "bg-forest text-white hover:bg-forest/90"
-                          }`}
-                        >
-                          {selectedTutorProfile.isAuthorized ? "Revogar Acesso 🔒" : "Autorizar Acesso 🔓"}
-                        </button>
+
+                        <div className="w-full md:w-72">
+                          <select
+                            id="tutor-selector-dropdown"
+                            value={selectedTutorId || ""}
+                            onChange={(e) => setSelectedTutorId(e.target.value)}
+                            className="w-full h-10 px-3 bg-charcoal/80 border border-plum-brand/30 text-ivory text-xs rounded focus:outline-none focus:border-peach transition-colors"
+                          >
+                            {allTutors.length === 0 ? (
+                              <option value="">Nenhum aluno cadastrado no banco</option>
+                            ) : (
+                               allTutors.map((tut) => (
+                                 <option key={tut.uid} value={tut.uid}>
+                                   {tut.name} ({tut.dogName}){!tut.isAuthorized ? " ⚠️ (Pendente)" : ""}
+                                 </option>
+                               ))
+                            )}
+                          </select>
+                        </div>
                       </div>
 
-                      <form onSubmit={handleSaveAdminData} className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
-                        <div className="md:col-span-4">
-                          <label className="block text-[10px] font-sans font-bold uppercase tracking-wider text-sand-deep mb-1.5">
-                            Foco Clínico de Treinamento
-                          </label>
-                          <input
-                            type="text"
-                            value={adminFocusArea}
-                            onChange={(e) => setAdminFocusArea(e.target.value)}
-                            className="w-full h-9 px-3 bg-charcoal/50 border border-plum-brand/25 text-ivory text-xs rounded focus:outline-none focus:border-peach transition-colors"
-                            placeholder="Ex: Passeio Estruturado e Controle de Portas"
-                          />
-                        </div>
-
-                        <div className="md:col-span-3">
-                          <label className="block text-[10px] font-sans font-bold uppercase tracking-wider text-sand-deep mb-1.5">
-                            Data da Próxima Consulta
-                          </label>
-                          <input
-                            type="text"
-                            value={adminNextConsult}
-                            onChange={(e) => setAdminNextConsult(e.target.value)}
-                            className="w-full h-9 px-3 bg-charcoal/50 border border-plum-brand/25 text-ivory text-xs rounded focus:outline-none focus:border-peach transition-colors"
-                            placeholder="Ex: Sexta-feira, 29/05 às 14h"
-                          />
-                        </div>
-
-                        <div className="md:col-span-2">
-                          <label className="block text-[10px] font-sans font-bold uppercase tracking-wider text-sand-deep mb-1.5">
-                            Nível de Conexão ({adminConsultProgress}%)
-                          </label>
-                          <div className="flex items-center gap-1.5 h-9">
-                            <input
-                              type="range"
-                              min="0"
-                              max="100"
-                              value={adminConsultProgress}
-                              onChange={(e) => setAdminConsultProgress(Number(e.target.value))}
-                              className="w-full accent-forest cursor-pointer"
-                            />
+                      {selectedTutorProfile ? (
+                        <div className="space-y-4">
+                          {/* Interactive Real-Time Authorization Toggle Controller */}
+                          <div className="p-4 bg-plum-deep/45 border border-plum-brand/25 rounded-lg flex flex-col sm:flex-row items-center justify-between gap-3 text-left">
+                            <div className="space-y-1">
+                              <span className={`${selectedTutorProfile.isAuthorized ? "text-forest bg-forest/10" : "text-peach bg-peach/10"} text-[10px] font-sans font-bold uppercase tracking-wider px-2 py-0.5 rounded flex items-center gap-1.5 w-fit`}>
+                                {selectedTutorProfile.isAuthorized ? "✔️ ACESSO AUTORIZADO" : "⚠️ ACESSO PENDENTE"}
+                              </span>
+                              <p className="text-xs text-sand/90">
+                                {selectedTutorProfile.isAuthorized 
+                                  ? `Este tutor (${selectedTutorProfile.name}) está com permissão total para acessar o portal.` 
+                                  : `Este tutor está pendente de autorização. Aprove para liberar o acesso remoto dele.`}
+                              </p>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={async () => {
+                                try {
+                                  await updateDoc(doc(db, "users", selectedTutorId), {
+                                    isAuthorized: !selectedTutorProfile.isAuthorized,
+                                    updatedAt: serverTimestamp()
+                                  });
+                                  setAdminSuccessMsg(`Acesso de ${selectedTutorProfile.name} ${selectedTutorProfile.isAuthorized ? "REVOGADO" : "AUTORIZADO COM SUCESSO"}!`);
+                                  setTimeout(() => setAdminSuccessMsg(""), 4000);
+                                } catch (err) {
+                                  console.error("Erro ao alterar autorizacao:", err);
+                                }
+                              }}
+                              className={`shrink-0 h-9 px-4 rounded font-sans text-xs font-bold uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow active:scale-[0.98] ${
+                                selectedTutorProfile.isAuthorized 
+                                  ? "bg-rose-950/40 text-rose-300 border border-rose-800/30 hover:bg-rose-900/50" 
+                                  : "bg-forest text-white hover:bg-forest/90"
+                              }`}
+                            >
+                              {selectedTutorProfile.isAuthorized ? "Revogar Acesso 🔒" : "Autorizar Acesso 🔓"}
+                            </button>
                           </div>
-                        </div>
 
-                        <div className="md:col-span-1.5">
-                          <label className="block text-[10px] font-sans font-bold uppercase tracking-wider text-sand-deep mb-1.5">
-                            XP ({adminXpPoints})
-                          </label>
-                          <input
-                            type="number"
-                            value={adminXpPoints}
-                            onChange={(e) => setAdminXpPoints(Number(e.target.value))}
-                            className="w-full h-9 px-2 bg-charcoal/50 border border-plum-brand/25 text-ivory text-xs rounded focus:outline-none focus:border-peach transition-colors font-mono"
-                          />
-                        </div>
+                          <form onSubmit={handleSaveAdminData} className="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
+                            <div className="md:col-span-4">
+                              <label className="block text-[10px] font-sans font-bold uppercase tracking-wider text-sand-deep mb-1.5">
+                                Foco Clínico de Treinamento
+                              </label>
+                              <input
+                                type="text"
+                                value={adminFocusArea}
+                                onChange={(e) => setAdminFocusArea(e.target.value)}
+                                className="w-full h-9 px-3 bg-charcoal/50 border border-plum-brand/25 text-ivory text-xs rounded focus:outline-none focus:border-peach transition-colors"
+                                placeholder="Ex: Passeio Estruturado e Controle de Portas"
+                              />
+                            </div>
 
-                        <div className="md:col-span-1.5 flex flex-col gap-2">
-                          <button
-                            type="submit"
-                            className="w-full h-9 bg-forest hover:bg-forest/90 active:scale-[0.98] text-white font-sans text-[10px] font-bold uppercase tracking-wider rounded transition-all cursor-pointer flex items-center justify-center gap-1"
-                          >
-                            Salvar ✔
-                          </button>
+                            <div className="md:col-span-3">
+                              <label className="block text-[10px] font-sans font-bold uppercase tracking-wider text-sand-deep mb-1.5">
+                                Data da Próxima Consulta
+                              </label>
+                              <input
+                                type="text"
+                                value={adminNextConsult}
+                                onChange={(e) => setAdminNextConsult(e.target.value)}
+                                className="w-full h-9 px-3 bg-charcoal/50 border border-plum-brand/25 text-ivory text-xs rounded focus:outline-none focus:border-peach transition-colors"
+                                placeholder="Ex: Sexta-feira, 29/05 às 14h"
+                              />
+                            </div>
+
+                            <div className="md:col-span-2">
+                              <label className="block text-[10px] font-sans font-bold uppercase tracking-wider text-sand-deep mb-1.5">
+                                Nível de Conexão ({adminConsultProgress}%)
+                              </label>
+                              <div className="flex items-center gap-1.5 h-9">
+                                <input
+                                  type="range"
+                                  min="0"
+                                  max="100"
+                                  value={adminConsultProgress}
+                                  onChange={(e) => setAdminConsultProgress(Number(e.target.value))}
+                                  className="w-full accent-forest cursor-pointer"
+                                />
+                              </div>
+                            </div>
+
+                            <div className="md:col-span-1.5">
+                              <label className="block text-[10px] font-sans font-bold uppercase tracking-wider text-sand-deep mb-1.5">
+                                XP ({adminXpPoints})
+                              </label>
+                              <input
+                                type="number"
+                                value={adminXpPoints}
+                                onChange={(e) => setAdminXpPoints(Number(e.target.value))}
+                                className="w-full h-9 px-2 bg-charcoal/50 border border-plum-brand/25 text-ivory text-xs rounded focus:outline-none focus:border-peach transition-colors font-mono"
+                              />
+                            </div>
+
+                            <div className="md:col-span-1.5 flex flex-col gap-2">
+                              <button
+                                type="submit"
+                                className="w-full h-9 bg-forest hover:bg-forest/90 active:scale-[0.98] text-white font-sans text-[10px] font-bold uppercase tracking-wider rounded transition-all cursor-pointer flex items-center justify-center gap-1"
+                              >
+                                Salvar ✔
+                              </button>
+                            </div>
+                          </form>
+                          {adminSuccessMsg && (
+                            <div className="p-2 bg-forest/15 border border-forest/30 text-forest rounded text-xs text-center font-sans">
+                              {adminSuccessMsg}
+                            </div>
+                          )}
                         </div>
-                      </form>
-                      {adminSuccessMsg && (
-                        <div className="p-2 bg-forest/15 border border-forest/30 text-forest rounded text-xs text-center font-sans">
-                          {adminSuccessMsg}
+                      ) : (
+                        <div className="text-center py-4 bg-charcoal/30 rounded border border-white/5">
+                          <p className="text-xs text-sand-deep italic">Nenhum tutor selecionado para carregar os logs de treino.</p>
                         </div>
                       )}
-                    </div>
+                    </>
                   ) : (
-                    <div className="text-center py-4 bg-charcoal/30 rounded border border-white/5">
-                      <p className="text-xs text-sand-deep italic">Nenhum tutor selecionado para carregar os logs de treino.</p>
+                    /* RENDER TELEMETRY DASHBOARD */
+                    <div className="space-y-6 pt-2 font-sans text-ivory">
+                      {!qStats ? (
+                        <div className="text-center py-8 bg-charcoal/30 rounded border border-white/5 space-y-2">
+                          <p className="text-sm text-peach font-bold uppercase tracking-wide">Sem dados suficientes</p>
+                          <p className="text-xs text-sand-deep max-w-sm mx-auto leading-relaxed">
+                            Ainda não há dados de telemetria coletados. Quando os tutores iniciarem o preenchimento do formulário de diagnóstico na página inicial, os dados aparecerão aqui em tempo real.
+                          </p>
+                        </div>
+                      ) : (
+                        <>
+                          {/* Metric KPI Widgets */}
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <div className="bg-charcoal/40 border border-white/5 p-4 rounded-xl space-y-1 shadow-lift">
+                              <span className="text-[9px] text-sand-deep uppercase font-black tracking-widest block">Conversão de Diagnósticos</span>
+                              <div className="flex items-baseline gap-2">
+                                <span className="text-2xl font-serif font-bold text-emerald-400">{qStats.submittedCount}</span>
+                                <span className="text-xs text-sand-deep">Enviados</span>
+                                <span className="text-xs text-sand-deep">/</span>
+                                <span className="text-xs text-sand font-bold">{qStats.total}</span>
+                                <span className="text-xs text-sand-deep">Iniciados</span>
+                              </div>
+                              <p className="text-[10px] text-sand-deep leading-relaxed pt-1">
+                                {Math.round((qStats.submittedCount / qStats.total) * 100)}% dos tutores que começaram o diagnóstico decidiram enviar suas dúvidas no WhatsApp.
+                              </p>
+                            </div>
+
+                            <div className="bg-charcoal/40 border border-white/5 p-4 rounded-xl space-y-1 shadow-lift">
+                              <span className="text-[9px] text-sand-deep uppercase font-black tracking-widest block">Gargalo de Dificuldade</span>
+                              {(() => {
+                                const errors = qStats.errorsSum;
+                                const maxErrors = Math.max(errors.step1, errors.step2, errors.step3, errors.step4);
+                                let bottleneckName = "Nenhum";
+                                if (maxErrors > 0) {
+                                  if (maxErrors === errors.step1) bottleneckName = "Passo 1 (Identificação)";
+                                  else if (maxErrors === errors.step2) bottleneckName = "Passo 2 (Comportamento)";
+                                  else if (maxErrors === errors.step3) bottleneckName = "Passo 3 (Nível/Relato)";
+                                  else bottleneckName = "Passo 4 (Envio)";
+                                }
+                                return (
+                                  <>
+                                    <div className="text-lg font-serif font-extrabold text-peach leading-tight">
+                                      {maxErrors > 0 ? bottleneckName : "Nenhuma barreira de erro"}
+                                    </div>
+                                    <p className="text-[10px] text-sand-deep leading-relaxed pt-1">
+                                      Passo com maior número de alertas ou erros de validação disparados pelos tutores: <span className="text-peach font-bold">{maxErrors} erros</span>.
+                                    </p>
+                                  </>
+                                );
+                              })()}
+                            </div>
+
+                            <div className="bg-charcoal/40 border border-white/5 p-4 rounded-xl space-y-1 shadow-lift">
+                              <span className="text-[9px] text-sand-deep uppercase font-black tracking-widest block">Tempo Médio de Preenchimento</span>
+                              {(() => {
+                                const avg = qStats.timesAvg;
+                                const totalSecs = avg.step1 + avg.step2 + avg.step3 + avg.step4;
+                                const mins = Math.floor(totalSecs / 60);
+                                const secs = totalSecs % 60;
+                                return (
+                                  <>
+                                    <div className="text-2xl font-serif font-bold text-sky-400">
+                                      {mins > 0 ? `${mins}m ${secs}s` : `${secs}s`}
+                                    </div>
+                                    <p className="text-[10px] text-sand-deep leading-relaxed pt-1 font-sans">
+                                      Média de atenção despendida por tutor para responder todo o questionário relacional do cão.
+                                    </p>
+                                  </>
+                                );
+                              })()}
+                            </div>
+                          </div>
+
+                          {/* Graphical Visualizer (Plain CSS & Tailwind) */}
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            {/* Time spent bar list */}
+                            <div className="bg-charcoal/30 border border-white/5 p-4 rounded-xl space-y-4">
+                              <div>
+                                <h4 className="text-xs font-bold uppercase tracking-wider text-peach font-serif">⏱️ Tempo Médio de Atenção por Etapa</h4>
+                                <p className="text-[10px] text-sand-deep">Identifica em quais perguntas os tutores passam mais tempo pensando ou redigindo.</p>
+                              </div>
+
+                              <div className="space-y-3 pt-1">
+                                {[
+                                  { label: "Passo 1: Identificação do Cão", value: qStats.timesAvg.step1, desc: "Inserção do nome, raça e idade do pet." },
+                                  { label: "Passo 2: Comportamento Primário", value: qStats.timesAvg.step2, desc: "Escolha da queixa (ex: ansiedade de separação, medos)." },
+                                  { label: "Passo 3: Intensidade & Relato Clínico", value: qStats.timesAvg.step3, desc: "Descrição livre do tutor e grau clínico." },
+                                  { label: "Passo 4: Revisão do Dossiê Relacional", value: qStats.timesAvg.step4, desc: "Resumo final gerado antes do envio WhatsApp." }
+                                ].map((stepItem, idx) => {
+                                  const maxTime = Math.max(qStats.timesAvg.step1, qStats.timesAvg.step2, qStats.timesAvg.step3, qStats.timesAvg.step4, 1);
+                                  const pct = Math.max(5, Math.min(100, (stepItem.value / maxTime) * 100));
+                                  return (
+                                    <div key={idx} className="space-y-1 text-left">
+                                      <div className="flex justify-between items-baseline text-[10px]">
+                                        <span className="font-bold text-sand">{stepItem.label}</span>
+                                        <span className="font-mono text-peach font-black">{stepItem.value} segundos</span>
+                                      </div>
+                                      <div className="w-full h-2 bg-charcoal/80 rounded-full overflow-hidden border border-white/5">
+                                        <div 
+                                          className="h-full bg-peach rounded-full transition-all duration-1000" 
+                                          style={{ width: `${pct}%` }}
+                                        />
+                                      </div>
+                                      <span className="text-[10px] text-sand-deep italic block">{stepItem.desc}</span>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </div>
+
+                            {/* Confusions and validation errors list */}
+                            <div className="bg-charcoal/30 border border-white/5 p-4 rounded-xl space-y-4">
+                              <div>
+                                <h4 className="text-xs font-bold uppercase tracking-wider text-peach font-serif">⚠️ Contagem de Erros de Preenchimento</h4>
+                                <p className="text-[10px] text-sand-deep">Sinaliza atritos de usabilidade ou barreiras de validação (travamentos).</p>
+                              </div>
+
+                              <div className="space-y-3 pt-1">
+                                {[
+                                  { label: "Passo 1: Nome ou Raça em Branco", value: qStats.errorsSum.step1, desc: "Tutor tentou avançar sem digitar o nome ou detalhar dados." },
+                                  { label: "Passo 2: Comportamento não Selecionado", value: qStats.errorsSum.step2, desc: "Avanço travado porque nenhuma queixa canina foi eleita." },
+                                  { label: "Passos 3 & 4: Atritos Adicionais", value: qStats.errorsSum.step3 + qStats.errorsSum.step4, desc: "Atritos adicionais acumulados nas etapas finais." }
+                                ].map((errorItem, idx) => {
+                                  const totalErrors = Math.max(1, qStats.errorsSum.step1 + qStats.errorsSum.step2 + qStats.errorsSum.step3 + qStats.errorsSum.step4);
+                                  const pct = Math.max(4, Math.min(100, (errorItem.value / totalErrors) * 100));
+                                  return (
+                                    <div key={idx} className="space-y-1 text-left">
+                                      <div className="flex justify-between items-baseline text-[10px]">
+                                        <span className="font-bold text-sand">{errorItem.label}</span>
+                                        <span className="font-mono text-rose-400 font-extrabold">{errorItem.value} alertas</span>
+                                      </div>
+                                      <div className="w-full h-2 bg-charcoal/80 rounded-full overflow-hidden border border-white/5">
+                                        <div 
+                                          className="h-full bg-rose-500 rounded-full transition-all duration-1000" 
+                                          style={{ width: `${pct}%` }}
+                                        />
+                                      </div>
+                                      <span className="text-[10px] text-sand-deep italic block">{errorItem.desc}</span>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Distribution breakdown */}
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div className="bg-charcoal/30 border border-white/5 p-4 rounded-xl text-left space-y-2">
+                              <h4 className="text-[11px] font-sans font-bold uppercase tracking-wider text-peach">🐾 Distribuição de Problemas Comportamentais</h4>
+                              <div className="space-y-2 pt-1 text-[11px] text-sand">
+                                {Object.entries(qStats.issueDist).map(([key, value]) => {
+                                  let label = key;
+                                  if (key === "reactivity") label = "Reatividade & Agressividade";
+                                  else if (key === "separation_anxiety") label = "Ansiedade de separação";
+                                  else if (key === "excessive_excitement") label = "Agitação & Destruição de objetos";
+                                  else if (key === "puppy_frustration") label = "Filhotes (pipi, mordidas)";
+                                  else if (key === "fears_phobias") label = "Medos / Fobias (fogos)";
+
+                                  const pct = qStats.total ? Math.round((Number(value) / Number(qStats.total)) * 100) : 0;
+
+                                  return (
+                                    <div key={key} className="flex justify-between items-center bg-plum-deep/20 p-2 rounded border border-white/5">
+                                      <span>{label}</span>
+                                      <span className="font-mono text-sand font-bold">{value} ocorrência(s) ({pct}%)</span>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </div>
+
+                            <div className="bg-charcoal/30 border border-white/5 p-4 rounded-xl text-left space-y-2">
+                              <h4 className="text-[11px] font-sans font-bold uppercase tracking-wider text-peach">⚡ Grau de Severidade Diagnosticado</h4>
+                              <div className="space-y-2 pt-1 text-[11px] text-sand">
+                                {["grave", "moderada", "leve"].map((severity) => {
+                                  const value = qStats.intensityDist[severity] || 0;
+                                  let color = "text-yellow-400";
+                                  if (severity === "grave") color = "text-rose-400 font-bold";
+                                  else if (severity === "leve") color = "text-emerald-400";
+
+                                  const pct = qStats.total ? Math.round((Number(value) / Number(qStats.total)) * 100) : 0;
+
+                                  return (
+                                    <div key={severity} className="flex justify-between items-center bg-plum-deep/20 p-2 rounded border border-white/5">
+                                      <span className={`${color} uppercase tracking-wider font-sans`}>{severity}</span>
+                                      <span className="font-mono text-sand font-bold">{value} cão/cães ({pct}%)</span>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Individual Diagnostics Track List */}
+                          <div className="bg-charcoal/30 border border-white/5 p-4 rounded-xl text-left space-y-3">
+                            <div>
+                              <h4 className="text-xs font-bold uppercase tracking-wider text-peach font-serif">🕵️ Registros de Telemetria por Tutor Individual</h4>
+                              <p className="text-[10px] text-sand-deep">Use estas sessões de rastro analítico para ver quais etapas causaram mais hesitação a cada tutor.</p>
+                            </div>
+
+                            <div className="overflow-x-auto">
+                              <table className="w-full text-left text-xs font-sans text-sand">
+                                <thead>
+                                  <tr className="border-b border-white/10 text-[10px] font-bold text-sand-deep uppercase">
+                                    <th className="pb-2">Cão / Tutor</th>
+                                    <th className="pb-2">Problema</th>
+                                    <th className="pb-2 text-center">Etapa Atual</th>
+                                    <th className="pb-2 text-center">Tempo Total</th>
+                                    <th className="pb-2 text-center">Erros Totais</th>
+                                    <th className="pb-2 text-right">Status</th>
+                                  </tr>
+                                </thead>
+                                <tbody className="divide-y divide-white/5">
+                                  {questionnaires.slice(0, 10).map((q) => {
+                                    // Calculate individual total seconds
+                                    const t1 = q.stepTimes?.step1 || 0;
+                                    const t2 = q.stepTimes?.step2 || 0;
+                                    const t3 = q.stepTimes?.step3 || 0;
+                                    const t4 = q.stepTimes?.step4 || 0;
+                                    const totalTime = t1 + t2 + t3 + t4;
+
+                                    // Calculate individual total errors
+                                    const e1 = q.stepErrors?.step1 || 0;
+                                    const e2 = q.stepErrors?.step2 || 0;
+                                    const e3 = q.stepErrors?.step3 || 0;
+                                    const e4 = q.stepErrors?.step4 || 0;
+                                    const totalErrors = e1 + e2 + e3 + e4;
+
+                                    return (
+                                      <tr key={q.id} className="hover:bg-white/5 transition-colors">
+                                        <td className="py-2.5">
+                                          <div className="font-bold text-ivory">{q.dogName || "Sem Nome"}</div>
+                                          <div className="text-[10px] text-sand-deep">{q.dogBreed || "Sem Raça"} ({q.dogAge || "Não informada"})</div>
+                                        </td>
+                                        <td className="py-2.5">
+                                          <div className="font-semibold text-peach text-[11px]">
+                                            {q.primaryIssue === "reactivity" ? "Reatividade" :
+                                             q.primaryIssue === "separation_anxiety" ? "Ansiedade Separação" :
+                                             q.primaryIssue === "excessive_excitement" ? "Agitação" :
+                                             q.primaryIssue === "puppy_frustration" ? "Filhotes" :
+                                             q.primaryIssue === "fears_phobias" ? "Medos/Fobias" : "Não definido"}
+                                          </div>
+                                          <div className="text-[9px] uppercase font-bold text-sand-deep">{q.intensity || "médio"}</div>
+                                        </td>
+                                        <td className="py-2.5 text-center font-bold">Passo {q.step || 1}</td>
+                                        <td className="py-2.5 text-center font-mono">{totalTime}s</td>
+                                        <td className="py-2.5 text-center font-mono">
+                                          <span className={totalErrors > 0 ? "text-rose-400 font-bold" : "text-sand-deep"}>
+                                            {totalErrors}
+                                          </span>
+                                        </td>
+                                        <td className="py-2.5 text-right">
+                                          <span className={`px-2 py-0.5 rounded text-[9px] font-bold ${
+                                            q.submitted ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" : "bg-yellow-500/10 text-yellow-400 border border-yellow-500/25"
+                                          }`}>
+                                            {q.submitted ? "Enviado ✔" : "Rascunho ⏳"}
+                                          </span>
+                                        </td>
+                                      </tr>
+                                    );
+                                  })}
+                                </tbody>
+                              </table>
+                            </div>
+                          </div>
+                        </>
+                      )}
                     </div>
                   )}
                 </div>

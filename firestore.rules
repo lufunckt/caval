@@ -97,7 +97,9 @@ service cloud.firestore {
              data.primaryIssue is string && data.primaryIssue.size() <= 120 &&
              data.intensity is string && (data.intensity == 'leve' || data.intensity == 'moderada' || data.intensity == 'grave') &&
              data.additionalNotes is string && data.additionalNotes.size() <= 4096 &&
-             data.submitted is bool;
+             data.submitted is bool &&
+             (!('stepTimes' in data) || data.stepTimes is map) &&
+             (!('stepErrors' in data) || data.stepErrors is map);
     }
 
     // --- Path Specific Matchers ---

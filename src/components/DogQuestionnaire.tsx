@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Dog, ArrowRight, ArrowLeft, Send, CheckCircle2, ShieldAlert, Sparkles, MessageSquare } from "lucide-react";
 import { db } from "../lib/firebase";
 import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
@@ -54,6 +54,23 @@ export const DogQuestionnaire: React.FC = () => {
   const [isDbLoading, setIsDbLoading] = useState(true);
   const [loadedFromDb, setLoadedFromDb] = useState(false);
 
+  // Dynamic user-behavior analytics states
+  const [stepTimes, setStepTimes] = useState<Record<string, number>>({
+    step1: 0,
+    step2: 0,
+    step3: 0,
+    step4: 0
+  });
+  const [stepErrors, setStepErrors] = useState<Record<string, number>>({
+    step1: 0,
+    step2: 0,
+    step3: 0,
+    step4: 0
+  });
+
+  const stepStartRef = useRef<number>(Date.now());
+  const lastStepRef = useRef<number>(1);
+
   // Load existing questionnaire draft/submitted progress on mount or user sign-in change
   useEffect(() => {
     let active = true;
@@ -76,6 +93,12 @@ export const DogQuestionnaire: React.FC = () => {
                 intensity: (data.intensity as "leve" | "moderada" | "grave") || "moderada",
                 additionalNotes: data.additionalNotes || ""
               });
+              if (data.stepTimes) {
+                setStepTimes(data.stepTimes);
+              }
+              if (data.stepErrors) {
+                setStepErrors(data.stepErrors);
+              }
               setSubmitted(!!data.submitted);
             }
           }
@@ -94,6 +117,32 @@ export const DogQuestionnaire: React.FC = () => {
       active = false;
     };
   }, [user]);
+
+  // Track time spent on each step
+  useEffect(() => {
+    if (!loadedFromDb) {
+      stepStartRef.current = Date.now();
+      lastStepRef.current = step;
+      return;
+    }
+
+    const prevStep = lastStepRef.current;
+    const now = Date.now();
+    const elapsed = Math.max(0, Math.floor((now - stepStartRef.current) / 1000));
+
+    if (prevStep >= 1 && prevStep <= 4) {
+      setStepTimes((prev) => {
+        const stepKey = `step${prevStep}`;
+        return {
+          ...prev,
+          [stepKey]: (prev[stepKey] || 0) + elapsed
+        };
+      });
+    }
+
+    stepStartRef.current = now;
+    lastStepRef.current = step;
+  }, [step, loadedFromDb]);
 
   // Debounced auto-save effect triggered when any step/form value changes
   useEffect(() => {
@@ -114,6 +163,8 @@ export const DogQuestionnaire: React.FC = () => {
           primaryIssue: form.primaryIssue,
           intensity: form.intensity,
           additionalNotes: form.additionalNotes,
+          stepTimes,
+          stepErrors,
           submitted,
           updatedAt: serverTimestamp()
         };
@@ -140,15 +191,17 @@ export const DogQuestionnaire: React.FC = () => {
     }, 800); // 800ms debounce saves database request counts substantially
 
     return () => clearTimeout(debounceTimer);
-  }, [step, form, submitted, loadedFromDb, user]);
+  }, [step, form, submitted, loadedFromDb, user, stepTimes, stepErrors]);
 
   const handleNext = () => {
     if (step === 1 && !form.dogName.trim()) {
       setErrorVal("Por favor, digite o nome do seu cão para prosseguirmos.");
+      setStepErrors((prev) => ({ ...prev, step1: prev.step1 + 1 }));
       return;
     }
     if (step === 2 && !form.primaryIssue) {
       setErrorVal("Por favor, selecione o comportamento primário que deseja diagnosticar.");
+      setStepErrors((prev) => ({ ...prev, step2: prev.step2 + 1 }));
       return;
     }
     setErrorVal("");
@@ -168,7 +221,38 @@ export const DogQuestionnaire: React.FC = () => {
   const selectedIssueDetails = ISSUES.find((i) => i.id === form.primaryIssue);
 
   // Generates beautifully written, formatted custom text for whatsapp sending
-  const handleComposeWhatsappMessage = () => {
+  const handleComposeWhatsappMessage = async () => {
+    const elapsed = Math.max(0, Math.floor((Date.now() - stepStartRef.current) / 1000));
+    const stepKey = `step${step}`;
+    const finalStepTimes = {
+      ...stepTimes,
+      [stepKey]: (stepTimes[stepKey] || 0) + elapsed
+    };
+    setStepTimes(finalStepTimes);
+
+    try {
+      const qid = getOrCreateQuestionnaireId();
+      const docRef = doc(db, "dog_questionnaires", qid);
+      const payload = {
+        id: qid,
+        userId: user?.uid || "",
+        step,
+        dogName: form.dogName,
+        dogAge: form.dogAge,
+        dogBreed: form.dogBreed,
+        primaryIssue: form.primaryIssue,
+        intensity: form.intensity,
+        additionalNotes: form.additionalNotes,
+        stepTimes: finalStepTimes,
+        stepErrors,
+        submitted: true,
+        updatedAt: serverTimestamp()
+      };
+      await setDoc(docRef, payload, { merge: true });
+    } catch (err) {
+      console.error("Erro ao salvar final do questionário: ", err);
+    }
+
     const issueLabel = selectedIssueDetails?.label || "Comportamento Incomum";
     const uppercaseIntensity = form.intensity.toUpperCase();
     
