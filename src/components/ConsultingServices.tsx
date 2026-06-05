@@ -43,7 +43,7 @@ export const ConsultingServices: React.FC = () => {
               : "border-plum-brand/25 bg-plum-deep/20";
               
             const btnBg = isIndividual
-              ? "bg-gradient-clay text-charcoal hover:scale-[1.01]"
+              ? "bg-gradient-clay text-[#160E1A] hover:scale-[1.01]"
               : "bg-backdrop border border-plum-brand/30 hover:border-sand/40 text-ivory";
 
             // Redirect text built specifically for whatsapp message flow context
@@ -122,7 +122,7 @@ export const ConsultingServices: React.FC = () => {
                     href={customWhatsappURL}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className={`w-full h-11 text-center flex items-center justify-center font-sans text-[11px] font-bold uppercase tracking-wider rounded-sm transition-all duration-300 cursor-pointer ${btnBg}`}
+                    className={`w-full h-11 text-center flex items-center justify-center font-sans text-[11px] font-bold uppercase tracking-wider rounded-sm transition-all transform duration-300 cursor-pointer hover:scale-[1.03] active:scale-[0.96] hover:shadow-[0_10px_20px_rgba(237,76,135,0.2)] hover:border-terracotta/40 ${btnBg}`}
                     id={`service-cta-btn-${service.id}`}
                   >
                     <Calendar size={13} className="mr-2" />

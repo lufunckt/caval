@@ -15,7 +15,7 @@ interface InstagramPost {
 const INSTAGRAM_POSTS: InstagramPost[] = [
   {
     id: "post1",
-    imageUrl: "https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&q=80&w=600",
+    imageUrl: "https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format,compress&fm=webp&fit=crop&q=70&w=600",
     likes: "1.242",
     comments: "84",
     tag: "Passeio Saudável",
@@ -24,7 +24,7 @@ const INSTAGRAM_POSTS: InstagramPost[] = [
   },
   {
     id: "post2",
-    imageUrl: "https://images.unsplash.com/photo-1587300003388-59208cc962cb?auto=format&fit=crop&q=80&w=600",
+    imageUrl: "https://images.unsplash.com/photo-1587300003388-59208cc962cb?auto=format,compress&fm=webp&fit=crop&q=70&w=600",
     likes: "948",
     comments: "49",
     tag: "Comportamento",
@@ -33,7 +33,7 @@ const INSTAGRAM_POSTS: InstagramPost[] = [
   },
   {
     id: "post3",
-    imageUrl: "https://images.unsplash.com/photo-1552053831-71594a27632d?auto=format&fit=crop&q=80&w=600",
+    imageUrl: "https://images.unsplash.com/photo-1552053831-71594a27632d?auto=format,compress&fm=webp&fit=crop&q=70&w=600",
     likes: "2.112",
     comments: "153",
     tag: "Psicologia Canina",
@@ -42,16 +42,16 @@ const INSTAGRAM_POSTS: InstagramPost[] = [
   },
   {
     id: "post4",
-    imageUrl: "https://images.unsplash.com/photo-1534361960057-19889db9621e?auto=format&fit=crop&q=80&w=600",
+    imageUrl: "https://images.unsplash.com/photo-1534361960057-19889db9621e?auto=format,compress&fm=webp&fit=crop&q=70&w=600",
     likes: "1.589",
     comments: "92",
     tag: "Enriquecimento",
     title: "O perigo do tédio em ambientes urbanos.",
-    caption: "Cães que destroem sofás ou lambem as patas compulsivamente estão pedindo ajuda. Descubra como a arquitetura ambiental muda a mente do animal."
+    caption: "Cães que destroem sofás ou lambem as patas compulsivamente estão pedindo ajuda. Descubra como a arquitectura ambiental muda a mente do animal."
   },
   {
     id: "post5",
-    imageUrl: "https://images.unsplash.com/photo-1517849845537-4d257902454a?auto=format&fit=crop&q=80&w=600",
+    imageUrl: "https://images.unsplash.com/photo-1517849845537-4d257902454a?auto=format,compress&fm=webp&fit=crop&q=70&w=600",
     likes: "1.025",
     comments: "61",
     tag: "Vínculo Real",
@@ -157,6 +157,7 @@ export const InstagramFeed: React.FC = () => {
                       src={post.imageUrl} 
                       alt={post.title}
                       referrerPolicy="no-referrer"
+                      loading="lazy"
                       className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                       id={`instagram-post-img-${post.id}`}
                     />
@@ -228,7 +229,7 @@ export const InstagramFeed: React.FC = () => {
             href={CONFIG.INSTAGRAM_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-3 border border-white/10 hover:border-rose-brand/30 bg-plum-deep/40 hover:bg-plum-deep px-8 py-4 rounded-full text-xs font-bold uppercase tracking-widest text-ivory hover:text-rose-brand shadow-soft transition-all duration-300"
+            className="inline-flex items-center gap-3 border border-white/10 hover:border-terracotta bg-plum-deep/40 hover:bg-terracotta px-8 py-4 rounded-full text-xs font-bold uppercase tracking-widest text-ivory hover:text-ivory hover:scale-[1.03] hover:shadow-[0_12px_25px_rgba(237,76,135,0.3)] active:scale-[0.96] active:bg-[#e780a4] transition-all transform duration-300"
             id="instagram-global-cta-button"
           >
             <Instagram size={16} /> Acompanhar @erico.educacaorelacional no Instagram

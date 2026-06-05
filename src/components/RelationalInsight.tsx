@@ -56,7 +56,7 @@ export const RelationalInsight: React.FC = () => {
                 href={CONFIG.WHATSAPP_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-3 uppercase font-sans text-xs font-bold tracking-widest bg-forest text-charcoal px-8 py-4 rounded-sm shadow-warm hover:scale-[1.02] active:scale-[0.98] hover:bg-forest/90 transition-all duration-300"
+                className="inline-flex items-center gap-3 uppercase font-sans text-xs font-bold tracking-widest bg-forest text-[#160E1A] px-8 py-4 rounded-sm shadow-warm hover:bg-terracotta hover:text-ivory hover:scale-[1.03] hover:shadow-[0_12px_25px_rgba(237,76,135,0.3)] active:scale-[0.96] active:bg-[#e780a4] transition-all transform duration-300"
                 id="insight-cta-btn"
               >
                 <span>Agendar uma conversa online</span>
@@ -71,7 +71,7 @@ export const RelationalInsight: React.FC = () => {
             {/* Pillar 1 */}
             <div className="p-6 sm:p-8 rounded-xl bg-plum-deep/40 border border-plum-brand/25 hover:border-forest/40 transition-all duration-300 reveal delay-100 text-left group" id="pillar-card-1">
               <div className="flex gap-5 items-start">
-                <div className="p-3 bg-forest/10 text-forest rounded-lg group-hover:bg-forest group-hover:text-charcoal transition-all duration-300 shrink-0">
+                <div className="p-3 bg-forest/10 text-forest rounded-lg group-hover:bg-forest group-hover:text-[#160E1A] transition-all duration-300 shrink-0">
                   <Eye size={20} />
                 </div>
                 <div>
@@ -88,7 +88,7 @@ export const RelationalInsight: React.FC = () => {
             {/* Pillar 2 */}
             <div className="p-6 sm:p-8 rounded-xl bg-plum-deep/40 border border-plum-brand/25 hover:border-peach/40 transition-all duration-300 reveal delay-200 text-left group" id="pillar-card-2">
               <div className="flex gap-5 items-start">
-                <div className="p-3 bg-peach/10 text-peach rounded-lg group-hover:bg-peach group-hover:text-charcoal transition-all duration-300 shrink-0">
+                <div className="p-3 bg-peach/10 text-peach rounded-lg group-hover:bg-peach group-hover:text-[#160E1A] transition-all duration-300 shrink-0">
                   <Compass size={20} />
                 </div>
                 <div>
@@ -105,7 +105,7 @@ export const RelationalInsight: React.FC = () => {
             {/* Pillar 3 */}
             <div className="p-6 sm:p-8 rounded-xl bg-plum-deep/40 border border-plum-brand/25 hover:border-forest/40 transition-all duration-300 reveal delay-300 text-left group" id="pillar-card-3">
               <div className="flex gap-5 items-start">
-                <div className="p-3 bg-forest/10 text-forest rounded-lg group-hover:bg-forest group-hover:text-charcoal transition-all duration-300 shrink-0">
+                <div className="p-3 bg-forest/10 text-forest rounded-lg group-hover:bg-forest group-hover:text-[#160E1A] transition-all duration-300 shrink-0">
                   <Sparkles size={20} />
                 </div>
                 <div>
@@ -122,7 +122,7 @@ export const RelationalInsight: React.FC = () => {
             {/* Pillar 4 */}
             <div className="p-6 sm:p-8 rounded-xl bg-plum-deep/40 border border-plum-brand/25 hover:border-peach/40 transition-all duration-300 reveal delay-400 text-left group" id="pillar-card-4">
               <div className="flex gap-5 items-start">
-                <div className="p-3 bg-peach/10 text-peach rounded-lg group-hover:bg-peach group-hover:text-charcoal transition-all duration-300 shrink-0">
+                <div className="p-3 bg-peach/10 text-peach rounded-lg group-hover:bg-peach group-hover:text-[#160E1A] transition-all duration-300 shrink-0">
                   <Shield size={20} />
                 </div>
                 <div>

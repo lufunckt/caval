@@ -44,7 +44,7 @@ export const Hero: React.FC = () => {
 
           {/* Main Headline */}
           <h1
-            className="font-serif text-5xl sm:text-6xl lg:text-[70px] text-ivory font-bold leading-[1.05] tracking-tight mb-6 text-balance reveal delay-100"
+            className="font-serif text-4xl xs:text-5xl sm:text-6xl lg:text-[70px] text-ivory font-bold leading-[1.05] tracking-tight mb-6 text-balance reveal delay-100"
             id="hero-headline"
           >
             Antes do <span className="text-rose-brand">comando</span>, <br className="hidden sm:inline" />
@@ -79,7 +79,7 @@ export const Hero: React.FC = () => {
               href={CONFIG.WHATSAPP_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="group uppercase font-sans text-xs font-bold tracking-widest bg-ivory text-charcoal px-8 py-4 rounded-sm flex items-center justify-center gap-2 shadow-warm hover:scale-[1.02] active:scale-[0.98] transition-all duration-300"
+              className="group uppercase font-sans text-xs font-bold tracking-widest bg-ivory text-charcoal px-8 py-4 rounded-sm flex items-center justify-center gap-2 shadow-warm hover:bg-terracotta hover:text-ivory hover:scale-[1.03] hover:shadow-[0_12px_25px_rgba(237,76,135,0.3)] active:scale-[0.96] active:bg-[#e780a4] transition-all duration-300 transform"
               id="hero-cta-whatsapp"
             >
               Agendar conversa
@@ -89,7 +89,7 @@ export const Hero: React.FC = () => {
             {/* Secondary Anchor CTA */}
             <button
               onClick={handleScrollToMethod}
-              className="group uppercase font-sans text-xs font-bold tracking-widest text-ivory border border-sand-deep/35 hover:border-forest px-8 py-4 rounded-sm flex items-center justify-center gap-2 hover:bg-forest/5 transition-all duration-300 cursor-pointer"
+              className="group uppercase font-sans text-xs font-bold tracking-widest text-ivory border border-sand-deep/35 hover:border-terracotta hover:bg-terracotta/10 px-8 py-4 rounded-sm flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.96] transition-all duration-300 cursor-pointer transform"
               id="hero-cta-method"
             >
               Conhecer o método
@@ -110,6 +110,8 @@ export const Hero: React.FC = () => {
                 src={heroSunsetPhoto} 
                 alt="Érico Cavalheiro caminhando com cão no pôr do sol" 
                 referrerPolicy="no-referrer"
+                loading="eager"
+                fetchPriority="high"
                 className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" 
               />
               

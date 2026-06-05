@@ -120,7 +120,7 @@ export const Ebook: React.FC = () => {
                 href={CONFIG.TALLY_EBOOK_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group inline-flex items-center justify-center gap-2.5 uppercase font-sans text-xs font-bold tracking-widest bg-gradient-clay text-charcoal px-8 py-4 rounded-sm shadow-warm hover:scale-[1.01] transition-transform duration-300 cursor-pointer"
+                className="group inline-flex items-center justify-center gap-2.5 uppercase font-sans text-xs font-bold tracking-widest bg-gradient-clay text-charcoal px-8 py-4 rounded-sm shadow-warm hover:bg-terracotta hover:text-ivory hover:scale-[1.03] hover:shadow-[0_12px_25px_rgba(237,76,135,0.3)] active:scale-[0.96] active:bg-[#e780a4] transition-all duration-300 transform cursor-pointer"
                 id="ebook-download-button"
               >
                 <span className="font-sans font-bold flex items-center gap-2">

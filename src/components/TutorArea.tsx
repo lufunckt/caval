@@ -116,6 +116,8 @@ export const TutorArea: React.FC = () => {
   const [errorMsg, setErrorMsg] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [dashboardTab, setDashboardTab] = useState<"progresso" | "comunidade" | "teleatendimento" | "admin">("progresso");
+  const [communityMobileTab, setCommunityMobileTab] = useState<"chat" | "forum">("chat");
+  const [progressoMobileTab, setProgressoMobileTab] = useState<"checklist" | "diario">("diario");
   
   // Real database lists
   const [selectedTutorId, setSelectedTutorId] = useState<string | null>(null);
@@ -1128,7 +1130,7 @@ export const TutorArea: React.FC = () => {
               </div>
 
               <a
-                href={`https://wa.me/5551989502096?text=Ol%C3%A1%20%C3%89rico!%20Acabei%20de%20fazer%20meu%20cadastro%20na%20%C3%81rea%20do%20Tutor,%20poderia%20dar%20uma%20olhada%20e%20liberar%20meu%20acesso%20por%20favor?`}
+                href={`https://wa.me/5555997240369?text=Ol%C3%A1%20%C3%89rico!%20Acabei%20de%20fazer%20meu%20cadastro%20na%20%C3%81rea%20do%20Tutor,%20poderia%20dar%20uma%20olhada%20e%20liberar%20meu%20acesso%20por%20favor?`}
                 target="_blank"
                 rel="noreferrer"
                 className="w-full h-12 bg-ivory text-charcoal hover:bg-neutral-200 active:scale-[0.99] transition-all font-sans text-xs font-bold uppercase tracking-wider rounded-sm flex items-center justify-center gap-2 cursor-pointer shadow-soft"
@@ -1140,6 +1142,7 @@ export const TutorArea: React.FC = () => {
               <button
                 type="button"
                 onClick={googleLogout}
+                aria-label={`Sair da conta Google atual (${user.email})`}
                 className="w-full text-center text-xs text-sand-deep hover:text-ivory mt-4 underline cursor-pointer"
               >
                 Sair da minha conta Google ({user.email})
@@ -1174,6 +1177,7 @@ export const TutorArea: React.FC = () => {
                 <button
                   type="button"
                   onClick={loginWithGoogle}
+                  aria-label="Registrar-se ou fazer login de forma rápida usando sua Conta do Google"
                   className="w-full h-12 bg-[#4285F4] hover:bg-[#357AE8] text-white font-sans text-xs font-semibold uppercase tracking-wider rounded-sm flex items-center justify-center gap-2.5 cursor-pointer shadow-md transition-all active:scale-[0.99]"
                   id="google-login-button"
                 >
@@ -1221,7 +1225,8 @@ export const TutorArea: React.FC = () => {
                 <button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full h-12 bg-[#efe7e7] hover:bg-[#eae0e0] active:scale-[0.99] transition-all text-charcoal font-sans text-xs font-bold uppercase tracking-wider rounded-sm flex items-center justify-center gap-2 cursor-pointer shadow-soft"
+                  aria-label="Validar código de acesso e entrar"
+                  className="w-full h-12 bg-[#efe7e7] hover:bg-[#eae0e0] active:scale-[0.99] transition-all text-[#160E1A] font-sans text-xs font-bold uppercase tracking-wider rounded-sm flex items-center justify-center gap-2 cursor-pointer shadow-soft"
                   id="submit-access-code"
                 >
                   {isLoading ? "Validando..." : "Entrar com Código Físico"}
@@ -1236,6 +1241,7 @@ export const TutorArea: React.FC = () => {
                 </p>
                 <button
                   onClick={handleDemoLogin}
+                  aria-label="Experimentar a plataforma através de um perfil de demonstração de Rodrigo e o cão Max"
                   className="text-xs font-sans font-bold text-forest hover:text-forest/80 underline cursor-pointer"
                   id="access-demo-tutor"
                 >
@@ -1282,21 +1288,29 @@ export const TutorArea: React.FC = () => {
                     </p>
                   </div>
                 ) : (
-                  <div className="text-left">
-                    <div className="flex items-center gap-2">
-                      <span className="text-[10px] font-sans font-bold tracking-widest text-[#d5ab70] uppercase flex items-center gap-1 bg-[#efe4d0]/10 px-2 py-0.5 rounded">
-                        <Sparkles size={11} className="text-[#d5ab70]" /> CLIENTE VIP ATIVO ({user ? "Nuvem Real" : "Modo Local"})
-                      </span>
-                      <span className="text-[10px] font-sans font-bold text-forest bg-forest/15 px-2.5 py-0.5 rounded-full flex items-center gap-1">
-                        <Flame size={12} className="animate-bounce" /> {streakCount} Dias Seguidos!
-                      </span>
+                  <div className="flex items-center gap-3 md:gap-4 text-left w-full md:w-auto" id="tutor-welcome-profile-chip">
+                    {/* Compact circular avatar representing tutor and dog */}
+                    <div className="w-12 h-12 rounded-full bg-gradient-clay flex-shrink-0 flex items-center justify-center text-charcoal font-black text-sm relative border border-peach/30 shadow-inner">
+                      <span>{tutorProfile.name ? tutorProfile.name.charAt(0).toUpperCase() : "T"}</span>
+                      {/* Mini dog face emoji float */}
+                      <span className="absolute -bottom-1 -right-1 text-xs bg-charcoal border border-plum-brand/20 rounded-full w-5 h-5 flex items-center justify-center pointer-events-none select-none">🐶</span>
                     </div>
-                    <h2 className="font-serif text-2xl sm:text-3xl font-bold text-ivory mt-2">
-                      Portal de Educação de {tutorProfile.name}
-                    </h2>
-                    <p className="font-sans text-xs text-sand-deep">
-                      Consultoria Relacional • Aluno: <strong className="text-forest">{tutorProfile.dogName}</strong> ({tutorProfile.dogBreed || "Sem raça"}, {tutorProfile.dogAge || "Não informada"}).
-                    </p>
+                    <div>
+                      <div className="flex flex-wrap items-center gap-1.5 md:gap-2">
+                        <span className="text-[9px] sm:text-[10px] font-sans font-bold tracking-widest text-[#d5ab70] uppercase flex items-center gap-1 bg-[#efe4d0]/10 px-2 py-0.5 rounded">
+                          <Sparkles size={10} className="text-[#d5ab70]" /> CLIENTE VIP ({user ? "Nuvem" : "Local"})
+                        </span>
+                        <span className="text-[9px] sm:text-[10px] font-sans font-bold text-forest bg-forest/15 px-2 py-0.5 rounded-full flex items-center gap-1">
+                          <Flame size={10} className="text-orange-400 animate-pulse" /> {streakCount} Dias!
+                        </span>
+                      </div>
+                      <h2 className="font-serif text-xl sm:text-2xl md:text-3xl font-bold text-ivory mt-1 leading-tight">
+                        Portal de {tutorProfile.name.split(" ")[0]}
+                      </h2>
+                      <p className="font-sans text-[11px] sm:text-xs text-sand-deep leading-relaxed mt-0.5">
+                        Consultoria Relacional • Aluno: <strong className="text-forest">{tutorProfile.dogName}</strong> ({tutorProfile.dogBreed || "Sem raça"}).
+                      </p>
+                    </div>
                   </div>
                 )}
                 
@@ -1474,43 +1488,52 @@ export const TutorArea: React.FC = () => {
               {/* =========================================================
                  DASHBOARD NAVIGATION INTERACTIVE SUB-TABS (Resolves original clutter)
                  ========================================================= */}
-              <div className="bg-plum-deep/30 rounded-lg p-1.5 border border-plum-brand/15 max-w-lg mx-auto grid grid-cols-3 gap-1.5 text-center" id="dashboard-sub-tabs">
+              <div role="tablist" aria-label="Abas de recursos do painel de controle" className="bg-plum-deep/30 rounded-lg p-1 border border-plum-brand/15 max-w-lg mx-auto grid grid-cols-3 gap-1 text-center" id="dashboard-sub-tabs">
                 <button
+                  role="tab"
+                  aria-selected={dashboardTab === "progresso"}
+                  aria-label="Exibir aba de progresso, checklists e diário de treinos"
                   onClick={() => setDashboardTab("progresso")}
-                  className={`py-2 px-3 rounded text-[11px] font-sans font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 focus:outline-none cursor-pointer ${
+                  className={`py-2 px-1 xs:px-2 sm:px-3 rounded text-[9px] xs:text-[10px] sm:text-[11px] font-sans font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-1 sm:gap-1.5 focus:outline-none cursor-pointer ${
                     dashboardTab === "progresso" 
-                      ? "bg-[#efe7e7] text-charcoal font-black" 
+                      ? "bg-[#efe7e7] text-[#160E1A] font-black" 
                       : "text-sand hover:text-ivory bg-transparent hover:bg-white/5"
                   }`}
                   id="tab-progresso-trigger"
                 >
-                  <CheckSquare size={13} />
+                  <CheckSquare size={12} className="shrink-0" />
                   <span>Progresso</span>
                 </button>
                 
                 <button
+                  role="tab"
+                  aria-selected={dashboardTab === "comunidade"}
+                  aria-label="Exibir aba da comunidade, fórum de discussões e chat de relatos"
                   onClick={() => setDashboardTab("comunidade")}
-                  className={`py-2 px-3 rounded text-[11px] font-sans font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 focus:outline-none cursor-pointer ${
+                  className={`py-2 px-1 xs:px-2 sm:px-3 rounded text-[9px] xs:text-[10px] sm:text-[11px] font-sans font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-1 sm:gap-1.5 focus:outline-none cursor-pointer ${
                     dashboardTab === "comunidade" 
-                      ? "bg-[#efe7e7] text-charcoal font-black" 
+                      ? "bg-[#efe7e7] text-[#160E1A] font-black" 
                       : "text-sand hover:text-ivory bg-transparent hover:bg-white/5"
                   }`}
                   id="tab-comunidade-trigger"
                 >
-                  <Users size={13} />
+                  <Users size={12} className="shrink-0" />
                   <span>Comunidade</span>
                 </button>
                 
                 <button
+                  role="tab"
+                  aria-selected={dashboardTab === "teleatendimento"}
+                  aria-label="Exibir aba de teleatendimento clínico ou sala de reuniões virtual"
                   onClick={() => setDashboardTab("teleatendimento")}
-                  className={`py-2 px-3 rounded text-[11px] font-sans font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 focus:outline-none cursor-pointer ${
+                  className={`py-2 px-1 xs:px-2 sm:px-3 rounded text-[9px] xs:text-[10px] sm:text-[11px] font-sans font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-1 sm:gap-1.5 focus:outline-none cursor-pointer ${
                     dashboardTab === "teleatendimento" 
-                      ? "bg-[#efe7e7] text-charcoal font-black animation-pulse" 
+                      ? "bg-[#efe7e7] text-[#160E1A] font-black animation-pulse" 
                       : "text-sand hover:text-ivory bg-transparent hover:bg-white/5"
                   }`}
                   id="tab-tele-trigger"
                 >
-                  <Video size={13} className={dashboardTab === "teleatendimento" ? "text-rose-brand" : ""} />
+                  <Video size={12} className={`shrink-0 ${dashboardTab === "teleatendimento" ? "text-rose-brand" : ""}`} />
                   <span className="relative">
                     Virtual Room
                     <span className="absolute -top-1 -right-2 w-1.5 h-1.5 bg-rose-500 rounded-full animate-ping" />
@@ -1530,11 +1553,43 @@ export const TutorArea: React.FC = () => {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
                     transition={{ duration: 0.3 }}
-                    className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start text-left"
-                    id="sub-progresso-view"
+                    className="space-y-4"
                   >
-                    {/* LEFT 5 COLUMNS: Profile, Streak details, and Gamified achievements */}
-                    <div className="lg:col-span-5 space-y-6">
+                    {/* Mobile-only Segmented Switcher for Progresso */}
+                    <div className="flex lg:hidden bg-[#efe7e7]/5 p-1 rounded-lg border border-plum-brand/20 text-xs w-full select-none mb-2" id="progresso-mobile-switcher">
+                      <button
+                        type="button"
+                        onClick={() => setProgressoMobileTab("diario")}
+                        className={`flex-1 py-2.5 rounded-md font-sans text-[11px] font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                          progressoMobileTab === "diario"
+                            ? "bg-[#efe7e7] text-[#160E1A] shadow-sm font-black"
+                            : "text-sand hover:text-ivory bg-transparent"
+                        }`}
+                      >
+                        <FileText size={13} className={progressoMobileTab === "diario" ? "text-[#160E1A]" : "text-peach"} />
+                        <span>Diário & Evolução</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setProgressoMobileTab("checklist")}
+                        className={`flex-1 py-2.5 rounded-md font-sans text-[11px] font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer relative ${
+                          progressoMobileTab === "checklist"
+                            ? "bg-[#efe7e7] text-[#160E1A] shadow-sm font-black"
+                            : "text-sand hover:text-ivory bg-transparent"
+                        }`}
+                      >
+                        <CheckSquare size={13} className={progressoMobileTab === "checklist" ? "text-[#160E1A]" : "text-peach"} />
+                        <span>Exercícios & Prêmios</span>
+                        {completedTasksCount < dailyTasks.length && (
+                          <span className="absolute -top-1 -right-1.5 w-2 h-2 bg-rose-500 rounded-full animate-ping" />
+                        )}
+                      </button>
+                    </div>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start text-left" id="sub-progresso-view">
+                      
+                      {/* LEFT 5 COLUMNS: Profile, Streak details, and Gamified achievements */}
+                      <div className={`lg:col-span-5 ${progressoMobileTab === "checklist" ? "block" : "hidden lg:block"} space-y-6`}>
                       
                       {/* Interactive consistency tracker card */}
                       <div className="bg-plum-deep/30 border border-plum-brand/20 rounded-xl p-6 relative overflow-hidden">
@@ -1613,7 +1668,7 @@ export const TutorArea: React.FC = () => {
                                   : "bg-charcoal/40 border-plum-brand/15 text-ivory hover:border-plum-brand/40 hover:bg-charcoal/70"
                               }`}
                             >
-                              <span className={`mt-0.5 p-0.5 rounded shrink-0 ${task.done ? "bg-forest text-charcoal" : "border border-sand-deep/40 text-transparent"}`}>
+                              <span className={`mt-0.5 p-0.5 rounded shrink-0 ${task.done ? "bg-forest text-[#160E1A]" : "border border-sand-deep/40 text-transparent"}`}>
                                 <CheckCircle size={10} className="stroke-[3]" />
                               </span>
                               <span>{task.text}</span>
@@ -1685,7 +1740,7 @@ export const TutorArea: React.FC = () => {
                               className={`p-3.5 rounded border flex flex-col items-center justify-between text-center transition-all duration-300 relative ${b.color}`}
                             >
                               {b.status === "unlocked" && (
-                                <span className="absolute top-1 right-1 text-[8px] bg-forest text-charcoal font-extrabold uppercase px-1 rounded scale-90">LIVE</span>
+                                <span className="absolute top-1 right-1 text-[8px] bg-forest text-[#160E1A] font-extrabold uppercase px-1 rounded scale-90">LIVE</span>
                               )}
                               <span className="text-2xl mt-1 block">{b.emoji}</span>
                               <h4 className="font-serif text-[11px] font-bold mt-2 leading-tight block">{b.title}</h4>
@@ -1698,7 +1753,7 @@ export const TutorArea: React.FC = () => {
                     </div>
 
                     {/* RIGHT 7 COLUMNS: Simulated Daily Training Journal Logs */}
-                    <div className="lg:col-span-7 space-y-6">
+                    <div className={`lg:col-span-7 ${progressoMobileTab === "diario" ? "block" : "hidden lg:block"} space-y-6`}>
                       
                       {/* Form to submit daily log */}
                       <div className="bg-plum-deep/30 border border-plum-brand/20 rounded-xl p-6" id="journal-input-form">
@@ -1727,7 +1782,7 @@ export const TutorArea: React.FC = () => {
                                   onClick={() => setNewEmotion(emo.id as any)}
                                   className={`p-2 rounded text-xs font-medium font-sans flex items-center justify-center gap-1.5 transition-all focus:outline-none cursor-pointer border ${
                                     newEmotion === emo.id
-                                      ? "bg-[#efe7e7] text-charcoal border-transparent font-bold"
+                                      ? "bg-[#efe7e7] text-[#160E1A] border-transparent font-bold"
                                       : "bg-charcoal/50 border-plum-brand/15 text-sand hover:bg-charcoal/80"
                                   }`}
                                 >
@@ -1756,7 +1811,7 @@ export const TutorArea: React.FC = () => {
                           <div className="flex justify-between items-center gap-2 flex-wrap">
                             <button
                               type="submit"
-                              className="px-5 h-11 bg-gradient-clay text-charcoal font-sans text-xs font-bold uppercase tracking-wider rounded-sm flex items-center justify-center gap-1.5 hover:scale-[1.01] transition-all cursor-pointer shadow-soft"
+                              className="px-5 h-11 bg-gradient-clay text-[#160E1A] font-sans text-xs font-bold uppercase tracking-wider rounded-sm flex items-center justify-center gap-1.5 hover:scale-[1.01] transition-all cursor-pointer shadow-soft"
                               id="add-journal-log-submit"
                             >
                               <Plus size={14} />
@@ -1815,7 +1870,7 @@ export const TutorArea: React.FC = () => {
                                 </p>
                                 
                                 <div className="mt-3.5 pt-3 border-t border-white/5 bg-plum-deep/20 p-2.5 rounded flex items-start gap-1.5">
-                                  <div className="w-5 h-5 bg-gradient-clay rounded-full flex items-center justify-center text-[7px] text-charcoal font-bold shrink-0">EC</div>
+                                  <div className="w-5 h-5 bg-gradient-clay rounded-full flex items-center justify-center text-[7px] text-[#160E1A] font-bold shrink-0">EC</div>
                                   <div>
                                     <span className="text-[9px] text-[#efe4d0] block font-bold leading-none">Análise de Érico Cavalheiro:</span>
                                     <span className="text-[10px] text-sand/85 leading-relaxed block italic mt-1">
@@ -1832,7 +1887,8 @@ export const TutorArea: React.FC = () => {
                       </div>
 
                     </div>
-                  </motion.div>
+                  </div>
+                </motion.div>
                 )}
 
 
@@ -1846,19 +1902,50 @@ export const TutorArea: React.FC = () => {
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.99 }}
                     transition={{ duration: 0.3 }}
-                    className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch"
-                    id="sub-comunidade-view"
+                    className="space-y-4"
                   >
-                    
-                    {/* LEFT 6 COLUMNS: Direct CLINICAL CHAT for immediate video / protocol queries */}
-                    <div className="lg:col-span-6 flex flex-col justify-between border border-plum-brand/20 bg-plum-deep/30 rounded-xl p-6 relative">
+                    {/* Mobile-only Segmented Switcher for Comunidade */}
+                    <div className="flex lg:hidden bg-[#efe7e7]/5 p-1 rounded-lg border border-plum-brand/20 text-xs w-full select-none" id="comunidade-mobile-switcher">
+                      <button
+                        type="button"
+                        onClick={() => setCommunityMobileTab("chat")}
+                        className={`flex-1 py-2.5 rounded-md font-sans text-[11px] font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer ${
+                          communityMobileTab === "chat"
+                            ? "bg-[#efe7e7] text-[#160E1A] shadow-sm font-black"
+                            : "text-sand hover:text-ivory bg-transparent"
+                        }`}
+                      >
+                        <MessageSquare size={13} className={communityMobileTab === "chat" ? "text-[#160E1A]" : "text-peach"} />
+                        <span>Chat Clínico</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setCommunityMobileTab("forum")}
+                        className={`flex-1 py-2.5 rounded-md font-sans text-[11px] font-bold uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer relative ${
+                          communityMobileTab === "forum"
+                            ? "bg-[#efe7e7] text-[#160E1A] shadow-sm font-black"
+                            : "text-sand hover:text-ivory bg-transparent"
+                        }`}
+                      >
+                        <Users size={13} className={communityMobileTab === "forum" ? "text-[#160E1A]" : "text-peach"} />
+                        <span>Fórum & Galeria</span>
+                        <span className="absolute -top-1.5 -right-1.5 bg-rose-brand text-white text-[7px] scale-90 px-1 py-0.5 rounded-full font-sans font-extrabold tracking-tight">
+                          NOVO
+                        </span>
+                      </button>
+                    </div>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-stretch" id="sub-comunidade-view">
+                      
+                      {/* LEFT 6 COLUMNS: Direct CLINICAL CHAT for immediate video / protocol queries */}
+                      <div className={`lg:col-span-6 ${communityMobileTab === "chat" ? "flex" : "hidden lg:flex"} flex-col justify-between border border-plum-brand/20 bg-plum-deep/30 rounded-xl p-5 md:p-6 p-6 relative`}>
                       <div className="absolute top-0 right-0 w-24 h-24 bg-peach/5 blur-xl rounded-full pointer-events-none" />
                       
                       <div>
                         {/* Header Chat Bio */}
                         <div className="flex items-center gap-3 border-b border-plum-brand/15 pb-4 mb-4">
                           <div className="relative">
-                            <div className="w-10 h-10 bg-gradient-clay rounded-full flex items-center justify-center text-xs text-charcoal font-bold">
+                            <div className="w-10 h-10 bg-gradient-clay rounded-full flex items-center justify-center text-xs text-[#160E1A] font-bold">
                               EC
                             </div>
                             <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-charcoal" />
@@ -1918,9 +2005,9 @@ export const TutorArea: React.FC = () => {
                         <button
                           type="submit"
                           disabled={isEricoTyping || !chatInput.trim()}
-                          className="w-10 h-10 bg-[#efe7e7] hover:bg-[#eae0e0] disabled:opacity-40 text-charcoal flex items-center justify-center rounded-sm transition-colors cursor-pointer"
+                          className="w-10 h-10 bg-[#efe7e7] hover:bg-[#eae0e0] disabled:opacity-40 text-[#160E1A] flex items-center justify-center rounded-sm transition-colors cursor-pointer"
                         >
-                          <Send size={14} />
+                          <Send size={14} className="text-[#160E1A]" />
                         </button>
                       </form>
 
@@ -1928,7 +2015,7 @@ export const TutorArea: React.FC = () => {
 
 
                     {/* RIGHT 6 COLUMNS: CLOSED PRIVATE TUTORS FORUM COMMUNITY with tabs */}
-                    <div className="lg:col-span-6 flex flex-col justify-between border border-plum-brand/20 bg-plum-deep/30 rounded-xl p-6 text-left relative" id="community-tab-container">
+                    <div className={`lg:col-span-6 ${communityMobileTab === "forum" ? "flex" : "hidden lg:flex"} flex-col justify-between border border-plum-brand/20 bg-plum-deep/30 rounded-xl p-5 md:p-6 text-left relative`} id="community-tab-container">
                       <div className="absolute top-0 right-0 w-16 h-16 bg-[#efe7e7]/5 blur-lg rounded-full pointer-events-none" />
                       
                       <div className="flex-1 flex flex-col min-h-0">
@@ -1949,7 +2036,7 @@ export const TutorArea: React.FC = () => {
                               onClick={() => { setForumSubTab("discussao"); }}
                               className={`px-3 py-1.5 rounded transition-all flex items-center gap-1.5 font-bold cursor-pointer font-sans ${
                                 forumSubTab === "discussao"
-                                  ? "bg-gradient-clay text-charcoal shadow-sm"
+                                  ? "bg-gradient-clay text-[#160E1A] shadow-sm"
                                   : "text-sand-deep hover:text-ivory"
                               }`}
                             >
@@ -1960,7 +2047,7 @@ export const TutorArea: React.FC = () => {
                               onClick={() => { setForumSubTab("fotos"); }}
                               className={`px-3 py-1.5 rounded transition-all flex items-center gap-1.5 font-bold cursor-pointer font-sans relative ${
                                 forumSubTab === "fotos"
-                                  ? "bg-gradient-clay text-charcoal shadow-sm"
+                                  ? "bg-gradient-clay text-[#160E1A] shadow-sm"
                                   : "text-sand-deep hover:text-ivory"
                               }`}
                             >
@@ -2013,7 +2100,7 @@ export const TutorArea: React.FC = () => {
                                 <button
                                   type="submit"
                                   disabled={!newPostContent.trim()}
-                                  className="px-3.5 py-1.5 bg-gradient-clay text-charcoal font-sans text-[10px] font-bold uppercase tracking-wider rounded-sm hover:scale-[1.01] transition-all cursor-pointer disabled:opacity-50"
+                                  className="px-3.5 py-1.5 bg-gradient-clay text-[#160E1A] font-sans text-[10px] font-bold uppercase tracking-wider rounded-sm hover:scale-[1.01] transition-all cursor-pointer disabled:opacity-50"
                                 >
                                   Publicar no Fórum (+40 XP)
                                 </button>
@@ -2264,7 +2351,7 @@ export const TutorArea: React.FC = () => {
                                   <button
                                     type="submit"
                                     disabled={!newPhotoCaption.trim() || (photoSourceMode === "upload" && !photoUploadBase64) || (photoSourceMode === "url" && !customPhotoUrl.trim())}
-                                    className="w-full py-2 bg-gradient-clay text-charcoal font-sans text-xs font-bold uppercase tracking-wider rounded-sm hover:scale-[1.01] transition-all cursor-pointer disabled:opacity-50"
+                                    className="w-full py-2 bg-gradient-clay text-[#160E1A] font-sans text-xs font-bold uppercase tracking-wider rounded-sm hover:scale-[1.01] transition-all cursor-pointer disabled:opacity-50"
                                   >
                                     Publicar Foto (+50 XP)
                                   </button>
@@ -2388,7 +2475,8 @@ export const TutorArea: React.FC = () => {
 
                     </div>
 
-                  </motion.div>
+                  </div>
+                </motion.div>
                 )}
 
 
@@ -2458,10 +2546,10 @@ export const TutorArea: React.FC = () => {
                                 setCallMode("real");
                                 setInActiveCall(true);
                               }}
-                              className="px-4 py-3 bg-gradient-clay text-charcoal hover:scale-[1.01] active:scale-[0.99] transition-all font-sans text-xs font-bold uppercase tracking-wider rounded-sm flex items-center justify-center gap-2 cursor-pointer shadow-lift font-black"
+                              className="px-4 py-3 bg-gradient-clay text-[#160E1A] hover:scale-[1.01] active:scale-[0.99] transition-all font-sans text-xs font-bold uppercase tracking-wider rounded-sm flex items-center justify-center gap-2 cursor-pointer shadow-lift font-black"
                               id="trigger-call-real"
                             >
-                              <Sparkles size={13} className="text-charcoal stroke-[2.5]" />
+                              <Sparkles size={13} className="text-[#160E1A] stroke-[2.5]" />
                               <span>Sessão Real Jitsi</span>
                             </button>
                           </div>

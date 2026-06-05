@@ -16,8 +16,8 @@ import { FinalCTA } from "./components/FinalCTA";
 import { Newsletter } from "./components/Newsletter";
 import { TutorArea } from "./components/TutorArea";
 import { Footer } from "./components/Footer";
-import { SocialProofToast } from "./components/SocialProofToast";
 import { FloatingWhatsApp } from "./components/FloatingWhatsApp";
+import { CanineNews } from "./components/CanineNews";
 import { motion, AnimatePresence } from "motion/react";
 import { ArrowLeft, ArrowRight, Sparkles, AlertCircle } from "lucide-react";
 
@@ -160,6 +160,9 @@ export default function App() {
                 <Marquee />
                 <RelationalInsight />
                 
+                {/* Active Interactive Science Grounding News Feed */}
+                <CanineNews />
+                
                 {/* Guided Editorial Reader flow widget to make tabs super user friendly */}
                 <div className="max-w-3xl mx-auto px-6 py-12 text-center" id="guided-flow-1">
                   <div className="p-8 border border-plum-brand/20 bg-plum-deep/20 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-6 backdrop-blur-sm">
@@ -172,10 +175,10 @@ export default function App() {
                     </div>
                     <button
                       onClick={() => handleTabTransition("metodo")}
-                      className="px-5 py-3 text-xs font-bold uppercase tracking-wider bg-[#efe7e7] hover:bg-[#eae0e0] text-charcoal rounded duration-200 shrink-0 inline-flex items-center gap-1.5 cursor-pointer shadow-soft"
+                      className="px-5 py-3 text-xs font-bold uppercase tracking-wider bg-[#efe7e7] hover:bg-[#eae0e0] text-[#160E1A] rounded duration-200 shrink-0 inline-flex items-center gap-1.5 cursor-pointer shadow-soft"
                     >
                       <span>Ver o Método</span>
-                      <ArrowRight size={13} className="text-charcoal" />
+                      <ArrowRight size={13} className="text-[#160E1A]" />
                     </button>
                   </div>
                 </div>
@@ -233,10 +236,10 @@ export default function App() {
                     </div>
                     <button
                       onClick={() => handleTabTransition("conteudo")}
-                      className="px-5 py-3 text-xs font-bold uppercase tracking-wider bg-[#efe7e7] text-charcoal rounded duration-200 shrink-0 inline-flex items-center gap-1.5 cursor-pointer"
+                      className="px-5 py-3 text-xs font-bold uppercase tracking-wider bg-[#efe7e7] text-[#160E1A] rounded duration-200 shrink-0 inline-flex items-center gap-1.5 cursor-pointer"
                     >
                       <span>Ver E-book e Blog</span>
-                      <ArrowRight size={13} />
+                      <ArrowRight size={13} className="text-[#160E1A]" />
                     </button>
                   </div>
                 </div>
@@ -299,9 +302,6 @@ export default function App() {
       </main>
 
       <Footer activeTab={activeTab} onTabChange={setActiveTab} />
-      
-      {/* Dynamic Social Proof Notifications */}
-      <SocialProofToast />
     </div>
   );
 }

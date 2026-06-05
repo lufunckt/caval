@@ -1,4 +1,7 @@
 import { Testimonial, MethodPillar, ServiceItem, StatItem } from "./types";
+import beatrizAvatar from "./assets/images/beatriz_avatar_1780691088843.png";
+import coupleAvatar from "./assets/images/couple_avatar_1780691103706.png";
+import camilaAvatar from "./assets/images/camila_avatar_1780691116670.png";
 
 export const STATS: StatItem[] = [
   { value: "5+", label: "Anos de imersão e prática" },
@@ -50,13 +53,13 @@ export const SERVICES: ServiceItem[] = [
   {
     id: "consultoria-individual",
     badge: "Mais Procurado",
-    title: "Consultoria Premium Presencial",
-    tagline: "Acompanhamento cirúrgico residencial",
-    description: "Direcionado para tutores que buscam reestruturação completa da convivência, resolvendo conflitos em sua raiz diretamente no ambiente familiar.",
+    title: "Consultoria Premium Presencial (Porto Alegre e Região)",
+    tagline: "Acompanhamento cirúrgico residencial na Grande Porto Alegre",
+    description: "Direcionado para tutores em Porto Alegre e região metropolitana que buscam reestruturação completa da convivência, resolvendo conflitos comportamentais na raiz diretamente no ambiente familiar.",
     features: [
       "Diagnóstico comportamental aprofundado",
       "Ajustes mecânicos de rotina e ambiente",
-      "Sessões práticas individuais na sua casa",
+      "Sessões práticas individuais na sua residência",
       "Plano terapêutico personalizado digital",
       "Suporte prioritário via WhatsApp direto com Érico"
     ],
@@ -67,12 +70,12 @@ export const SERVICES: ServiceItem[] = [
     id: "reabilitacao-emocional",
     badge: "Alta Complexidade",
     title: "Reabilitação de Reatividade e Medo",
-    tagline: "Especialista em fobias e descontrole urbano",
-    description: "Protocolos seguros baseados na neurobiologia canina para cães com reatividade a outros cães/pessoas, agressividade por medo e ansiedade extrema.",
+    tagline: "Especialista em fobias e descontrole em passeios urbanos",
+    description: "Protocolos seguros baseados na neurobiologia canina para cães com reatividade a outros cães/pessoas, agressividade por medo ou insegurança e ansiedade extrema na rua.",
     features: [
       "Dessensibilização sistemática controlada",
       "Treino focado em autorregulação emocional",
-      "Aulas em cenários urbanos sob medida",
+      "Aulas em cenários urbanos sob medida em Porto Alegre",
       "Suporte preventivo e leitura de gatilhos",
       "Acompanhamento emocional para o tutor"
     ],
@@ -83,13 +86,13 @@ export const SERVICES: ServiceItem[] = [
     id: "mentoria-online",
     badge: "100% Flexível",
     title: "Mentoria Estratégica Online",
-    tagline: "Para tutores de todo o mundo",
-    description: "Sessões estratégicas focadas no direcionamento mecânico e preventivo. Perfeito para preparação de chegada de filhote, ajustes de rotina ou consultoria pré-adoção.",
+    tagline: "Para tutores de todo o Brasil e do mundo",
+    description: "Sessões estratégicas focadas no direcionamento comportamental e preventivo guiados via chamada de vídeo. Perfeito para preparação de chegada de filhote, ajustes de rotina ou consultoria pré-adoção.",
     features: [
       "Análise minuciosa de vídeos enviados",
       "Videoconferência ao vivo de 1h30m",
       "Desenho de plano estratégico passo-a-passo",
-      "Material explicativo exclusivo",
+      "Material explicativo exclusivo em PDF",
       "WhatsApp de acompanhamento por 15 dias"
     ],
     ctaText: "Fazer Sessão Online",
@@ -104,6 +107,7 @@ export const TESTIMONIALS: Testimonial[] = [
     role: "Tutora reconciliada",
     dogName: "Zeus",
     dogBreed: "Pastor Alemão (2 anos)",
+    avatarUrl: beatrizAvatar,
     text: "O Zeus puxava tanto a guia nos passeios que eu já tinha machucado o ombro. Passamos por três adestradores que usavam puxões. O Érico em duas sessões nos mostrou que ele não precisava de correção física, mas de previsibilidade e regulação de estímulos. Hoje o Zeus passeia com a guia solta. É mágico e respeitoso.",
     stars: 5
   },
@@ -113,6 +117,7 @@ export const TESTIMONIALS: Testimonial[] = [
     role: "Pais da Amora",
     dogName: "Amora",
     dogBreed: "Golden Retriever (1 ano)",
+    avatarUrl: coupleAvatar,
     text: "Amora destruía as portas quando ficava sozinha. Estávamos desesperados. O Érico analisou nossa rotina e propôs a 'reestruturação ambiental' e brinquedos de enriquecimento cognitivo, além de mudar a forma como nos despedíamos dela. Ela aprendeu a relaxar. Érico mudou nossa vida familiar e nos ensinou a amar a espécie dela por completo.",
     stars: 5
   },
@@ -122,6 +127,7 @@ export const TESTIMONIALS: Testimonial[] = [
     role: "Tutora de cão adotado",
     dogName: "Bento",
     dogBreed: "Vira-lata reativo (3 anos)",
+    avatarUrl: camilaAvatar,
     text: "O Bento avançava em qualquer pessoa na rua. Eu tinha vergonha de sair de casa. O método relacional do Érico devolveu a ele a segurança e a mim, a capacidade de entendê-lo. Focamos no vínculo antes da obediência. Hoje o Bento consegue ignorar estímulos e focar em mim. Recomendo de olhos fechados!",
     stars: 5
   }
@@ -134,7 +140,7 @@ export const MARQUEE_WORDS = [
   "EDUCAR",
   "CONECTAR",
   "VÍNCULO",
-  "RESPETITAR",
+  "RESPEITAR",
   "COMPREENDER",
   "CLAREZA",
   "EQUILÍBRIO",

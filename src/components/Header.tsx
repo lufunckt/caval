@@ -64,6 +64,7 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, onTabChange, theme, t
               key={item.id}
               href={`#${item.id}`}
               onClick={(e) => handleTabClick(e, item.id)}
+              aria-current={activeTab === item.id ? "page" : undefined}
               className={`text-sm font-medium transition-colors duration-200 uppercase tracking-widest text-[11px] relative py-1 ${
                 activeTab === item.id
                   ? "text-forest font-bold"
@@ -99,6 +100,7 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, onTabChange, theme, t
             href={CONFIG.WHATSAPP_URL}
             target="_blank"
             rel="noopener noreferrer"
+            aria-label="Agendar conversa profissional de educação canina pelo WhatsApp"
             className="group relative inline-flex items-center bg-gradient-clay p-0.5 text-xs font-bold uppercase tracking-wider text-charcoal rounded-sm shadow-warm hover:scale-[1.02] transition-transform duration-300 p-[1px]"
             id="header-cta-button"
           >
@@ -151,6 +153,7 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, onTabChange, theme, t
                 key={item.id}
                 href={`#${item.id}`}
                 onClick={(e) => handleTabClick(e, item.id)}
+                aria-current={activeTab === item.id ? "page" : undefined}
                 className={`text-lg font-serif tracking-wide transition-colors py-2 border-b border-plum-brand/10 text-left ${
                   activeTab === item.id
                     ? "text-forest font-bold"
@@ -169,6 +172,7 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, onTabChange, theme, t
               href={CONFIG.WHATSAPP_URL}
               target="_blank"
               rel="noopener noreferrer"
+              aria-label="Agendar conversa profissional de educação canina pelo WhatsApp"
               className="w-full text-center bg-gradient-clay py-4 text-sm font-bold uppercase tracking-wider text-charcoal rounded-sm shadow-warm"
               id="mobile-drawer-whatsapp-btn"
             >

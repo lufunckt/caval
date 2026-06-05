@@ -86,7 +86,7 @@ export const Online: React.FC = () => {
               href={CONFIG.WHATSAPP_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 uppercase font-sans text-xs font-bold tracking-widest bg-forest text-charcoal px-8 py-4 rounded-sm shadow-soft hover:bg-forest/90 transition-all duration-300 reveal delay-500"
+              className="inline-flex items-center gap-2 uppercase font-sans text-xs font-bold tracking-widest bg-forest text-charcoal px-8 py-4 rounded-sm shadow-soft hover:bg-terracotta hover:text-ivory hover:scale-[1.03] hover:shadow-[0_12px_25px_rgba(237,76,135,0.3)] active:scale-[0.96] active:bg-[#e780a4] transition-all transform duration-300 reveal delay-500"
               id="online-action-cta"
             >
               Agendar Mentoria Estratégica

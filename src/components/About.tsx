@@ -55,6 +55,7 @@ export const About: React.FC = () => {
                     alt="Érico Cavalheiro" 
                     className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]" 
                     referrerPolicy="no-referrer"
+                    loading="lazy"
                     id="erico-photo-media"
                     onError={() => setUseFallback(true)}
                   />

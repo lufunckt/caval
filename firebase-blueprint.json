@@ -64,6 +64,26 @@
         "createdAt": { "type": "string", "format": "date-time" }
       },
       "required": ["id", "sender", "text", "createdAt"]
+    },
+    "DogQuestionnaire": {
+      "title": "DogQuestionnaire",
+      "description": "Dossiê diagnóstico do cão preenchido pelo tutor na landing page.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "step": { "type": "number" },
+        "dogName": { "type": "string" },
+        "dogAge": { "type": "string" },
+        "dogBreed": { "type": "string" },
+        "primaryIssue": { "type": "string" },
+        "intensity": { "type": "string", "enum": ["leve", "moderada", "grave"] },
+        "additionalNotes": { "type": "string" },
+        "submitted": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "step", "dogName", "submitted"]
     }
   },
   "firestore": {
@@ -82,6 +102,10 @@
     "/forum_posts/{postId}": {
       "schema": "ForumPost",
       "description": "Root collection for global relational community postings."
+    },
+    "/dog_questionnaires/{questionnaireId}": {
+      "schema": "DogQuestionnaire",
+      "description": "Collection storing current diagnostic questionnaire answers both from guests and authenticated users."
     }
   }
 }

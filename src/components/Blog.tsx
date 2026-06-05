@@ -21,7 +21,7 @@ const ARTICLES: Article[] = [
     date: "14 Mai, 2026",
     readTime: "5 min de leitura",
     excerpt: "Muitos tutores comemoram quando um cão agitado de repente se cala e aceita submissivamente cenários aterrorizantes. Entenda o fenômeno psicológico do desamparo aprendido.",
-    imageUrl: "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&q=80&w=600",
+    imageUrl: "https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format,compress&fm=webp&fit=crop&q=70&w=600",
     author: "Érico Cavalheiro",
     content: [
       "No universo do adestramento tradicional canino, existe um equívoco perigoso e persistente: medir a eficácia de um treinamento unicamente pelo silêncio ou passividade do animal. Quando o cão subitamente cessa seus latidos ou desiste de resistir em uma situação de estresse extremo, é frequente que o tutor interprete isso como 'comportamento resolvido'. No entanto, sob uma leitura psicológica profunda, o que estamos observando é muitas vezes o estado de 'shutdown' emocional.",
@@ -37,7 +37,7 @@ const ARTICLES: Article[] = [
     date: "03 Mai, 2026",
     readTime: "7 min de leitura",
     excerpt: "Seu cão avança em outros cães ou pessoas na rua? Descubra por que trancos na guia pioram o quadro de agressividade reativa e como mudar o foco de atenção de maneira natural.",
-    imageUrl: "https://images.unsplash.com/photo-1477884213360-7e9d7dcc1e48?auto=format&fit=crop&q=80&w=600",
+    imageUrl: "https://images.unsplash.com/photo-1477884213360-7e9d7dcc1e48?auto=format,compress&fm=webp&fit=crop&q=70&w=600",
     author: "Érico Cavalheiro",
     content: [
       "A reatividade urbana — manifestada através de latidos estridentes, rosnados, pulos e cães que praticamente enforcam a si mesmos na guia ao avistar outro animal ou transeunte — é um dos motivos mais recorrentes de frustração nas residências. A reação instintiva da grande maioria dos tutores é dar um tranco físico agressivo na focinheira ou coleira, acompanhado de um grito ríspido: 'NÃO!'",
@@ -53,7 +53,7 @@ const ARTICLES: Article[] = [
     date: "19 Abr, 2026",
     readTime: "6 min de leitura",
     excerpt: "Preparar a chegada do bebê cão de forma científica. Esqueça táticas obsoletas como esfregar o nariz no xixi ou isolamento em cômodos escuros para educar.",
-    imageUrl: "https://images.unsplash.com/photo-1591561954555-607968c989ab?auto=format&fit=crop&q=80&w=600",
+    imageUrl: "https://images.unsplash.com/photo-1591561954555-607968c989ab?auto=format,compress&fm=webp&fit=crop&q=70&w=600",
     author: "Érico Cavalheiro",
     content: [
       "A chegada de um filhote é cercada de grandes expectativas e, invariavelmente, de noites mal dormidas e frustrações com cães mordiscando móveis e urinando nos locais errados. Nesse momento de vulnerabilidade, muitos tutores recorrem a velhos conselhos de avós e táticas agressivas de isolamento que geram sérios traumas comportamentais no filhote.",
@@ -102,9 +102,10 @@ export const Blog: React.FC = () => {
                     src={art.imageUrl} 
                     alt={art.title} 
                     referrerPolicy="no-referrer"
+                    loading="lazy"
                     className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                   />
-                  <span className="absolute top-4 left-4 bg-forest text-charcoal px-2.5 py-1 text-[10px] uppercase font-bold tracking-wider rounded">
+                  <span className="absolute top-4 left-4 bg-forest text-[#160E1A] px-2.5 py-1 text-[10px] uppercase font-bold tracking-wider rounded">
                     {art.category}
                   </span>
                 </div>
@@ -172,7 +173,7 @@ export const Blog: React.FC = () => {
                 <div className="absolute inset-0 bg-gradient-to-t from-charcoal via-charcoal/20 to-black/35" />
                 
                 <div className="absolute bottom-6 left-6 right-6">
-                  <span className="bg-forest text-charcoal px-3 py-1 text-[10px] uppercase font-bold tracking-widest rounded mb-3 inline-block">
+                  <span className="bg-forest text-[#160E1A] px-3 py-1 text-[10px] uppercase font-bold tracking-widest rounded mb-3 inline-block">
                     {selectedArticle.category}
                   </span>
                   <h2 className="font-serif text-2xl sm:text-3xl text-ivory font-bold leading-tight drop-shadow-md text-balance">
@@ -186,7 +187,7 @@ export const Blog: React.FC = () => {
                 {/* Authoring & Reading metrics info */}
                 <div className="flex flex-wrap items-center gap-4 text-xs text-sand-deep border-b border-white/5 pb-5 mb-6">
                   <span className="flex items-center gap-1.5">
-                    <div className="w-5 h-5 bg-gradient-clay rounded-full flex items-center justify-center text-[8px] font-bold text-charcoal">EC</div>
+                    <div className="w-5 h-5 bg-gradient-clay rounded-full flex items-center justify-center text-[8px] font-bold text-[#160E1A]">EC</div>
                     <span className="font-medium text-ivory">Por {selectedArticle.author}</span>
                   </span>
                   <span>•</span>

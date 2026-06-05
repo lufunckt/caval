@@ -74,6 +74,19 @@ service cloud.firestore {
              data.text is string && data.text.size() > 0 && data.text.size() <= 4000;
     }
 
+    function isValidDogQuestionnaire(data) {
+      return data.id is string && data.id.size() <= 128 &&
+             data.userId is string && data.userId.size() <= 128 &&
+             data.step is number && data.step >= 1 && data.step <= 4 &&
+             data.dogName is string && data.dogName.size() <= 120 &&
+             data.dogAge is string && data.dogAge.size() <= 120 &&
+             data.dogBreed is string && data.dogBreed.size() <= 120 &&
+             data.primaryIssue is string && data.primaryIssue.size() <= 120 &&
+             data.intensity is string && (data.intensity == 'leve' || data.intensity == 'moderada' || data.intensity == 'grave') &&
+             data.additionalNotes is string && data.additionalNotes.size() <= 4096 &&
+             data.submitted is bool;
+    }
+
     // --- Path Specific Matchers ---
 
     // 1. UsersProfiles (authorized)
@@ -155,6 +168,26 @@ service cloud.firestore {
                         );
                         
       allow delete: if isErico(); // Moderation ONLY
+    }
+
+    // 5. Dog Questionnaire persistence (Diagnóstico de Vínculo Canino)
+    match /dog_questionnaires/{questionnaireId} {
+      allow get: if isValidId(questionnaireId);
+      allow list: if isErico() || (isSignedIn() && resource.data.userId == request.auth.uid);
+
+      allow create: if isValidId(questionnaireId) && 
+                       isValidDogQuestionnaire(incoming()) &&
+                       incoming().id == questionnaireId &&
+                       incoming().createdAt == request.time &&
+                       incoming().updatedAt == request.time;
+
+      allow update: if isValidId(questionnaireId) && 
+                       isValidDogQuestionnaire(incoming()) &&
+                       incoming().id == existing().id &&
+                       incoming().createdAt == existing().createdAt &&
+                       incoming().updatedAt == request.time;
+                       
+      allow delete: if isErico() || (isSignedIn() && resource.data.userId == request.auth.uid);
     }
   }
 }

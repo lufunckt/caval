@@ -53,16 +53,26 @@ export const Testimonials: React.FC = () => {
               </div>
 
               {/* Card Bottom / Personal profile metadata */}
-              <div className="border-t border-plum-brand/20 pt-6 flex justify-between items-center text-left" id={`test-bottom-${test.id}`}>
-                <div>
-                  <h4 className="font-serif text-base font-bold text-ivory">{test.name}</h4>
-                  <span className="font-sans text-[10px] text-forest font-semibold uppercase tracking-widest block mt-0.5">
-                    {test.role}
-                  </span>
+              <div className="border-t border-plum-brand/20 pt-6 flex justify-between items-center text-left gap-4" id={`test-bottom-${test.id}`}>
+                <div className="flex items-center gap-3">
+                  {test.avatarUrl && (
+                    <img
+                      src={test.avatarUrl}
+                      alt={test.name}
+                      referrerPolicy="no-referrer"
+                      className="w-12 h-12 rounded-full object-cover border border-plum-brand/30 bg-[#160E1A] shadow-soft shrink-0"
+                    />
+                  )}
+                  <div>
+                    <h4 className="font-serif text-base font-bold text-ivory">{test.name}</h4>
+                    <span className="font-sans text-[10px] text-forest font-semibold uppercase tracking-widest block mt-0.5">
+                      {test.role}
+                    </span>
+                  </div>
                 </div>
                 
                 {/* Dog Name & Breed Badge */}
-                <div className="text-right">
+                <div className="text-right shrink-0">
                   <span className="font-serif text-xs italic text-peach font-semibold block leading-none">
                     {test.dogName}
                   </span>
