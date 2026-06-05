@@ -18,6 +18,7 @@ import { TutorArea } from "./components/TutorArea";
 import { Footer } from "./components/Footer";
 import { FloatingWhatsApp } from "./components/FloatingWhatsApp";
 import { CanineNews } from "./components/CanineNews";
+import { CookieConsent } from "./components/CookieConsent";
 import { motion, AnimatePresence } from "motion/react";
 import { ArrowLeft, ArrowRight, Sparkles, AlertCircle } from "lucide-react";
 
@@ -302,6 +303,7 @@ export default function App() {
       </main>
 
       <Footer activeTab={activeTab} onTabChange={setActiveTab} />
+      <CookieConsent />
     </div>
   );
 }

@@ -626,6 +626,7 @@ export const TutorArea: React.FC = () => {
         content: newPostContent.trim(),
         avatarLetter: profileToUse.name.charAt(0).toUpperCase(),
         likes: 0,
+        comments: [],
         createdAt: serverTimestamp()
       };
       try {
@@ -785,7 +786,7 @@ export const TutorArea: React.FC = () => {
       setForumPosts(prev =>
         prev.map(p => {
           if (p.id === postId) {
-            updatedComments = [...p.comments, newComment];
+            updatedComments = [...(p.comments || []), newComment];
             return { ...p, comments: updatedComments };
           }
           return p;

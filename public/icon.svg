@@ -1,0 +1,38 @@
+<svg viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Rounded elegant dark signature brand background -->
+  <rect width="512" height="512" rx="112" fill="#1a1120"/>
+  
+  <!-- Subtly lighter interior radial boundary -->
+  <circle cx="256" cy="256" r="220" stroke="#63526E" stroke-opacity="0.25" stroke-width="4" />
+  
+  <g transform="translate(106, 106) scale(3.0)">
+    <!-- Human Face Silhouette (Left side, facing right) -->
+    <path
+      d="M30 20C33 20 37 25 35 30C33 34 39 37 41 39C43 41 45 40 43 43C41 46 39 45 37 49C35 53 38 56 34 60C31 63 32 68 30 72C28 75 25 78 22 80"
+      stroke="#fcf3e3"
+      stroke-width="2.5"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+
+    <!-- Central Relational Connection Point -->
+    <circle cx="49" cy="45" r="3.2" fill="#ED4C87" />
+
+    <!-- Canine/Dog Muzzle & Ears Silhouette (Right side, facing left) -->
+    <path
+      d="M74 25C76 28 72 34 68 36C64 38 61 36 57 41C54 44 55 48 57 52C59 55 64 56 63 60C62 63 56 66 59 70C61 73 66 76 68 79"
+      stroke="#6CBAA4"
+      stroke-width="2.5"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+
+    <!-- Supporting artistic arc on lower right -->
+    <path
+      d="M52 74C61 74 68 67 68 59"
+      stroke="#d5ab70"
+      stroke-width="1.8"
+      stroke-dasharray="2 3"
+    />
+  </g>
+</svg>

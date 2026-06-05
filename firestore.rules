@@ -65,7 +65,20 @@ service cloud.firestore {
              data.dog is string && data.dog.size() <= 120 &&
              data.content is string && data.content.size() > 0 && data.content.size() <= 3000 &&
              data.likes is number && data.likes >= 0 &&
-             data.likes <= 1000000;
+             data.likes <= 1000000 &&
+             data.comments is list && data.comments.size() <= 200;
+    }
+
+    function isValidDogPhotoPost(data) {
+      return data.id is string && data.id.size() <= 128 &&
+             data.author is string && data.author.size() <= 120 &&
+             data.dog is string && data.dog.size() <= 120 &&
+             data.caption is string && data.caption.size() <= 1000 &&
+             data.imageUrl is string && data.imageUrl.size() <= 2000 &&
+             data.avatarLetter is string && data.avatarLetter.size() <= 10 &&
+             data.likes is number && data.likes >= 0 &&
+             data.likes <= 100000 &&
+             data.comments is list && data.comments.size() <= 200;
     }
 
     function isValidChatMessage(data) {
@@ -161,9 +174,33 @@ service cloud.firestore {
                         isValidForumPost(incoming()) &&
                         incoming().createdAt == existing().createdAt &&
                         (
-                          // Action: Like increment/decrement
-                          incoming().diff(existing()).affectedKeys().hasOnly(['likes']) ||
+                          // Action: Like or Comment additions
+                          incoming().diff(existing()).affectedKeys().hasOnly(['likes', 'comments']) ||
                           // Action: Poster edits content
+                          (incoming().author == existing().author && isErico())
+                        );
+                        
+      allow delete: if isErico(); // Moderation ONLY
+    }
+
+    // 5. Dog Photo sharing timeline
+    match /dog_photos/{photoId} {
+      allow read: if isSignedIn();
+      
+      allow create: if isSignedIn() &&
+                        isValidId(photoId) &&
+                        isValidDogPhotoPost(incoming()) &&
+                        incoming().likes == 0 &&
+                        incoming().createdAt == request.time;
+                        
+      allow update: if isSignedIn() &&
+                        isValidId(photoId) &&
+                        isValidDogPhotoPost(incoming()) &&
+                        incoming().createdAt == existing().createdAt &&
+                        (
+                          // Action: Like or Comment additions
+                          incoming().diff(existing()).affectedKeys().hasOnly(['likes', 'comments']) ||
+                          // Action: Host edits
                           (incoming().author == existing().author && isErico())
                         );
                         

@@ -94,7 +94,7 @@ export const Footer: React.FC<FooterProps> = ({ activeTab, onTabChange }) => {
                   </span>
                   <div>
                     <span className="font-sans text-[10px] text-sand-deep block font-semibold uppercase leading-none">WhatsApp</span>
-                    <span className="font-sans font-medium mt-1 inline-block">+55 11 98888-7777</span>
+                    <span className="font-sans font-medium mt-1 inline-block">+55 (55) 99724-0369</span>
                   </div>
                 </a>
               </li>

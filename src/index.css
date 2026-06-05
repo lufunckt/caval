@@ -122,6 +122,7 @@ html[data-theme="light"] {
 
 html {
   scroll-behavior: smooth;
+  font-size: 105%; /* Proportional typography upgrade for overall readability */
 }
 
 body {

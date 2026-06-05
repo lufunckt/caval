@@ -84,6 +84,24 @@
         "updatedAt": { "type": "string", "format": "date-time" }
       },
       "required": ["id", "step", "dogName", "submitted"]
+    },
+    "DogPhotoPost": {
+      "title": "DogPhotoPost",
+      "description": "Postagem de foto compartilhada com a comunidade Tutor Co-piloto.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "author": { "type": "string" },
+        "dog": { "type": "string" },
+        "time": { "type": "string" },
+        "caption": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "avatarLetter": { "type": "string" },
+        "likes": { "type": "number" },
+        "comments": { "type": "array" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "author", "imageUrl", "likes", "createdAt"]
     }
   },
   "firestore": {
@@ -102,6 +120,10 @@
     "/forum_posts/{postId}": {
       "schema": "ForumPost",
       "description": "Root collection for global relational community postings."
+    },
+    "/dog_photos/{photoId}": {
+      "schema": "DogPhotoPost",
+      "description": "Root collection for global dog sharing photos feed."
     },
     "/dog_questionnaires/{questionnaireId}": {
       "schema": "DogQuestionnaire",
