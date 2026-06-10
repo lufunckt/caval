@@ -26,7 +26,7 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, onTabChange, theme, t
     { label: "Início", id: "inicio" },
     { label: "O Método", id: "metodo" },
     { label: "Sobre Érico", id: "sobre" },
-    { label: "Ebook & Conteúdo", id: "conteudo" },
+    { label: "E-book Exclusivo", id: "conteudo" },
     { label: "Diagnóstico", id: "diagnostico" },
     { label: "Área do Tutor", id: "tutor" },
   ];

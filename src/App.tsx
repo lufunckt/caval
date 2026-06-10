@@ -8,8 +8,6 @@ import { RelationalInsight } from "./components/RelationalInsight";
 import { Online } from "./components/Online";
 import { ConsultingServices } from "./components/ConsultingServices";
 import { Ebook } from "./components/Ebook";
-import { Blog } from "./components/Blog";
-import { InstagramFeed } from "./components/InstagramFeed";
 import { Testimonials } from "./components/Testimonials";
 import { DogQuestionnaire } from "./components/DogQuestionnaire";
 import { FinalCTA } from "./components/FinalCTA";
@@ -21,6 +19,7 @@ import { CanineNews } from "./components/CanineNews";
 import { CookieConsent } from "./components/CookieConsent";
 import { motion, AnimatePresence } from "motion/react";
 import { ArrowLeft, ArrowRight, Sparkles, AlertCircle } from "lucide-react";
+import ReactPixel from "react-facebook-pixel";
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<string>(() => {
@@ -34,6 +33,19 @@ export default function App() {
     return saved === "light" ? "light" : "dark";
   });
 
+  const [hasPixelConsent, setHasPixelConsent] = useState(() => {
+    try {
+      const consentText = localStorage.getItem("erico-cookie-consent");
+      if (consentText) {
+        const consent = JSON.parse(consentText);
+        return consent.performance === true;
+      }
+    } catch(e){}
+    return false;
+  });
+
+  const [pixelInitialized, setPixelInitialized] = useState(false);
+
   // Keep theme in sync with document attributes
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
@@ -44,10 +56,52 @@ export default function App() {
     setTheme((prev) => (prev === "dark" ? "light" : "dark"));
   };
 
+  useEffect(() => {
+    const handleConsentUpdate = () => {
+      try {
+        const consentText = localStorage.getItem("erico-cookie-consent");
+        if (consentText) {
+          const consent = JSON.parse(consentText);
+          setHasPixelConsent(consent.performance === true);
+        } else {
+          setHasPixelConsent(false);
+        }
+      } catch(e){
+        setHasPixelConsent(false);
+      }
+    };
+    window.addEventListener("erico-cookie-consent-updated", handleConsentUpdate);
+    return () => window.removeEventListener("erico-cookie-consent-updated", handleConsentUpdate);
+  }, []);
+
+  // Initialize and handle Meta Pixel based on consent
+  useEffect(() => {
+    if (hasPixelConsent && !pixelInitialized) {
+      const pixelId = import.meta.env.VITE_META_PIXEL_ID;
+      if (pixelId) {
+        const options = {
+          autoConfig: true,
+          debug: import.meta.env.DEV,
+        };
+        ReactPixel.init(pixelId, undefined, options);
+        ReactPixel.grantConsent();
+        ReactPixel.pageView();
+        setPixelInitialized(true);
+      }
+    } else if (hasPixelConsent === false && pixelInitialized) {
+      ReactPixel.revokeConsent();
+    }
+  }, [hasPixelConsent, pixelInitialized]);
+
   // Keep hash in sync with browser URL
   useEffect(() => {
     window.location.hash = activeTab;
-  }, [activeTab]);
+    
+    // Track Meta Pixel page view on tab change
+    if (import.meta.env.VITE_META_PIXEL_ID && hasPixelConsent && pixelInitialized) {
+      ReactPixel.pageView();
+    }
+  }, [activeTab, hasPixelConsent, pixelInitialized]);
 
   // Handle back/forward events in natural browsing
   useEffect(() => {
@@ -161,6 +215,9 @@ export default function App() {
                 <Marquee />
                 <RelationalInsight />
                 
+                {/* Ebook Download Section in Home */}
+                <Ebook />
+                
                 {/* Active Interactive Science Grounding News Feed */}
                 <CanineNews />
                 
@@ -232,14 +289,14 @@ export default function App() {
                   <div className="p-8 border border-plum-brand/20 bg-plum-deep/20 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-6 backdrop-blur-sm">
                     <div className="text-left">
                       <span className="text-[10px] font-mono tracking-widest text-[#d5ab70] uppercase font-bold">INSIGHTS GRATUITOS</span>
-                      <h4 className="font-serif text-lg font-bold text-ivory mt-1">Baixe o E-book & Faça a leitura do Blog</h4>
+                      <h4 className="font-serif text-lg font-bold text-ivory mt-1">Baixe o E-book</h4>
                       <p className="text-xs text-sand-deep mt-1 leading-relaxed">Aprenda a decifrar as reações e os comportamentos do seu cão.</p>
                     </div>
                     <button
                       onClick={() => handleTabTransition("conteudo")}
                       className="px-5 py-3 text-xs font-bold uppercase tracking-wider bg-[#efe7e7] text-[#160E1A] rounded duration-200 shrink-0 inline-flex items-center gap-1.5 cursor-pointer"
                     >
-                      <span>Ver E-book e Blog</span>
+                      <span>Ver E-book</span>
                       <ArrowRight size={13} className="text-[#160E1A]" />
                     </button>
                   </div>
@@ -250,8 +307,6 @@ export default function App() {
             {activeTab === "conteudo" && (
               <div id="tab-conteudo-view" className="animate-fade-in">
                 <Ebook />
-                <Blog />
-                <InstagramFeed />
               </div>
             )}
 

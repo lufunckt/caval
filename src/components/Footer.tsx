@@ -21,7 +21,7 @@ export const Footer: React.FC<FooterProps> = ({ activeTab, onTabChange }) => {
     { label: "Início", tabId: "inicio" },
     { label: "O Método", tabId: "metodo" },
     { label: "Sobre o Érico", tabId: "sobre" },
-    { label: "Ebook & Conteúdo", tabId: "conteudo" },
+    { label: "E-book Exclusivo", tabId: "conteudo" },
     { label: "Diagnóstico Canino", tabId: "diagnostico" },
     { label: "Área do Tutor", tabId: "tutor" },
   ];

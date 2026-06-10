@@ -24,12 +24,17 @@ export const CookieConsent: React.FC = () => {
     }
   }, []);
 
+  const dispatchConsentEvent = () => {
+    window.dispatchEvent(new Event("erico-cookie-consent-updated"));
+  };
+
   const handleAcceptAll = () => {
     localStorage.setItem(
       "erico-cookie-consent",
       JSON.stringify({ essential: true, performance: true, questionnaire: true, date: new Date().toISOString() })
     );
     setIsVisible(false);
+    dispatchConsentEvent();
   };
 
   const handleSavePreferences = () => {
@@ -39,6 +44,7 @@ export const CookieConsent: React.FC = () => {
     );
     setIsVisible(false);
     setShowPreferences(false);
+    dispatchConsentEvent();
   };
 
   const handleRejectAll = () => {
@@ -48,6 +54,7 @@ export const CookieConsent: React.FC = () => {
     );
     setIsVisible(false);
     setShowPreferences(false);
+    dispatchConsentEvent();
   };
 
   return (

@@ -27,10 +27,10 @@ export const Hero: React.FC = () => {
       <div className="absolute top-1/4 left-1/4 -translate-y-1/2 w-[350px] h-[350px] rounded-full bg-terracotta/5 blur-[120px] pointer-events-none" />
       <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] rounded-full bg-forest/5 blur-[140px] pointer-events-none" />
 
-      <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-center relative z-10">
+      <div className="max-w-7xl mx-auto w-full grid grid-cols-1 md:grid-cols-12 gap-8 lg:gap-12 items-center relative z-10">
         
         {/* Left Side: Brand positioning & High conversion text copy */}
-        <div className="lg:col-span-7 flex flex-col items-start text-left" id="hero-hero-copy">
+        <div className="md:col-span-7 lg:col-span-7 flex flex-col items-start text-left" id="hero-hero-copy">
           {/* Subtle Tagline / Micro-badge */}
           <div
             className="inline-flex items-center gap-2 border border-forest/30 bg-forest/10 px-3 py-1.5 rounded-full mb-6 reveal"
@@ -100,9 +100,9 @@ export const Hero: React.FC = () => {
         </div>
 
         {/* Right Side: Spectacular Editorial Magazine Layout Poster */}
-        <div className="lg:col-span-5 w-full flex justify-center lg:justify-end reveal delay-200" id="hero-editorial-poster">
+        <div className="md:col-span-5 lg:col-span-5 w-full flex justify-center md:justify-end reveal delay-200" id="hero-editorial-poster">
           {/* Main Photo Frame with realistic depth, texture, and elegant shadow */}
-          <div className="w-full max-w-[420px] aspect-[4/5] bg-[#efe7e7] border border-plum-brand/20 shadow-[-16px_16px_48px_rgba(10,5,15,0.6)] rounded-xl overflow-hidden relative group flex flex-col justify-between">
+          <div className="w-full max-w-[420px] aspect-[4/5] bg-[#efe7e7] border border-peach/30 shadow-[0_0_40px_rgba(235,165,138,0.15),-16px_16px_48px_rgba(10,5,15,0.6)] rounded-2xl overflow-hidden relative group flex flex-col justify-between transition-all duration-700 hover:shadow-[0_0_60px_rgba(235,165,138,0.3),-16px_16px_48px_rgba(10,5,15,0.7)] hover:border-peach/50">
             
             {/* The Image taking up the entire frame under overlays */}
             <div className="absolute inset-0 w-full h-full overflow-hidden">

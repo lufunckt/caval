@@ -12,16 +12,6 @@ async function startServer() {
 
   app.use(express.json());
 
-  // Initialize Gemini Client
-  const ai = new GoogleGenAI({
-    apiKey: process.env.GEMINI_API_KEY,
-    httpOptions: {
-      headers: {
-        "User-Agent": "aistudio-build",
-      },
-    },
-  });
-
   // Simple in-memory cache for news articles to optimize API calls
   let cachedNews: any[] | null = null;
   let lastFetched: number = 0;
@@ -39,6 +29,16 @@ async function startServer() {
       if (!process.env.GEMINI_API_KEY) {
         throw new Error("GEMINI_API_KEY is not defined in environment variables.");
       }
+
+      // Initialize Gemini Client lazily inside the route
+      const ai = new GoogleGenAI({
+        apiKey: process.env.GEMINI_API_KEY,
+        httpOptions: {
+          headers: {
+            "User-Agent": "aistudio-build",
+          },
+        },
+      });
 
       const prompt = `Search Google for the most recent reputable scientific articles, news, or breakthrough studies in "dog behavior science", "canine cognitive science", or "canine cooperative psychology" published recently.
       Retrieve and structure exactly 4 distinct reputable articles or research updates.
