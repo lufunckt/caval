@@ -8,7 +8,7 @@ export const About: React.FC = () => {
   const [useFallback, setUseFallback] = useState(false);
 
   return (
-    <section id="sobre" className="relative py-24 px-6 overflow-hidden bg-charcoal/40">
+    <section id="sobre" className="relative pt-32 pb-24 px-6 overflow-hidden bg-charcoal/40">
       {/* Decorative radial gradients */}
       <div className="absolute top-1/2 left-0 -translate-y-1/2 w-[300px] h-[300px] rounded-full bg-forest/5 blur-[120px] pointer-events-none" />
 

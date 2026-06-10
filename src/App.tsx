@@ -165,46 +165,13 @@ export default function App() {
 
       <main className="pt-[80px]" id="scrollable-landing-content">
         
-        {/* Elegant Tab Index Navigation Hub (helps avoid scroll pollution completely) */}
-        <div className="bg-charcoal border-b border-plum-brand/15 py-3.5 px-6 sticky top-[73px] z-30 backdrop-blur-md bg-charcoal/90" id="tabs-index-hub">
-          <div className="max-w-4xl mx-auto flex items-center justify-start sm:justify-center gap-2 overflow-x-auto no-scrollbar py-1">
-            {[
-              { id: "inicio", label: "Apresentação", sub: "Home" },
-              { id: "metodo", label: "O Método", sub: "Relacional" },
-              { id: "sobre", label: "Érico Cavalheiro", sub: "Sobre" },
-              { id: "conteudo", label: "Ebook & Conteúdos", sub: "Insights" },
-              { id: "diagnostico", label: "Fazer Diagnóstico", sub: "Quiz" },
-              { id: "tutor", label: "Área do Tutor", sub: "Portal" },
-            ].map((tab) => {
-              const isActive = activeTab === tab.id;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => handleTabTransition(tab.id)}
-                  className={`px-4 py-2.5 rounded-full text-xs font-semibold tracking-wide uppercase transition-all duration-300 shrink-0 text-center flex flex-col items-center justify-center min-w-[120px] focus:outline-none cursor-pointer border ${
-                    isActive
-                      ? "bg-ivory text-charcoal border-transparent shadow-warm scale-[1.02]"
-                      : "bg-[#1f1725]/30 hover:bg-[#1f1725]/60 hover:text-ivory text-sand/75 border-plum-brand/15"
-                  }`}
-                  id={`hub-tab-trigger-${tab.id}`}
-                >
-                  <span className="text-[10px] sm:text-[11px] font-sans font-bold leading-none">{tab.label}</span>
-                  <span className={`text-[8px] tracking-wider uppercase mt-0.5 leading-none block ${isActive ? "text-rose-brand" : "text-sand-deep/60"}`}>
-                    {tab.sub}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
         <AnimatePresence mode="wait">
           <motion.div
             key={activeTab}
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -15 }}
-            transition={{ duration: 0.35, ease: "easeOut" }}
+            transition={{ duration: 0.4, ease: "easeOut" }}
             className="focus:outline-none"
             id={`tab-container-${activeTab}`}
           >
@@ -222,21 +189,21 @@ export default function App() {
                 <CanineNews />
                 
                 {/* Guided Editorial Reader flow widget to make tabs super user friendly */}
-                <div className="max-w-3xl mx-auto px-6 py-12 text-center" id="guided-flow-1">
-                  <div className="p-8 border border-plum-brand/20 bg-plum-deep/20 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-6 backdrop-blur-sm">
+                <div className="max-w-4xl mx-auto px-6 py-20 text-center" id="guided-flow-1">
+                  <div className="p-10 border border-forest/20 bg-forest/5 rounded-3xl flex flex-col sm:flex-row items-center justify-between gap-8 backdrop-blur-md hover:border-forest/40 transition-colors duration-500">
                     <div className="text-left">
-                      <span className="text-[10px] font-mono tracking-widest text-[#d5ab70] uppercase font-bold flex items-center gap-1">
-                        <Sparkles size={11} /> PRÓXIMO CAPÍTULO
+                      <span className="text-[11px] font-mono tracking-[0.2em] text-forest uppercase font-bold flex items-center gap-2 mb-2">
+                        <Sparkles size={14} /> PRÓXIMO CAPÍTULO
                       </span>
-                      <h4 className="font-serif text-lg font-bold text-ivory mt-1">Conheça o Método de Educação Relacional</h4>
-                      <p className="text-xs text-sand-deep mt-1 leading-relaxed">Entenda como construímos a clareza e o vínculo real.</p>
+                      <h4 className="font-serif text-2xl font-bold text-ivory">Aprofunde no Método</h4>
+                      <p className="text-sm text-sand-deep mt-2 leading-relaxed max-w-sm">Descubra os pilares que sustentam uma convivência baseada em respeito e clareza.</p>
                     </div>
                     <button
                       onClick={() => handleTabTransition("metodo")}
-                      className="px-5 py-3 text-xs font-bold uppercase tracking-wider bg-[#efe7e7] hover:bg-[#eae0e0] text-[#160E1A] rounded duration-200 shrink-0 inline-flex items-center gap-1.5 cursor-pointer shadow-soft"
+                      className="group px-8 py-4 text-xs font-bold uppercase tracking-widest bg-forest text-charcoal rounded-full hover:bg-forest/90 hover:scale-105 active:scale-95 transition-all duration-300 shrink-0 inline-flex items-center gap-2 cursor-pointer shadow-lift"
                     >
-                      <span>Ver o Método</span>
-                      <ArrowRight size={13} className="text-[#160E1A]" />
+                      <span>Explorar o Método</span>
+                      <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
                     </button>
                   </div>
                 </div>
@@ -255,21 +222,21 @@ export default function App() {
                 <Online />
                 
                 {/* Guided Action flow */}
-                <div className="max-w-3xl mx-auto px-6 py-12 text-center animate-fade-in" id="guided-flow-2">
-                  <div className="p-8 border border-plum-brand/20 bg-plum-deep/20 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-6 backdrop-blur-sm">
+                <div className="max-w-4xl mx-auto px-6 py-20 text-center" id="guided-flow-2">
+                  <div className="p-10 border border-peach/20 bg-peach/5 rounded-3xl flex flex-col sm:flex-row items-center justify-between gap-8 backdrop-blur-md hover:border-peach/40 transition-colors duration-500">
                     <div className="text-left">
-                      <span className="text-[10px] font-mono tracking-widest text-forest uppercase font-bold flex items-center gap-1">
-                        <Sparkles size={11} /> EXAME CORTÊS
+                      <span className="text-[11px] font-mono tracking-[0.2em] text-peach uppercase font-bold flex items-center gap-2 mb-2">
+                        <Sparkles size={14} /> DIAGNÓSTICO ATIVO
                       </span>
-                      <h4 className="font-serif text-lg font-bold text-ivory mt-1">Diagnóstico Gratuito de Vínculo</h4>
-                      <p className="text-xs text-sand-deep mt-1 leading-relaxed">Responda a perguntas simples e entenda a qualidade da relação com seu cão.</p>
+                      <h4 className="font-serif text-2xl font-bold text-ivory">Avalie seu Vínculo</h4>
+                      <p className="text-sm text-sand-deep mt-2 leading-relaxed max-w-sm">Um questionário técnico para entender como está a comunicação entre você e seu cão.</p>
                     </div>
                     <button
                       onClick={() => handleTabTransition("diagnostico")}
-                      className="px-5 py-3 text-xs font-bold uppercase tracking-wider bg-gradient-clay text-charcoal rounded duration-200 shrink-0 inline-flex items-center gap-1.5 cursor-pointer shadow-soft"
+                      className="group px-8 py-4 text-xs font-bold uppercase tracking-widest bg-peach text-charcoal rounded-full hover:bg-peach/90 hover:scale-105 active:scale-95 transition-all duration-300 shrink-0 inline-flex items-center gap-2 cursor-pointer shadow-lift"
                     >
-                      <span>Fazer Diagnóstico</span>
-                      <ArrowRight size={13} />
+                      <span>Fazer Diagnóstico Gratuito</span>
+                      <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
                     </button>
                   </div>
                 </div>
@@ -285,16 +252,16 @@ export default function App() {
                 {/* <Testimonials /> */}
                 
                 {/* Guided flow callback */}
-                <div className="max-w-3xl mx-auto px-6 py-12 text-center" id="guided-flow-3">
-                  <div className="p-8 border border-plum-brand/20 bg-plum-deep/20 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-6 backdrop-blur-sm">
+                <div className="max-w-3xl mx-auto px-6 py-20 text-center" id="guided-flow-3">
+                  <div className="p-10 border border-plum-brand/20 bg-plum-deep/20 rounded-3xl flex flex-col sm:flex-row items-center justify-between gap-8 backdrop-blur-md hover:border-plum-brand/40 transition-colors duration-500">
                     <div className="text-left">
-                      <span className="text-[10px] font-mono tracking-widest text-[#d5ab70] uppercase font-bold">INSIGHTS GRATUITOS</span>
+                      <span className="text-[11px] font-mono tracking-[0.2em] text-peach uppercase font-bold">INSIGHTS GRATUITOS</span>
                       <h4 className="font-serif text-lg font-bold text-ivory mt-1">Baixe o E-book</h4>
                       <p className="text-xs text-sand-deep mt-1 leading-relaxed">Aprenda a decifrar as reações e os comportamentos do seu cão.</p>
                     </div>
                     <button
                       onClick={() => handleTabTransition("conteudo")}
-                      className="px-5 py-3 text-xs font-bold uppercase tracking-wider bg-[#efe7e7] text-[#160E1A] rounded duration-200 shrink-0 inline-flex items-center gap-1.5 cursor-pointer"
+                      className="group px-8 py-4 text-xs font-bold uppercase tracking-widest bg-ivory text-charcoal rounded-full hover:bg-ivory/90 hover:scale-105 active:scale-95 transition-all duration-300 shrink-0 inline-flex items-center gap-2 cursor-pointer shadow-lift"
                     >
                       <span>Ver E-book</span>
                       <ArrowRight size={13} className="text-[#160E1A]" />
@@ -327,18 +294,18 @@ export default function App() {
                 <DogQuestionnaire />
                 
                 {/* Guide to direct help */}
-                <div className="max-w-3xl mx-auto px-6 py-12 text-center" id="diagnostico-whatsapp-callout">
-                  <div className="p-6 border border-plum-brand/25 bg-plum-deep/30 rounded-2xl">
+                <div className="max-w-4xl mx-auto px-6 py-20 text-center" id="diagnostico-whatsapp-callout">
+                  <div className="p-10 border border-peach/20 bg-peach/5 rounded-3xl backdrop-blur-md">
                     <AlertCircle className="mx-auto text-peach mb-3" size={24} />
-                    <h4 className="font-serif text-base font-bold text-ivory">Gostaria de discutir o resultado com o Érico?</h4>
-                    <p className="text-xs text-sand-deep mt-1 leading-relaxed max-w-md mx-auto mb-4">
+                    <h4 className="font-serif text-2xl font-bold text-ivory">Gostaria de discutir o resultado com o Érico?</h4>
+                    <p className="text-sm text-sand-deep mt-2 leading-relaxed max-w-sm mx-auto mb-8">
                       Compartilhe os resultados de sua avaliação em sua consultoria particular para que possamos traçar uma trajetória sob medida.
                     </p>
                     <button
                       onClick={() => handleTabTransition("inicio")}
-                      className="px-4 py-2 text-[10px] font-sans font-bold tracking-wider text-sand hover:text-forest uppercase transition-colors"
+                      className="group px-8 py-4 text-xs font-bold uppercase tracking-widest bg-peach text-charcoal rounded-full hover:bg-peach/90 hover:scale-105 active:scale-95 transition-all duration-300 inline-flex items-center gap-2 cursor-pointer shadow-lift"
                     >
-                      ← Voltar ao Início
+                      <span>Voltar ao Início</span>
                     </button>
                   </div>
                 </div>
