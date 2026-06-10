@@ -44,7 +44,7 @@ export const Hero: React.FC = () => {
 
           {/* Main Headline */}
           <h1
-            className="font-serif text-4xl xs:text-5xl sm:text-6xl lg:text-[70px] text-ivory font-bold leading-[1.05] tracking-tight mb-6 text-balance reveal delay-100"
+            className="font-serif text-5xl xs:text-6xl sm:text-7xl lg:text-[84px] text-ivory font-bold leading-[1.1] tracking-tight mb-6 text-balance reveal delay-100"
             id="hero-headline"
           >
             Antes do <span className="text-rose-brand">comando</span>, <br className="hidden sm:inline" />

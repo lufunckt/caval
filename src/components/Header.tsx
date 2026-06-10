@@ -58,14 +58,14 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, onTabChange, theme, t
         </a>
 
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-8" aria-label="Navegação principal">
+        <nav className="hidden md:flex items-center gap-10" aria-label="Navegação principal">
           {navItems.map((item) => (
             <a
               key={item.id}
               href={`#${item.id}`}
               onClick={(e) => handleTabClick(e, item.id)}
               aria-current={activeTab === item.id ? "page" : undefined}
-              className={`text-sm font-medium transition-colors duration-200 uppercase tracking-widest text-[11px] relative py-1 ${
+              className={`text-[12px] font-bold transition-all duration-300 uppercase tracking-[0.1em] relative py-1 ${
                 activeTab === item.id
                   ? "text-forest font-bold"
                   : "text-sand hover:text-forest"
@@ -144,7 +144,7 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, onTabChange, theme, t
       {/* Mobile drawer menu */}
       {isOpen && (
         <div
-          className="md:hidden fixed inset-0 top-[73px] bg-charcoal/98 backdrop-blur-lg z-40 flex flex-col justify-between p-8 border-t border-plum-brand/20 animate-fade-in"
+          className="md:hidden fixed inset-0 top-[73px] bg-charcoal/98 backdrop-blur-lg z-40 flex flex-col justify-between p-6 border-t border-plum-brand/20 animate-fade-in"
           id="mobile-navigation-drawer"
         >
           <nav className="flex flex-col gap-6" aria-label="Navegação móvel">

@@ -68,7 +68,13 @@ async function startServer() {
 
       const text = response.text || "";
       const cleanJson = text.replace(/```json/g, "").replace(/```/g, "").trim();
-      const parsed = JSON.parse(cleanJson);
+      let parsed;
+      try {
+        parsed = JSON.parse(cleanJson);
+      } catch (parseErr) {
+        console.error("Canine News: Falha ao processar resposta da IA. Ativando contingência.");
+        throw new Error("Invalid JSON format from AI");
+      }
 
       if (Array.isArray(parsed) && parsed.length > 0) {
         cachedNews = parsed;

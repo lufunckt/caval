@@ -219,6 +219,16 @@ export const DogQuestionnaire: React.FC = () => {
   };
 
   const selectedIssueDetails = ISSUES.find((i) => i.id === form.primaryIssue);
+  const getPreliminaryAdvice = (issueId: string) => {
+    switch (issueId) {
+      case "reactivity": return "Dica imediata: Durante passeios, mantenha distância de outros cães para evitar picos de cortisol até nossa conversa.";
+      case "separation_anxiety": return "Dica imediata: Comece a ignorar o cão 15 minutos antes de sair e 15 minutos ao chegar para reduzir a ansiedade.";
+      case "excessive_excitement": return "Dica imediata: Utilize exercícios de farejo em casa para gastar energia mental e promover calma.";
+      case "puppy_frustration": return "Dica imediata: Redirecione mordidas para brinquedos apropriados sempre que o filhote tentar morder suas mãos.";
+      case "fears_phobias": return "Dica imediata: Forneça um local seguro e escuro onde o cão possa se esconder se sentir medo.";
+      default: return "Prepare-se para observar os sinais sutis que seu cão emite durante o dia a dia.";
+    }
+  };
 
   // Generates beautifully written, formatted custom text for whatsapp sending
   const handleComposeWhatsappMessage = async () => {
@@ -290,7 +300,55 @@ export const DogQuestionnaire: React.FC = () => {
       <div className="max-w-4xl mx-auto px-6 relative z-10" id="questionnaire-container">
         
         {/* Header Block */}
-        <div className="max-w-2xl mx-auto mb-16 text-center" id="questionnaire-header">
+
+        {/* Visual Progress Bar */}
+        <div className="max-w-md mx-auto mb-12 px-4" id="questionnaire-progress-container">
+          <div className="flex justify-between items-center mb-2">
+            <span className="text-[10px] font-mono font-bold text-forest uppercase tracking-widest">Progresso do Diagnóstico</span>
+            <span className="text-[10px] font-mono font-bold text-sand-deep">{Math.round((step / 4) * 100)}%</span>
+          </div>
+          <div className="h-1.5 w-full bg-plum-brand/20 rounded-full overflow-hidden">
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{ width: `${(step / 4) * 100}%` }}
+              transition={{ duration: 0.5, ease: "circOut" }}
+              className="h-full bg-forest shadow-[0_0_10px_rgba(108,186,164,0.4)]"
+            />
+          </div>
+          <div className="flex justify-between mt-3 px-1">
+            {[1, 2, 3, 4].map((s) => (
+              <div
+                key={s}
+                className={`h-1.5 w-1.5 rounded-full transition-all duration-500 ${step >= s ? "bg-forest scale-125" : "bg-plum-brand/40"}`}
+              />
+            ))}
+          </div>
+        </div>
+
+        {/* Visual Progress Bar */}
+        <div className="max-w-md mx-auto mb-12 px-4" id="questionnaire-progress-container">
+          <div className="flex justify-between items-center mb-2">
+            <span className="text-[10px] font-mono font-bold text-forest uppercase tracking-widest">Progresso do Diagnóstico</span>
+            <span className="text-[10px] font-mono font-bold text-sand-deep">{Math.round((step / 4) * 100)}%</span>
+          </div>
+          <div className="h-1.5 w-full bg-plum-brand/20 rounded-full overflow-hidden">
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{ width: `${(step / 4) * 100}%` }}
+              transition={{ duration: 0.5, ease: "circOut" }}
+              className="h-full bg-forest shadow-[0_0_10px_rgba(108,186,164,0.4)]"
+            />
+          </div>
+          <div className="flex justify-between mt-3 px-1">
+            {[1, 2, 3, 4].map((s) => (
+              <div
+                key={s}
+                className={`h-1.5 w-1.5 rounded-full transition-all duration-500 ${step >= s ? 'bg-forest scale-125' : 'bg-plum-brand/40'}`}
+              />
+            ))}
+          </div>
+        </div>
+<div className="max-w-2xl mx-auto mb-16 text-center" id="questionnaire-header">
           <span className="font-sans text-xs uppercase tracking-widest font-bold text-peach mb-3 inline-block">
             QUERO CONHECER A SUA HISTÓRIA
           </span>
@@ -597,28 +655,46 @@ export const DogQuestionnaire: React.FC = () => {
                       </div>
 
                       {/* Generated Summary Card preview */}
-                      <div className="p-5 bg-black/40 border border-white/10 rounded-xl space-y-3 font-sans text-xs sm:text-sm" id="summary-preview">
-                        <div className="flex justify-between border-b border-white/5 pb-2">
-                          <span className="text-sand-deep font-semibold">Nome do Cão:</span>
-                          <span className="text-ivory font-medium font-serif italic text-base">{form.dogName}</span>
+                      <div className="p-6 bg-plum-brand/10 border border-forest/30 rounded-2xl shadow-lift space-y-4 font-sans text-xs sm:text-sm" id="summary-preview">
+                        <div className="space-y-3">
+                          <div className="flex justify-between border-b border-white/5 pb-2">
+                            <span className="text-sand-deep font-semibold">Nome do Cão:</span>
+                            <span className="text-ivory font-medium font-serif italic text-base">{form.dogName}</span>
+                          </div>
+                          <div className="flex justify-between border-b border-white/5 pb-2">
+                            <span className="text-sand-deep font-semibold">Raça / Idade:</span>
+                            <span className="text-ivory font-medium">{form.dogBreed || "Sem raça"} • {form.dogAge || "Não informada"}</span>
+                          </div>
+                          <div className="flex justify-between border-b border-white/5 pb-2">
+                            <span className="text-sand-deep font-semibold">Transtorno Principal:</span>
+                            <span className="text-peach font-bold align-right">{selectedIssueDetails?.label}</span>
+                          </div>
+                          <div className="flex justify-between border-b border-white/5 pb-2">
+                            <span className="text-sand-deep font-semibold">Nível Estimado:</span>
+                            <span className="text-rose-brand font-bold uppercase tracking-widest">{form.intensity}</span>
+                          </div>
                         </div>
-                        <div className="flex justify-between border-b border-white/5 pb-2">
-                          <span className="text-sand-deep font-semibold">Raça / Idade:</span>
-                          <span className="text-ivory font-medium">{form.dogBreed || "Sem raça"} • {form.dogAge || "Não informada"}</span>
-                        </div>
-                        <div className="flex justify-between border-b border-white/5 pb-2">
-                          <span className="text-sand-deep font-semibold">Transtorno Principal:</span>
-                          <span className="text-peach font-bold align-right">{selectedIssueDetails?.label}</span>
-                        </div>
-                        <div className="flex justify-between border-b border-white/5 pb-2">
-                          <span className="text-sand-deep font-semibold">Nível Estimado:</span>
-                          <span className="text-rose-brand font-bold uppercase tracking-widest">{form.intensity}</span>
-                        </div>
+
                         <div className="flex flex-col gap-1.5 pt-1">
                           <span className="text-sand-deep font-semibold">Minúcia Comportamental:</span>
                           <p className="text-sand/95 italic bg-plum-deep/30 p-3 rounded border border-white/5 leading-relaxed font-light font-sans text-xs">
                             "{form.additionalNotes || "Nenhum contexto extra relatado."}"
                           </p>
+                        </div>
+
+                        {/* Preliminary Advice Section */}
+                        <div className="mt-6 p-5 bg-forest/10 border border-forest/30 rounded-xl shadow-warm group/advice hover:bg-forest/15 transition-all duration-300">
+                          <h4 className="text-forest font-bold uppercase tracking-[0.2em] text-[11px] mb-3 flex items-center gap-2">
+                            <Sparkles size={14} className="animate-pulse" /> Conselho Preliminar de Érico
+                          </h4>
+                          <div className="flex gap-3 items-start">
+                            <div className="p-2 rounded-lg bg-forest/20 text-forest shrink-0">
+                              <ShieldAlert size={18} />
+                            </div>
+                            <p className="text-ivory/90 text-sm font-serif italic leading-relaxed">
+                              {getPreliminaryAdvice(form.primaryIssue)}
+                            </p>
+                          </div>
                         </div>
                       </div>
                     </motion.div>

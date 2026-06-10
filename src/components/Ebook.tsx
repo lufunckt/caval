@@ -115,23 +115,35 @@ export const Ebook: React.FC = () => {
             </div>
 
             {/* Primary conversion CTA - opens TALLY LINK directly in new tab */}
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 reveal delay-400" id="ebook-action-box">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-6 reveal delay-400" id="ebook-action-box">
               <a
                 href={CONFIG.TALLY_EBOOK_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group inline-flex items-center justify-center gap-2.5 uppercase font-sans text-xs font-bold tracking-widest bg-gradient-clay text-charcoal px-8 py-4 rounded-sm shadow-warm hover:bg-terracotta hover:text-ivory hover:scale-[1.03] hover:shadow-[0_12px_25px_rgba(237,76,135,0.3)] active:scale-[0.96] active:bg-[#e780a4] transition-all duration-300 transform cursor-pointer"
-                id="ebook-download-button"
+                className="group inline-flex items-center justify-center gap-3 uppercase font-sans text-xs font-bold tracking-widest bg-gradient-clay text-charcoal px-10 py-5 rounded-sm shadow-warm hover:bg-terracotta hover:text-ivory hover:scale-[1.05] hover:shadow-[0_15px_30px_rgba(237,76,135,0.4)] active:scale-[0.96] transition-all duration-300 transform cursor-pointer"
+                id="ebook-tally-button"
               >
                 <span className="font-sans font-bold flex items-center gap-2">
-                  Baixar ebook gratuito
-                  <Download size={14} className="group-hover:translate-y-0.5 transition-transform" />
+                  Receber via WhatsApp/E-mail
+                  <Download size={16} className="group-hover:translate-y-0.5 transition-transform" />
                 </span>
               </a>
 
-              <span className="font-sans text-[10px] text-sand-deep uppercase tracking-widest text-center sm:text-left">
-                • PDF gratuito enviado instantaneamente no seu canal preferido.
-              </span>
+              <div className="flex flex-col items-center sm:items-start gap-2">
+                <a
+                  href={(CONFIG as any).EBOOK_DOWNLOAD_URL}
+                  download
+                  className="group inline-flex items-center justify-center gap-2.5 uppercase font-sans text-[10px] font-bold tracking-widest bg-white/5 text-ivory border border-white/10 px-6 py-3 rounded-sm hover:bg-white/10 transition-all duration-300 transform cursor-pointer"
+                  id="ebook-direct-download-button"
+                >
+                  <span className="font-sans font-bold flex items-center gap-2">
+                    Download Direto
+                  </span>
+                </a>
+                <span className="font-sans text-[9px] text-sand-deep uppercase tracking-[0.2em] opacity-70">
+                  PDF • 2.4MB • Guia Visual
+                </span>
+              </div>
             </div>
 
           </div>

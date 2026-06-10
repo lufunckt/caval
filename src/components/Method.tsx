@@ -22,7 +22,7 @@ export const Method: React.FC = () => {
   };
 
   return (
-    <section id="metodo" className="relative py-24 px-6 overflow-hidden bg-charcoal">
+    <section id="metodo" className="relative pt-32 pb-24 px-6 overflow-hidden bg-charcoal">
       {/* Decorative gradients */}
       <div className="absolute top-0 right-0 w-[400px] h-[400px] rounded-full bg-peach/5 blur-[150px] pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-[400px] h-[400px] rounded-full bg-rose-brand/5 blur-[150px] pointer-events-none" />
@@ -51,7 +51,7 @@ export const Method: React.FC = () => {
             return (
               <div
                 key={pillar.number}
-                className={`group relative rounded-xl bg-plum-deep/40 border border-plum-brand/25 p-8 transition-all duration-300 overflow-hidden text-left cursor-pointer hover:border-sand-deep/40 hover:-translate-y-1.5 reveal ${delayClass}`}
+                className={`group relative rounded-xl bg-plum-deep/40 border border-plum-brand/25 p-8 transition-all duration-300 overflow-hidden text-left cursor-pointer hover:border-forest/40 hover:-translate-y-1.5 reveal ${delayClass}`}
                 onMouseEnter={() => setHoveredIdx(idx)}
                 onMouseLeave={() => setHoveredIdx(null)}
                 id={`method-pillar-card-${idx}`}
