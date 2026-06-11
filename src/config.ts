@@ -24,5 +24,8 @@ export const CONFIG = {
   },
 
   // Ebook lead collection URL (Tally)
-  TALLY_EBOOK_URL: "https://tally.so/r/wMDpPe", // High-converting placeholder layout or real Tally form ID
+  TALLY_EBOOK_URL: "https://tally.so/r/wMDpPe",
+
+  // Direct Ebook download from public folder
+  EBOOK_FILE_URL: "/vinculo-sem-comando.pdf",
 };
