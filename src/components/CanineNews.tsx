@@ -34,12 +34,13 @@ export function CanineNews() {
     }
     setError(null);
     try {
-      const url = forceRefresh ? "/api/canine-news?refresh=true" : "/api/canine-news";
-      const res = await fetch(url);
-      if (!res.ok) {
-        throw new Error(`Servidor retornou status ${res.status}`);
-      }
-      const data = await res.json();
+      const { supabase } = await import("../lib/supabase");
+      const { data, error: functionError } = await supabase.functions.invoke("canine-news", {
+        body: { refresh: forceRefresh }
+      });
+
+      if (functionError) throw functionError;
+
       if (data.success && data.articles) {
         setArticles(data.articles);
         setIsFallback(!!data.isFallback);

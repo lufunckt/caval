@@ -17,7 +17,7 @@ import { Footer } from "./components/Footer";
 import { FloatingWhatsApp } from "./components/FloatingWhatsApp";
 import { CanineNews } from "./components/CanineNews";
 import { CookieConsent } from "./components/CookieConsent";
-import { motion, AnimatePresence } from "motion/react";
+import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, ArrowRight, Sparkles, AlertCircle } from "lucide-react";
 import ReactPixel from "react-facebook-pixel";
 
