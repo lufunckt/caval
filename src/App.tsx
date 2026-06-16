@@ -306,6 +306,7 @@ export default function App() {
                       className="group px-8 py-4 text-xs font-bold uppercase tracking-widest bg-peach text-charcoal rounded-full hover:bg-peach/90 hover:scale-105 active:scale-95 transition-all duration-300 inline-flex items-center gap-2 cursor-pointer shadow-lift"
                     >
                       <span>Voltar ao Início</span>
+                      <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
                     </button>
                   </div>
                 </div>

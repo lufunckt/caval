@@ -26,3 +26,9 @@ interface ImportMetaEnv {
 interface ImportMeta {
   readonly env: ImportMetaEnv;
 }
+
+// Fix for react-facebook-pixel if needed
+declare module 'react-facebook-pixel' {
+    const ReactPixel: any;
+    export default ReactPixel;
+}

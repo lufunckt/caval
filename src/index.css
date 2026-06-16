@@ -156,3 +156,8 @@ body {
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
 }
+
+/* Ensure clean scroll for tutor area */
+#tutor-area-portal {
+  scroll-margin-top: 100px;
+}

@@ -111,7 +111,7 @@ export const TutorArea: React.FC = () => {
 
   const [accessCode, setAccessCode] = useState("");
   const [isLocalLoggedIn, setIsLocalLoggedIn] = useState(false);
-  const isLoggedIn = user ? (isEricoAdmin ? true : !!userProfile) : isLocalLoggedIn;
+  const isLoggedIn = (user && (isEricoAdmin || (userProfile && userProfile.isAuthorized))) || isLocalLoggedIn;
 
   const [errorMsg, setErrorMsg] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -631,10 +631,9 @@ export const TutorArea: React.FC = () => {
   const handleLogout = async () => {
     if (user) {
       await googleLogout();
-    } else {
-      setIsLocalLoggedIn(false);
-      localStorage.removeItem("erico_tutor_logged");
     }
+    setIsLocalLoggedIn(false);
+    localStorage.removeItem("erico_tutor_logged");
   };
 
   // Toggle tasks and update XP/progress
@@ -1058,7 +1057,7 @@ export const TutorArea: React.FC = () => {
       <div className="max-w-6xl mx-auto relative z-10" id="tutor-portal-wrapper">
         
         <AnimatePresence mode="wait">
-          {user && !userProfile && !isEricoAdmin ? (
+          {user && !userProfile && !isEricoAdmin && !isLocalLoggedIn ? (
             /* =========================================================
                1.1 TUTOR PROFILE ONBOARDING (Authenticated with Google, no Firestore profile yet)
                ========================================================= */
@@ -1188,7 +1187,7 @@ export const TutorArea: React.FC = () => {
                 </button>
               </form>
             </motion.div>
-          ) : (user && userProfile && !userProfile.isAuthorized && !isEricoAdmin) ? (
+          ) : (user && userProfile && !userProfile.isAuthorized && !isEricoAdmin && !isLocalLoggedIn) ? (
             /* =========================================================
                1.2 PENDING AUTHORIZATION SPLASH SCREEN (Authenticated, has profile, but not yet approved)
                ========================================================= */
