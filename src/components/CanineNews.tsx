@@ -34,13 +34,12 @@ export function CanineNews() {
     }
     setError(null);
     try {
-      const { supabase } = await import("../lib/supabase");
-      const { data, error: functionError } = await supabase.functions.invoke("canine-news", {
-        body: { refresh: forceRefresh }
-      });
-
-      if (functionError) throw functionError;
-
+      const url = forceRefresh ? "/api/canine-news?refresh=true" : "/api/canine-news";
+      const res = await fetch(url);
+      if (!res.ok) {
+        throw new Error(`Servidor retornou status ${res.status}`);
+      }
+      const data = await res.json();
       if (data.success && data.articles) {
         setArticles(data.articles);
         setIsFallback(!!data.isFallback);
@@ -52,7 +51,7 @@ export function CanineNews() {
         throw new Error("Formato de resposta inesperado do servidor.");
       }
     } catch (err: any) {
-      console.error("Erro ao carregar Canine News:", err);
+      console.warn("Canine News fetch failed, attempting fallback or reporting error:", err);
       setError("Dificuldade temporária ao conectar com o barramento de grounding. Exibindo insights científicos de segurança.");
     } finally {
       setLoading(false);

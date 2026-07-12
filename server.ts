@@ -3,6 +3,11 @@ import path from "path";
 import dotenv from "dotenv";
 import { createServer as createViteServer } from "vite";
 import { GoogleGenAI } from "@google/genai";
+import { initializeApp } from "firebase-admin/app";
+import { getFirestore, FieldValue } from "firebase-admin/firestore";
+
+initializeApp();
+const db = getFirestore();
 
 dotenv.config();
 
@@ -11,6 +16,41 @@ async function startServer() {
   const PORT = 3000;
 
   app.use(express.json());
+
+  // API Route for Ebook Lead Capture
+  app.post("/api/capture-email", async (req, res) => {
+    const { email } = req.body;
+    if (!email) {
+      return res.status(400).json({ success: false, message: "Email is required" });
+    }
+
+    try {
+      const leadId = crypto.randomUUID();
+      await db.collection("ebook_leads").doc(leadId).set({
+        id: leadId,
+        email,
+        createdAt: FieldValue.serverTimestamp()
+      });
+      
+      // TODO: Integrate with Mailchimp/similar here
+      console.log(`Lead captured: ${email}`);
+      
+      res.json({ success: true, downloadUrl: "/ebook.pdf" });
+    } catch (error) {
+      console.error("Error capturing lead:", error);
+      res.status(500).json({ success: false, message: "Internal server error" });
+    }
+  });
+
+  // Initialize Gemini Client
+  const ai = new GoogleGenAI({
+    apiKey: process.env.GEMINI_API_KEY,
+    httpOptions: {
+      headers: {
+        "User-Agent": "aistudio-build",
+      },
+    },
+  });
 
   // Simple in-memory cache for news articles to optimize API calls
   let cachedNews: any[] | null = null;
@@ -29,16 +69,6 @@ async function startServer() {
       if (!process.env.GEMINI_API_KEY) {
         throw new Error("GEMINI_API_KEY is not defined in environment variables.");
       }
-
-      // Initialize Gemini Client lazily inside the route
-      const ai = new GoogleGenAI({
-        apiKey: process.env.GEMINI_API_KEY,
-        httpOptions: {
-          headers: {
-            "User-Agent": "aistudio-build",
-          },
-        },
-      });
 
       const prompt = `Search Google for the most recent reputable scientific articles, news, or breakthrough studies in "dog behavior science", "canine cognitive science", or "canine cooperative psychology" published recently.
       Retrieve and structure exactly 4 distinct reputable articles or research updates.
