@@ -1,0 +1,9 @@
+[project]
+name = "caval-landing-automation-agent"
+version = "0.1.0"
+description = "Agente local para validar e publicar a landing do ebook Caval"
+requires-python = ">=3.11"
+dependencies = ["openai-agents>=0.3.0", "python-dotenv>=1.0.0"]
+
+[project.scripts]
+caval-agent = "agent:main"
