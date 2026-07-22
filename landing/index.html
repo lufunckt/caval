@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Antes do Comando | Ebook gratuito</title>
+  <meta name="description" content="Baixe gratuitamente o ebook Antes do Comando, de Érico Cavalheiro, e aprenda a observar o que seu cão comunica antes de corrigir." />
+  <meta name="theme-color" content="#63526E" />
+  <meta property="og:title" content="Antes do Comando | Ebook gratuito" />
+  <meta property="og:description" content="Um guia para observar o que seu cão está tentando comunicar antes de corrigir." />
+  <meta property="og:image" content="/assets/capa.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="header">
+    <a class="brand" href="#top" aria-label="Érico Cavalheiro"><img src="/assets/logo-erico.png" alt="Érico Cavalheiro — educação relacional"></a>
+    <span class="eyebrow">EBOOK GRATUITO</span>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="kicker">GUIA GRATUITO · COMPORTAMENTO CANINO</p>
+        <h1>Antes do comando,<br><em>existe relação.</em></h1>
+        <p class="lead">Baixe um guia prático para compreender o que seu cão está tentando comunicar antes de corrigir seu comportamento.</p>
+        <ul class="benefits">
+          <li>Observe sinais antes da reação.</li>
+          <li>Entenda como ambiente e rotina afetam o comportamento.</li>
+          <li>Pratique um exercício de observação durante três dias.</li>
+        </ul>
+
+        <form id="lead-form" class="lead-form" novalidate>
+          <h2>Receba o ebook gratuitamente</h2>
+          <label>Seu nome<input id="name" name="name" autocomplete="name" minlength="2" required></label>
+          <label>WhatsApp com DDD<input id="whatsapp" name="whatsapp" inputmode="tel" autocomplete="tel" placeholder="(55) 99999-9999" required></label>
+          <label class="consent"><input id="consent" type="checkbox" required><span>Autorizo o envio do ebook e de conteúdos sobre comportamento canino e educação relacional pelo WhatsApp. Posso interromper o recebimento a qualquer momento.</span></label>
+          <button id="submit-button" type="submit">QUERO RECEBER O EBOOK</button>
+          <p id="form-status" class="status" role="status" aria-live="polite"></p>
+          <small>Seus dados serão usados apenas para o envio do material e de conteúdos relacionados ao trabalho de Érico Cavalheiro.</small>
+        </form>
+      </div>
+
+      <div class="cover-wrap" aria-label="Capa do ebook Antes do Comando">
+        <div class="cover-shadow"></div>
+        <img src="/assets/capa.png" alt="Capa do ebook Antes do Comando" class="cover" />
+      </div>
+    </section>
+
+    <section class="content-section">
+      <div>
+        <p class="kicker">ANTES DE CORRIGIR</p>
+        <h2>Aprenda a perceber.</h2>
+      </div>
+      <div class="topics">
+        <article><strong>01</strong><span>Comportamento como comunicação</span></article>
+        <article><strong>02</strong><span>Ambiente, rotina e previsibilidade</span></article>
+        <article><strong>03</strong><span>Limites claros sem punição</span></article>
+        <article><strong>04</strong><span>Reforço, socialização e conexão</span></article>
+      </div>
+    </section>
+
+    <section class="about">
+      <div>
+        <p class="kicker">SOBRE O AUTOR</p>
+        <h2>Érico Cavalheiro</h2>
+        <p>Especialista em comportamento canino e educação relacional. Seu trabalho parte da observação, da presença e da construção de relações mais seguras entre humanos e cães.</p>
+      </div>
+      <a class="secondary-cta" href="#lead-form">BAIXAR O GUIA GRATUITO</a>
+    </section>
+  </main>
+
+  <footer>
+    <span>© 2026 Érico Cavalheiro</span>
+    <a href="/privacidade.html">Política de Privacidade</a>
+  </footer>
+
+  <dialog id="success-dialog">
+    <div class="dialog-content">
+      <button id="close-dialog" class="close" aria-label="Fechar">×</button>
+      <p class="kicker">CADASTRO CONCLUÍDO</p>
+      <h2>Seu ebook está pronto.</h2>
+      <p>Comece observando uma situação cotidiana com seu cão antes de tentar modificá-la.</p>
+      <a id="download-link" class="download" href="/assets/antes-do-comando.pdf" download>BAIXAR “ANTES DO COMANDO”</a>
+      <a class="whatsapp" href="https://wa.me/5555997240369?text=Ol%C3%A1%20%C3%89rico%2C%20baixei%20o%20ebook%20Antes%20do%20Comando%20e%20gostaria%20de%20conhecer%20melhor%20seu%20trabalho." target="_blank" rel="noopener">FALAR COM ÉRICO NO WHATSAPP</a>
+    </div>
+  </dialog>
+
+  <script type="module" src="/app.js"></script>
+</body>
+</html>
