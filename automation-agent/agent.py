@@ -75,7 +75,12 @@ def validate_landing() -> str:
         "no_main_branch": _branch_guard()["ok"],
     }
     node = _run(["node", "--check", "landing/app.js"], timeout=30)
+<<<<<<< HEAD
     rules_text = (REPO / "firestore.rules").read_text(encoding="utf-8")`n    rules = {"ok": "rules_version = \\"2\\";" in rules_text and "data.keys().hasOnly" in rules_text and "match /ebook_leads/{leadId}" in rules_text}
+=======
+    rules_text = (REPO / "firestore.rules").read_text(encoding="utf-8")
+    rules = {"ok": "rules_version" in rules_text and "data.keys().hasOnly" in rules_text and "match /ebook_leads/{leadId}" in rules_text}
+>>>>>>> ca2a9f1 (feat: add landing release agent)
     result = {"ok": not missing and not bad and all(checks.values()) and node["ok"], "checks": checks, "bad_references": bad, "node": {"ok": node["ok"], "stderr": node.get("stderr", "")}, "firebase_rules_static": {"ok": rules["ok"]}}
     return json.dumps(result, ensure_ascii=False)
 
