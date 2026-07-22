@@ -88,8 +88,16 @@ service cloud.firestore {
     }
 
     function isValidEbookLead(data) {
-      return data.id is string && data.id.size() <= 128 &&
-             data.email is string && data.email.size() > 5 && data.email.size() <= 254;
+      return data.keys().hasOnly(['id', 'name', 'whatsapp', 'consent', 'source', 'utm_source', 'utm_medium', 'utm_campaign', 'createdAt']) &&
+             data.id is string && data.id.size() > 0 && data.id.size() <= 128 &&
+             data.name is string && data.name.size() >= 2 && data.name.size() <= 120 &&
+             data.whatsapp is string && data.whatsapp.matches('^55[0-9]{10,11}$') &&
+             data.consent == true &&
+             data.source is string && data.source.size() > 0 && data.source.size() <= 100 &&
+             data.utm_source is string && data.utm_source.size() <= 100 &&
+             data.utm_medium is string && data.utm_medium.size() <= 100 &&
+             data.utm_campaign is string && data.utm_campaign.size() <= 100 &&
+             data.createdAt == request.time;
     }
 
     // --- Path Specific Matchers ---
@@ -195,13 +203,12 @@ service cloud.firestore {
       allow delete: if isErico() || (isSignedIn() && resource.data.userId == request.auth.uid);
     }
 
-    // 6. Ebook Leads (Email capture)
+    // 6. Ebook Leads (public create only)
     match /ebook_leads/{leadId} {
-      allow create: if isValidId(leadId) && 
+      allow create: if isValidId(leadId) &&
                        isValidEbookLead(incoming()) &&
-                       incoming().id == leadId &&
-                       incoming().createdAt == request.time;
-      allow read, delete: if isErico();
+                       incoming().id == leadId;
+      allow read, update, delete: if false;
     }
   }
 }

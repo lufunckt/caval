@@ -37,6 +37,7 @@ form.addEventListener('submit', async event => {
 
   const name = document.querySelector('#name').value.trim();
   const whatsapp = normalizePhone(document.querySelector('#whatsapp').value);
+  const params = new URLSearchParams(location.search);
   const consent = document.querySelector('#consent').checked;
 
   if (name.length < 2) return showError('Digite seu nome.');
@@ -48,17 +49,15 @@ form.addEventListener('submit', async event => {
 
   try {
     const id = crypto.randomUUID();
-    const params = new URLSearchParams(location.search);
     await setDoc(doc(db, 'ebook_leads', id), {
       id,
-      email: `${whatsapp}@lead.whatsapp`,
       name,
       whatsapp: `55${whatsapp}`,
       consent: true,
       source: 'landing-antes-do-comando',
-      utm_source: params.get('utm_source') || '',
-      utm_medium: params.get('utm_medium') || '',
-      utm_campaign: params.get('utm_campaign') || '',
+      utm_source: (params.get('utm_source') || '').trim().slice(0, 100),
+      utm_medium: (params.get('utm_medium') || '').trim().slice(0, 100),
+      utm_campaign: (params.get('utm_campaign') || '').trim().slice(0, 100),
       createdAt: serverTimestamp()
     });
     form.reset();
