@@ -23,11 +23,10 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, onTabChange, theme, t
   }, []);
 
   const navItems = [
-    { label: "Início", id: "inicio" },
-    { label: "O Método", id: "metodo" },
-    { label: "Sobre Érico", id: "sobre" },
-    { label: "Ebook & Conteúdo", id: "conteudo" },
-    { label: "Diagnóstico", id: "diagnostico" },
+    { label: "Atendimento online", id: "inicio" },
+    { label: "Método", id: "metodo" },
+    { label: "Sobre o Érico", id: "sobre" },
+    { label: "Conteúdos", id: "conteudo" },
     { label: "Área do Tutor", id: "tutor" },
   ];
 
@@ -35,10 +34,6 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, onTabChange, theme, t
     e.preventDefault();
     setIsOpen(false);
     onTabChange(tabId);
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
   };
 
 
@@ -53,12 +48,12 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, onTabChange, theme, t
     >
       <div className="max-w-7xl mx-auto px-6 flex items-center justify-between" id="header-container">
         {/* Logo and Personal Brand */}
-        <a href="#" onClick={(e) => handleTabClick(e, "inicio")} className="focus:outline-none" aria-label="Voltar ao início">
+        <a href="#" onClick={(e) => handleTabClick(e, "inicio")} className="focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-forest" aria-label="Voltar ao início">
           <Logo />
         </a>
 
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-8" aria-label="Navegação principal">
+        <nav className="hidden lg:flex items-center gap-5" aria-label="Navegação principal">
           {navItems.map((item) => (
             <a
               key={item.id}
@@ -81,10 +76,10 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, onTabChange, theme, t
         </nav>
 
         {/* Desktop Call To Action */}
-        <div className="hidden md:flex items-center gap-4" id="desktop-cta-container">
+        <div className="hidden lg:flex items-center gap-4" id="desktop-cta-container">
           <button
             onClick={toggleTheme}
-            className="p-2 ml-1 rounded-full border border-plum-brand/20 hover:bg-plum-brand/10 text-sand hover:text-forest transition-colors duration-200 focus:outline-none flex items-center justify-center cursor-pointer"
+            className="p-2 ml-1 rounded-full border border-plum-brand/20 hover:bg-plum-brand/10 text-sand hover:text-forest transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-forest flex items-center justify-center cursor-pointer"
             aria-label={`Alternar para tema ${theme === "dark" ? "claro" : "escuro"}`}
             title={`Alternar para tema ${theme === "dark" ? "claro" : "escuro"}`}
             id="desktop-theme-toggle"
@@ -100,7 +95,7 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, onTabChange, theme, t
             href={CONFIG.WHATSAPP_URL}
             target="_blank"
             rel="noopener noreferrer"
-            aria-label="Agendar conversa profissional de educação canina pelo WhatsApp"
+            aria-label="Agendar pelo WhatsApp profissional de educação canina pelo WhatsApp"
             className="group relative inline-flex items-center bg-gradient-clay p-0.5 text-xs font-bold uppercase tracking-wider text-charcoal rounded-sm shadow-warm hover:scale-[1.02] transition-transform duration-300 p-[1px]"
             id="header-cta-button"
           >
@@ -108,17 +103,17 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, onTabChange, theme, t
               className="relative z-10 flex items-center gap-1.5 font-sans font-bold text-charcoal px-5 py-2.5 rounded-[1px] transition-colors"
               style={{ backgroundColor: "#f9eded" }}
             >
-              Agendar conversa
+              Agendar pelo WhatsApp
               <ArrowUpRight size={14} className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform duration-300" />
             </span>
           </a>
         </div>
 
         {/* Mobile menu and theme buttons container */}
-        <div className="flex items-center gap-2 md:hidden">
+        <div className="flex items-center gap-2 lg:hidden">
           <button
             onClick={toggleTheme}
-            className="p-2.5 rounded-full border border-plum-brand/20 text-sand hover:text-forest transition-colors duration-200 focus:outline-none flex items-center justify-center cursor-pointer"
+            className="p-2.5 rounded-full border border-plum-brand/20 text-sand hover:text-forest transition-colors duration-200 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-forest flex items-center justify-center cursor-pointer"
             aria-label={`Alternar para tema ${theme === "dark" ? "claro" : "escuro"}`}
             id="mobile-theme-toggle"
           >
@@ -131,7 +126,7 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, onTabChange, theme, t
 
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="text-sand hover:text-ivory p-2 focus:outline-none"
+            className="text-sand hover:text-ivory p-2 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-forest"
             aria-label={isOpen ? "Fechar menu" : "Abrir menu"}
             aria-expanded={isOpen}
             id="mobile-menu-trigger"
@@ -144,7 +139,7 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, onTabChange, theme, t
       {/* Mobile drawer menu */}
       {isOpen && (
         <div
-          className="md:hidden fixed inset-0 top-[73px] bg-charcoal/98 backdrop-blur-lg z-40 flex flex-col justify-between p-8 border-t border-plum-brand/20 animate-fade-in"
+          className="lg:hidden fixed inset-0 top-[73px] bg-charcoal/98 backdrop-blur-lg z-40 flex flex-col justify-between p-8 border-t border-plum-brand/20 animate-fade-in"
           id="mobile-navigation-drawer"
         >
           <nav className="flex flex-col gap-6" aria-label="Navegação móvel">
@@ -172,11 +167,11 @@ export const Header: React.FC<HeaderProps> = ({ activeTab, onTabChange, theme, t
               href={CONFIG.WHATSAPP_URL}
               target="_blank"
               rel="noopener noreferrer"
-              aria-label="Agendar conversa profissional de educação canina pelo WhatsApp"
+              aria-label="Agendar pelo WhatsApp profissional de educação canina pelo WhatsApp"
               className="w-full text-center bg-gradient-clay py-4 text-sm font-bold uppercase tracking-wider text-charcoal rounded-sm shadow-warm"
               id="mobile-drawer-whatsapp-btn"
             >
-              Agendar Conversa WhatsApp
+              Agendar pelo WhatsApp
             </a>
             <p className="text-[11px] text-center text-sand-deep tracking-wider uppercase font-sans mt-2">
               “Antes do comando, existe relação.”
