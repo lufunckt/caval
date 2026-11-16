@@ -14,15 +14,15 @@ export const Online: React.FC = () => {
           {/* Left Column: Value Proposition & High End Copy */}
           <div className="min-w-0 text-left" id="online-info">
             <span className="font-sans text-xs uppercase tracking-widest font-bold text-rose-brand mb-3 block reveal">
-              SUPORTE SEM FRONTEIRAS GEOGRÁFICAS
+              ATENDIMENTO POR VIDEOCHAMADA
             </span>
             
             <h2 className="font-serif text-3xl sm:text-4xl lg:text-[46px] text-ivory font-bold leading-tight mb-6 reveal delay-100" id="online-header">
-              Como funciona o atendimento online
+              Como funciona o adestramento online
             </h2>
 
             <p className="font-sans text-sm sm:text-base text-sand/90 leading-relaxed mb-6 reveal delay-200" id="online-text-1">
-              Você conversa com o Érico por videochamada e recebe um plano de orientação para a rotina com seu cão.
+              O Érico analisa com você os comportamentos que mais dificultam a convivência e orienta o que praticar em casa ou nos passeios. A consulta é feita por videochamada.
             </p>
 
 
@@ -35,7 +35,7 @@ export const Online: React.FC = () => {
                 <div className="text-left">
                   <h4 className="font-serif text-sm font-bold text-ivory">1. Envio Prévio de Vídeos</h4>
                   <p className="font-sans text-xs text-sand-deep leading-relaxed mt-1">
-                    Você filma a dinâmica da casa e as reações indesejadas do cão para diagnóstico minucioso.
+                    Quando for seguro, registre situações da rotina em que o comportamento aparece. Os vídeos ajudam o Érico a entender o contexto.
                   </p>
                 </div>
               </div>
@@ -47,7 +47,7 @@ export const Online: React.FC = () => {
                 <div className="text-left">
                   <h4 className="font-serif text-sm font-bold text-ivory">2. Videoconferência ao Vivo</h4>
                   <p className="font-sans text-xs text-sand-deep leading-relaxed mt-1">
-                    Uma sessão individual de 1h30m onde explico o modelo psicológico por trás do comportamento.
+                    Na sessão individual de 1h30, vocês conversam sobre os sinais do cão e sobre o que costuma acontecer antes de cada reação.
                   </p>
                 </div>
               </div>
@@ -59,7 +59,7 @@ export const Online: React.FC = () => {
                 <div className="text-left">
                   <h4 className="font-serif text-sm font-bold text-ivory">3. Desenho de Rotina</h4>
                   <p className="font-sans text-xs text-sand-deep leading-relaxed mt-1">
-                    Criamos um cronograma detalhado de passeios regulados, enriquecimento e limites.
+                    Você recebe orientações de passeio, atividades em casa e ajustes na rotina para praticar com seu cão.
                   </p>
                 </div>
               </div>
