@@ -233,3 +233,23 @@ body {
   .editorial-grid { grid-template-columns:1fr; }
   .editorial-card { min-height: 15.5rem; }
 }
+
+.editorial-home #brand-logo-text-block > div,
+.editorial-home #main-app-header nav a,
+.editorial-home #mobile-menu-trigger { color:#26190f; }
+.editorial-home #main-app-header nav a[aria-current="page"] { color:#8a2d12; }
+.editorial-collage__tile { position:relative; }
+.editorial-collage__tile img { position:absolute; inset:0; margin:auto; display:block; }
+.editorial-collage__tile--yellow span { font-size:clamp(.9rem,2vw,2.5rem); }
+.editorial-hero__copy { min-width:0; }
+.editorial-hero h1 {
+  max-width:100%;
+  font-size:clamp(2rem,4.5vw,4.75rem);
+  line-height:.92;
+  letter-spacing:-.04em;
+  text-wrap:balance;
+}
+@media (max-width: 700px) {
+  .editorial-hero h1 { font-size:clamp(1.9rem,8.7vw,3.6rem); }
+  .editorial-hero__copy { padding:1.7rem 1.25rem; }
+}
