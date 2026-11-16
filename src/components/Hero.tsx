@@ -22,7 +22,7 @@ export function Hero() {
       <div className="editorial-hero__copy">
         <p className="editorial-kicker">Érico Cavalheiro · Educação Relacional</p>
         <h1 id="hero-headline">Adestramento online para cães</h1>
-        <p>Seu cão late, avança ou se agita no passeio? Converse por videochamada e receba orientações para a rotina de vocês.</p>
+        <p>Seu cão late ou avança ao ver outros cães? Converse com o adestrador Érico Cavalheiro por videochamada, de qualquer lugar do Brasil, e receba orientações para o passeio e a rotina em casa.</p>
         <a id="hero-cta-whatsapp" className="editorial-action" href={CONFIG.WHATSAPP_URL} target="_blank" rel="noopener noreferrer">
           Agendar pelo WhatsApp <ArrowUpRight size={17} aria-hidden="true" />
         </a>
