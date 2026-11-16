@@ -5,6 +5,7 @@ import { createServer as createViteServer } from "vite";
 import { GoogleGenAI } from "@google/genai";
 import { initializeApp } from "firebase-admin/app";
 import { getFirestore, FieldValue } from "firebase-admin/firestore";
+import { randomUUID } from "crypto";
 
 initializeApp();
 const db = getFirestore();
@@ -25,7 +26,7 @@ async function startServer() {
     }
 
     try {
-      const leadId = crypto.randomUUID();
+      const leadId = randomUUID();
       await db.collection("ebook_leads").doc(leadId).set({
         id: leadId,
         email,
@@ -42,15 +43,25 @@ async function startServer() {
     }
   });
 
-  // Initialize Gemini Client
-  const ai = new GoogleGenAI({
-    apiKey: process.env.GEMINI_API_KEY,
-    httpOptions: {
-      headers: {
-        "User-Agent": "aistudio-build",
-      },
-    },
-  });
+  // Lazy Initialize Gemini Client
+  let ai: GoogleGenAI | null = null;
+  function getGeminiClient() {
+    if (!ai) {
+      const apiKey = process.env.GEMINI_API_KEY;
+      if (!apiKey) {
+        throw new Error("GEMINI_API_KEY is not defined in environment variables.");
+      }
+      ai = new GoogleGenAI({
+        apiKey,
+        httpOptions: {
+          headers: {
+            "User-Agent": "aistudio-build",
+          },
+        },
+      });
+    }
+    return ai;
+  }
 
   // Simple in-memory cache for news articles to optimize API calls
   let cachedNews: any[] | null = null;
@@ -66,9 +77,7 @@ async function startServer() {
     }
 
     try {
-      if (!process.env.GEMINI_API_KEY) {
-        throw new Error("GEMINI_API_KEY is not defined in environment variables.");
-      }
+      const gemini = getGeminiClient();
 
       const prompt = `Search Google for the most recent reputable scientific articles, news, or breakthrough studies in "dog behavior science", "canine cognitive science", or "canine cooperative psychology" published recently.
       Retrieve and structure exactly 4 distinct reputable articles or research updates.
@@ -87,7 +96,7 @@ async function startServer() {
 
       Return ONLY the raw JSON array string. No markdown wrappers, no code blocks (do NOT use \`\`\`json or similar), and no additional text or conversational fluff before/after the JSON. Just a single valid JSON array.`;
 
-      const response = await ai.models.generateContent({
+      const response = await gemini.models.generateContent({
         model: "gemini-3.5-flash",
         contents: prompt,
         config: {
