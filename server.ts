@@ -1,5 +1,6 @@
 import express from "express";
 import path from "path";
+import { readFile } from "node:fs/promises";
 import dotenv from "dotenv";
 import { createServer as createViteServer } from "vite";
 import { GoogleGenAI } from "@google/genai";
@@ -17,6 +18,18 @@ async function startServer() {
   const PORT = 3000;
 
   app.use(express.json());
+  app.use((req, res, next) => {
+    if (req.hostname === "previa.ericoadestrador.com.br" || req.hostname.endsWith(".sslip.io")) {
+      res.setHeader("X-Robots-Tag", "noindex");
+    }
+    next();
+  });
+  app.get("/sitemap.xml", (_req, res) => res.type("application/xml").send(`<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://ericoadestrador.com.br/</loc></url>
+  <url><loc>https://ericoadestrador.com.br/questionario-comportamento-canino</loc></url>
+</urlset>`));
+  app.get("/robots.txt", (_req, res) => res.type("text/plain").send("User-agent: *\nSitemap: https://ericoadestrador.com.br/sitemap.xml\n"));
 
   // API Route for Ebook Lead Capture
   app.post("/api/capture-email", async (req, res) => {
@@ -174,6 +187,16 @@ async function startServer() {
     app.use(vite.middlewares);
   } else {
     const distPath = path.join(process.cwd(), "dist");
+    const indexHtml = await readFile(path.join(distPath, "index.html"), "utf8");
+    const questionnaireUrl = "https://ericoadestrador.com.br/questionario-comportamento-canino";
+    const questionnaireTitle = "Questionário de comportamento canino | Érico Cavalheiro";
+    const questionnaireDescription = "Seu cachorro late, avança no passeio ou fica agitado com visitas? Responda sobre a rotina dele e envie um resumo ao Érico pelo WhatsApp.";
+    const questionnaireHtml = indexHtml
+      .replace(/<title>[^<]*<\/title>/, `<title>${questionnaireTitle}</title>`)
+      .replace(/(<meta (?:name="description"|property="(?:og:description|twitter:description)") content=")[^"]*"/g, `$1${questionnaireDescription}"`)
+      .replace(/(<meta property="(?:og:title|twitter:title)" content=")[^"]*"/g, `$1${questionnaireTitle}"`)
+      .replace(/(<(?:link rel="canonical" href|meta property="(?:og:url|twitter:url)" content)=")[^"]*"/g, `$1${questionnaireUrl}"`);
+    app.get("/questionario-comportamento-canino", (_req, res) => res.type("html").send(questionnaireHtml));
     app.use(express.static(distPath));
     app.get("*", (req, res) => {
       res.sendFile(path.join(distPath, "index.html"));
