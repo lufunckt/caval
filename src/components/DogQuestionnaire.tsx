@@ -173,11 +173,11 @@ export const DogQuestionnaire: React.FC<{ embedded?: boolean }> = ({ embedded = 
     const uppercaseIntensity = form.intensity.toUpperCase();
     
     const message = `Olá Érico, acabei de realizar o questionário diagnóstico no seu site para o meu cão!\n\n` +
-      `🐾 *PERFIL DO CÃO* 🐾\n` +
+      `*PERFIL DO CÃO*\n` +
       `• *Nome:* ${form.dogName}\n` +
       `• *Idade:* ${form.dogAge || "Não especificada"}\n` +
       `• *Raça:* ${form.dogBreed || "Não especificada/SDR"}\n\n` +
-      `⚠️ *COMPORTAMENTO DIAGNOSTICADO* ⚠️\n` +
+      `*COMPORTAMENTO RELATADO*\n` +
       `• *Problema Principal:* ${issueLabel}\n` +
       `• *Grau de Intensidade:* ${uppercaseIntensity}\n` +
       `• *Relato Prático:* "${form.additionalNotes || "Sem observações adicionais."}"\n\n` +
