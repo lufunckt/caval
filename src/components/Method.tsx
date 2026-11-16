@@ -32,14 +32,14 @@ export const Method: React.FC = () => {
         {/* Section Header */}
         <div className="max-w-2xl mx-auto mb-16 text-center reveal" id="method-section-header">
           <span className="font-sans text-xs uppercase tracking-widest font-bold text-forest mb-3 inline-block">
-            MÉTODOLOGIA INTEGRADORA E HUMANA
+            EDUCAÇÃO RELACIONAL
           </span>
           <h2 className="font-serif text-3xl sm:text-4xl lg:text-[46px] text-ivory font-bold leading-tight mb-6">
-            O Método de Educação Relacional
+            Educação relacional e comportamento canino
           </h2>
           <div className="w-16 h-1 bg-gradient-clay mx-auto mb-6" />
           <p className="font-sans text-sm sm:text-base text-sand/80 leading-relaxed text-balance">
-            Nossa metodologia foca na causa raiz dos desvios de comportamento, trabalhando a percepção do tutor, a estabilidade do lar e o equilíbrio das emoções do cão de forma científica e afetiva.
+            Observe o que acontece antes de seu cão latir, puxar a guia ou avançar. O método de Educação Relacional ajuda você a reconhecer esses sinais e a ajustar o ambiente, a rotina e a comunicação com seu cão.
           </p>
         </div>
 
