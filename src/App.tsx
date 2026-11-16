@@ -74,7 +74,7 @@ export default function App() {
   }
 
   return (
-    <div className={`relative min-h-screen selection:bg-forest selection:text-charcoal bg-charcoal${activeTab === "inicio" ? " editorial-home" : ""}`} id="main-landing-app">
+    <div className={`relative min-h-screen selection:bg-forest selection:text-charcoal bg-charcoal editorial-site${activeTab === "inicio" ? " editorial-home" : ""}`} id="main-landing-app">
       <a href="#conteudo-principal" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:bg-ivory focus:text-charcoal focus:p-3">
         Pular para o conteúdo
       </a>
@@ -149,6 +149,10 @@ export default function App() {
           {activeTab === "sobre" && <About />}
           {activeTab === "conteudo" && (
             <>
+              <header className="gallery-page-intro">
+                <h1>Conteúdos sobre comportamento canino</h1>
+                <p>Explore o e-book, os artigos e as leituras sobre a convivência com seu cão.</p>
+              </header>
               <Ebook />
               <Blog />
               <CanineNews />
@@ -158,11 +162,11 @@ export default function App() {
           )}
           {activeTab === "diagnostico" && (
             <div id="tab-diagnostico-view">
-              <section className="mx-auto max-w-3xl px-6 pb-8 pt-10 text-center sm:pt-16">
+              <section className="gallery-page-intro gallery-page-intro--questionnaire">
                 <h1 className="font-serif text-4xl font-bold leading-tight text-ivory sm:text-5xl">Questionário de comportamento canino</h1>
                 <p className="mx-auto mt-4 max-w-xl text-base leading-relaxed text-sand">Seu cachorro late, avança no passeio ou fica agitado com visitas? Responda sobre a rotina dele e envie um resumo ao Érico pelo WhatsApp.</p>
                 <p className="mt-3 text-sm text-sand-deep">Você pode revisar as respostas antes de compartilhar.</p>
-                <a href="#dog-questionnaire-section" className="mt-6 inline-flex min-h-11 items-center rounded-sm bg-ivory px-6 font-semibold text-charcoal">Começar questionário</a>
+                <a href="#dog-questionnaire-section" className="editorial-action">Começar questionário</a>
               </section>
               <Suspense fallback={<p role="status" className="px-6 py-8 text-center text-sand">Carregando questionário…</p>}>
                 <DogQuestionnaire embedded />
