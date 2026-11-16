@@ -85,7 +85,7 @@ export const About: React.FC = () => {
             </span>
 
             <h2 className="font-serif text-3xl sm:text-4xl lg:text-[46px] text-ivory font-bold leading-tight mb-6 reveal delay-100" id="about-headline">
-              Um olhar que começa no humano.
+              Érico Cavalheiro, adestrador e educador canino
             </h2>
 
             <p className="font-sans text-base sm:text-lg text-sand/95 leading-relaxed mb-6 font-medium reveal delay-200" id="about-main-lead">
@@ -110,7 +110,7 @@ export const About: React.FC = () => {
               <div>
                 <h4 className="font-serif text-sm font-bold text-ivory text-left">Psicologia & Convivência Saudável</h4>
                 <p className="font-sans text-[12px] text-sand-deep text-left leading-normal mt-1">
-                  Abordagem fundamentada no respeito absoluto à biologia canina e cognição animal, integrando psicologia humana e educação comportamental canina.
+                  Na prática, a psicologia canina ajuda a entender como o cão aprende e reage ao ambiente. O trabalho de Érico leva esse olhar para situações concretas, como receber visitas, conviver com outros cães e passear com mais previsibilidade.
                 </p>
               </div>
             </div>
