@@ -22,7 +22,7 @@ export const Footer: React.FC<FooterProps> = ({ activeTab, onTabChange }) => {
     { label: "O Método", tabId: "metodo" },
     { label: "Sobre o Érico", tabId: "sobre" },
     { label: "Ebook & Conteúdo", tabId: "conteudo" },
-    { label: "Diagnóstico Canino", tabId: "diagnostico" },
+    { label: "Questionário canino", tabId: "diagnostico" },
     { label: "Área do Tutor", tabId: "tutor" },
   ];
 
@@ -52,7 +52,7 @@ export const Footer: React.FC<FooterProps> = ({ activeTab, onTabChange }) => {
               {footerLinksByPage.map((link) => (
                 <a
                   key={link.tabId}
-                  href={`#${link.tabId}`}
+                  href={link.tabId === "diagnostico" ? "/questionario-comportamento-canino" : `/#${link.tabId}`}
                   onClick={(e) => {
                     e.preventDefault();
                     onTabChange(link.tabId);
