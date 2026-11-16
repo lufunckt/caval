@@ -1,5 +1,6 @@
 import { lazy, Suspense, useEffect, useState } from "react";
 import { Header } from "./components/Header";
+import ericoPortrait from "./assets/images/about-erico-D9eoGtnm.jpg";
 import { Hero } from "./components/Hero";
 import { Online } from "./components/Online";
 import { FinalCTA } from "./components/FinalCTA";
@@ -73,7 +74,7 @@ export default function App() {
   }
 
   return (
-    <div className="relative min-h-screen selection:bg-forest selection:text-charcoal bg-charcoal" id="main-landing-app">
+    <div className={`relative min-h-screen selection:bg-forest selection:text-charcoal bg-charcoal${activeTab === "inicio" ? " editorial-home" : ""}`} id="main-landing-app">
       <a href="#conteudo-principal" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:bg-ivory focus:text-charcoal focus:p-3">
         Pular para o conteúdo
       </a>
@@ -90,21 +91,38 @@ export default function App() {
           {activeTab === "inicio" && (
             <>
               <Hero />
-              <section className="mx-auto max-w-5xl px-6 py-10" aria-labelledby="para-quem">
-                <h2 id="para-quem" className="font-serif text-3xl font-bold text-ivory">Para quem é o atendimento?</h2>
-                <ul className="mt-4 grid list-disc gap-3 pl-5 text-sand sm:grid-cols-3">
-                  <li>Seu cão late ou avança ao ver outros cães no passeio.</li>
-                  <li>Ele fica agitado com visitas, barulhos ou mudanças na rotina.</li>
-                  <li>Você quer entender os sinais do seu cão e melhorar a convivência.</li>
-                </ul>
+              <div className="editorial-strip" aria-label="Atalhos do atendimento">
+                <a href="#para-quem">Para quem é <span aria-hidden="true">✦</span></a>
+                <a href="#aula-online">Como funciona <span aria-hidden="true">✦</span></a>
+                <a href={questionnairePath}>Questionário <span aria-hidden="true">✦</span></a>
+              </div>
+              <section className="editorial-intro" aria-labelledby="para-quem">
+                <span className="editorial-mark" aria-hidden="true">✳</span>
+                <h2 id="para-quem">Mais clareza na convivência com seu cão</h2>
+                <p>Seu cão late ou avança no passeio? Fica agitado com visitas, barulhos ou mudanças na rotina? O atendimento ajuda você a entender esses sinais e a escolher o que fazer no dia a dia.</p>
+              </section>
+              <section className="editorial-grid" aria-label="Conheça a abordagem e o atendimento">
+                <article className="editorial-card editorial-card--portrait">
+                  <img src={ericoPortrait} alt="Érico Cavalheiro" loading="lazy" decoding="async" width="400" height="400" />
+                  <a href="#sobre" onClick={(event) => { event.preventDefault(); handleTabTransition("sobre"); }}>Sobre o Érico <span aria-hidden="true">↗</span></a>
+                </article>
+                <article className="editorial-card editorial-card--yellow">
+                  <h2>Antes do comando, existe relação.</h2>
+                  <p>Observe os sinais do seu cão e entenda como o ambiente e a rotina influenciam o comportamento dele.</p>
+                  <a href="#metodo" onClick={(event) => { event.preventDefault(); handleTabTransition("metodo"); }}>Conhecer o método <span aria-hidden="true">↗</span></a>
+                </article>
+                <article className="editorial-card editorial-card--orange">
+                  <h2>Atendimento por videochamada</h2>
+                  <p>Converse com o Érico de qualquer lugar e receba orientações para a sua rotina.</p>
+                  <a href="#aula-online">Ver as etapas <span aria-hidden="true">↓</span></a>
+                </article>
+                <article className="editorial-card editorial-card--blue">
+                  <h2>O que está acontecendo com seu cão?</h2>
+                  <p>Responda em quatro etapas e prepare um resumo para conversar com o Érico.</p>
+                  <a href={questionnairePath}>Começar questionário <span aria-hidden="true">↗</span></a>
+                </article>
               </section>
               <Online />
-              <p className="mx-auto max-w-5xl px-6 pt-6"><a href={questionnairePath} className="inline-flex min-h-11 items-center text-forest underline">Responder ao questionário de comportamento canino</a></p>
-              <section className="mx-auto max-w-5xl px-6 py-10" aria-labelledby="sobre-atendimento">
-                <h2 id="sobre-atendimento" className="font-serif text-3xl font-bold text-ivory">Quem vai te orientar</h2>
-                <p className="mt-3 max-w-2xl text-sand">Érico Cavalheiro trabalha com educação relacional e comportamento canino, observando como a rotina, o ambiente e a comunicação influenciam o comportamento do cão.</p>
-                <a href="#sobre" className="mt-4 inline-flex min-h-11 items-center text-forest underline" onClick={(event) => { event.preventDefault(); handleTabTransition("sobre"); }}>Conheça o Érico</a>
-              </section>
               <section className="mx-auto max-w-5xl px-6 py-10" aria-labelledby="perguntas-atendimento">
                 <h2 id="perguntas-atendimento" className="font-serif text-3xl font-bold text-ivory">Perguntas frequentes</h2>
                 <details className="mt-4 border-b border-plum-brand/25 text-sand">
