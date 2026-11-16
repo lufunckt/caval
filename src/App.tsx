@@ -98,8 +98,8 @@ export default function App() {
               </div>
               <section className="editorial-intro" aria-labelledby="para-quem">
                 <span className="editorial-mark" aria-hidden="true">✳</span>
-                <h2 id="para-quem">Mais clareza na convivência com seu cão</h2>
-                <p>Seu cão late ou avança no passeio? Fica agitado com visitas, barulhos ou mudanças na rotina? O atendimento ajuda você a entender esses sinais e a escolher o que fazer no dia a dia.</p>
+                <h2 id="para-quem">Adestramento online para cães reativos e outros desafios da rotina</h2>
+                <p>Se seu cão late ou avança na guia, se agita com visitas ou reage a barulhos, o primeiro passo é identificar o que costuma desencadear a reação. Na consulta, o Érico ajuda você a observar esses padrões e escolher ajustes que façam sentido para a sua rotina.</p>
               </section>
               <section className="editorial-grid" aria-label="Conheça a abordagem e o atendimento">
                 <article className="editorial-card editorial-card--portrait">
@@ -127,11 +127,15 @@ export default function App() {
                 <h2 id="perguntas-atendimento" className="font-serif text-3xl font-bold text-ivory">Perguntas frequentes</h2>
                 <details className="mt-4 border-b border-plum-brand/25 text-sand">
                   <summary className="cursor-pointer py-3 font-semibold text-ivory">Posso agendar de outra cidade?</summary>
-                  <p className="pb-4">Sim. A sessão é por videochamada.</p>
+                  <p className="pb-4">Sim. A consulta é por videochamada e pode ser feita de qualquer cidade do Brasil.</p>
                 </details>
                 <details className="border-b border-plum-brand/25 text-sand">
                   <summary className="cursor-pointer py-3 font-semibold text-ivory">Preciso filmar meu cão antes?</summary>
                   <p className="pb-4">O Érico orienta quais registros da rotina podem ajudar na consulta.</p>
+                </details>
+                <details className="border-b border-plum-brand/25 text-sand">
+                  <summary className="cursor-pointer py-3 font-semibold text-ivory">Posso procurar atendimento online para um cão reativo?</summary>
+                  <p className="pb-4">Sim. Na consulta, vocês conversam sobre os gatilhos e o contexto das reações. O Érico orienta os primeiros ajustes e avalia com você se o caso precisa também de atendimento presencial.</p>
                 </details>
               </section>
               <FinalCTA />
@@ -151,7 +155,7 @@ export default function App() {
             <>
               <header className="gallery-page-intro">
                 <h1>Conteúdos sobre comportamento canino</h1>
-                <p>Explore o e-book, os artigos e as leituras sobre a convivência com seu cão.</p>
+                <p>Leia sobre comportamento e psicologia canina, vínculo com o tutor e formas de aplicar esses conceitos nos passeios e em casa.</p>
               </header>
               <Ebook />
               <Blog />
