@@ -36,7 +36,7 @@ export const FinalCTA: React.FC = () => {
             id="final-cta-primary-btn"
           >
             <span className="relative z-10 flex items-center gap-2">
-              Agendar conversa particular
+              Agendar pelo WhatsApp
               <ArrowRight size={15} className="group-hover:translate-x-1 transition-transform duration-300" />
             </span>
             <div className="absolute inset-0 bg-ivory opacity-0 group-hover:opacity-10 transition-opacity duration-300" />
