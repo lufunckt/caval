@@ -45,7 +45,7 @@ const ISSUES = [
   { id: "fears_phobias", label: "Medos intensos ou Fobias", desc: "Pânico de barulhos, fogos, ou tremores ao sair de casa." }
 ];
 
-export const DogQuestionnaire: React.FC = () => {
+export const DogQuestionnaire: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
   const { user } = useFirebase();
   const [step, setStep] = useState(1);
   const [form, setForm] = useState<DiagnosticsState>(DEFAULT_STATE);
@@ -199,13 +199,14 @@ export const DogQuestionnaire: React.FC = () => {
   };
 
   return (
-    <section className="py-24 bg-charcoal relative border-t border-white/5" id="dog-questionnaire-section">
+    <section className={`bg-charcoal relative border-t border-white/5 scroll-mt-24 ${embedded ? "py-8 sm:py-12" : "py-24"}`} id="dog-questionnaire-section">
       {/* Decorative premium radial circles */}
       <div className="absolute bottom-0 left-1/3 w-80 h-80 border border-peach/5 rounded-full blur-3xl bg-peach/2 pointer-events-none" />
       
       <div className="max-w-4xl mx-auto px-6 relative z-10" id="questionnaire-container">
         
         {/* Header Block */}
+        {!embedded && (
         <div className="max-w-2xl mx-auto mb-16 text-center" id="questionnaire-header">
           <span className="font-sans text-xs uppercase tracking-widest font-bold text-peach mb-3 inline-block">
             QUERO CONHECER A SUA HISTÓRIA
@@ -217,6 +218,7 @@ export const DogQuestionnaire: React.FC = () => {
             Relate em 4 passos rápidos os problemas que enfrenta na convivência diária para entendermos a mente do seu cão antes de darmos o direcionamento clínico.
           </p>
         </div>
+        )}
 
         {/* Master Quiz Card structure */}
         <div 
@@ -572,7 +574,7 @@ export const DogQuestionnaire: React.FC = () => {
                         id="questionnaire-btn-submit"
                       >
                         <MessageSquare size={16} />
-                        <span>Enviar Diágnostico no WhatsApp</span>
+                        <span>Enviar resumo ao Érico pelo WhatsApp</span>
                       </button>
                     )}
                   </div>
