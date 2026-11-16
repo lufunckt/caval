@@ -157,7 +157,7 @@ body {
 }
 
 
-.editorial-home {
+.editorial-site {
   --themed-charcoal:#f7f3ed;
   --themed-plum-deep:#ece7e0;
   --themed-ivory:#201d1b;
@@ -168,13 +168,13 @@ body {
   background:#f7f3ed;
   --color-forest:#544427;
 }
-.editorial-home #main-app-header { background:#f7f3ed; padding-block:.7rem; border-bottom:1px solid #201d1b29; box-shadow:none; }
-.editorial-home #brand-logo-text-block > div,
-.editorial-home #main-app-header nav a,
-.editorial-home #mobile-menu-trigger { color:#201d1b; }
-.editorial-home #main-app-header nav a[aria-current="page"] { text-decoration:underline; text-underline-offset:.4em; text-decoration-color:#9d711b; }
-.editorial-home :is(#desktop-theme-toggle,#mobile-theme-toggle) { display:none; }
-.editorial-home #conteudo-principal { padding-top:4.6rem; }
+.editorial-site #main-app-header { background:#f7f3ed; padding-block:.7rem; border-bottom:1px solid #201d1b29; box-shadow:none; }
+.editorial-site #brand-logo-text-block > div,
+.editorial-site #main-app-header nav a,
+.editorial-site #mobile-menu-trigger { color:#201d1b; }
+.editorial-site #main-app-header nav a[aria-current="page"] { text-decoration:underline; text-underline-offset:.4em; text-decoration-color:#9d711b; }
+.editorial-site :is(#desktop-theme-toggle,#mobile-theme-toggle) { display:none; }
+.editorial-site #conteudo-principal { padding-top:4.6rem; }
 .editorial-hero {
   display:grid; grid-template-columns:minmax(0,.8fr) minmax(0,1.6fr) minmax(0,1.3fr);
   gap:clamp(1rem,3vw,3.5rem); align-items:center;
@@ -227,7 +227,7 @@ body {
 .editorial-card--orange { background:#eae4da; }
 .editorial-home #aula-online { margin-top:2rem; background:#eee8df; }
 .editorial-home #para-quem { scroll-margin-top:6rem; }
-.editorial-home :focus-visible { outline:3px solid #8a621d; outline-offset:3px; }
+.editorial-site :focus-visible { outline:3px solid #8a621d; outline-offset:3px; }
 @media(max-width:820px) {
   .editorial-hero { grid-template-columns:minmax(0,1fr) minmax(0,1fr); }
   .gallery-note { display:none; }
@@ -239,4 +239,77 @@ body {
   .editorial-collage { max-width:17rem; }
   .editorial-grid { grid-template-columns:1fr; }
   .editorial-strip { gap:0 .8rem; }
+}
+
+/* Interior pages share the same paper, type and controls as the homepage. */
+.editorial-site {
+  --color-forest:#514227;
+  --color-forest-deep:#40351f;
+  --color-peach:#775416;
+  --color-rose-brand:#9b3048;
+  --color-terracotta:#774624;
+}
+.editorial-site #main-app-header a:focus-visible,
+.editorial-site #main-app-header button:focus-visible { outline-color:#775416; }
+.editorial-site #mobile-navigation-drawer { background:#f7f3ed; }
+.editorial-site #mobile-navigation-drawer a:not(#mobile-drawer-whatsapp-btn) { color:#201d1b; }
+.editorial-site #mobile-navigation-drawer #mobile-drawer-whatsapp-btn { color:#fffaf2; }
+.editorial-site :is(#header-cta-button,#mobile-drawer-whatsapp-btn,#online-action-cta,#final-cta-primary-btn,#questionnaire-btn-next,#questionnaire-btn-submit,#newsletter-submit-button) {
+  background:#211e1b; color:#fffaf2; border-radius:2px; box-shadow:none; min-height:44px;
+}
+.editorial-site :is(#header-cta-button,#mobile-drawer-whatsapp-btn,#online-action-cta,#final-cta-primary-btn,#questionnaire-btn-next,#questionnaire-btn-submit,#newsletter-submit-button):hover { background:#493521; }
+.editorial-site :is(#hero,#metodo,#sobre,#ebook,#blog-section,#canine-news-section,#tab-diagnostico-view,#tutor-area-portal,#newsletter-insights-section) { color:#201d1b; }
+.editorial-site :is(#metodo,#sobre,#ebook,#blog-section,#canine-news-section,#newsletter-insights-section) {
+  padding-block:clamp(2.5rem,6vw,5.5rem);
+  border-top:1px solid #201d1b26;
+  background:#f7f3ed;
+}
+.editorial-site :is(#sobre,#blog-section,#newsletter-insights-section,#aula-online) { background:#eee8df; }
+.editorial-site :is(#method-section-header,#blog-header-block,#canine-news-header) { margin-bottom:clamp(1.4rem,5vw,3.75rem); }
+.editorial-site :is(#method-section-header h2,#about-headline,#ebook-main-header,#blog-title,#news-section-title,#newsletter-title,#online-header,#final-cta-header,#tutor-area-portal h2) {
+  font-family:"Inter",Arial,sans-serif; font-weight:800; letter-spacing:-.052em; line-height:1.05; text-wrap:balance;
+}
+.editorial-site :is(#method-section-header h2,#about-headline,#ebook-main-header,#blog-title,#news-section-title) {
+  font-size:clamp(2rem,4.4vw,4.1rem);
+}
+.editorial-site :is(#method-section-header h2,#about-headline,#ebook-main-header,#blog-title,#news-section-title)::after,
+.gallery-page-intro h1::after {
+  content:""; display:block; width:3.5rem; height:3px; background:#aa7821; margin-top:.9rem;
+}
+.editorial-site :is(#method-section-header h2,#blog-title,#news-section-title)::after,
+.gallery-page-intro--questionnaire h1::after { margin-inline:auto; }
+.editorial-site :is([id^="method-pillar-card-"],[id^="blog-article-card-"],[id^="article-card-"],#article-detail-panel,#newsletter-card,#questionnaire-box,#tutor-credentials-card,#tutor-onboard-card,#tutor-pending-auth-card,#blog-modal-content-container) {
+  background:#fffaf4; border:1px solid #201d1b36; border-radius:3px; box-shadow:none;
+}
+.editorial-site [id^="article-card-"][aria-checked="true"] { border-color:#8a621d; background:#f2e9da; }
+.editorial-site #blog-modal-close-btn { background:#211e1b; color:#fffaf2; }
+.editorial-site #article-detail-panel [class*="bg-[#1f1326]"] { background:#eee8df; }
+.editorial-site #news-ticker-marquee { display:none; }
+.editorial-site #canine-news-header [class*="bg-[#"] { background:#eee8df; }
+.editorial-site #ebook-mockup-frame [class*="bg-[#22172C]"] { background:#e7dac6; border-color:#766247; }
+.editorial-site #ebook-mockup-frame [class*="blur"], .editorial-site #about-brand-visual-column [class*="blur"] { display:none; }
+.editorial-site :is(#summary-preview,#questionnaire-box [class*="bg-black/"]) {
+  background:#f0e9df; border-color:#d2c4b3;
+}
+.editorial-site :is(#questionnaire-box,#newsletter-card,#tutor-area-portal) :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),textarea,select) {
+  background:#fffdf8; color:#201d1b; border-color:#9a8b7c; border-radius:2px;
+}
+.editorial-site :is(#questionnaire-box,#newsletter-card,#tutor-area-portal) :is(input,textarea)::placeholder { color:#665e53; opacity:1; }
+.editorial-site #questionnaire-btn-back { min-height:44px; }
+.editorial-site #questionnaire-screens-viewport { min-width:0; }
+.editorial-site #tutor-area-portal { min-height:min(75vh,52rem); }
+.editorial-site #app-footer {
+  background:#e9e2d8; border-top:1px solid #201d1b36; padding-block:clamp(2rem,5vw,4rem) 2rem;
+}
+.editorial-site #app-footer a { text-underline-offset:.2em; }
+.editorial-site #app-footer a:hover { text-decoration:underline; }
+.gallery-page-intro { max-width:75rem; margin-inline:auto; padding:clamp(2rem,6vw,5rem) 1.5rem; }
+.gallery-page-intro--questionnaire { text-align:center; max-width:49rem; padding-bottom:1.75rem; }
+.gallery-page-intro h1 { color:#201d1b; font:800 clamp(2.1rem,5vw,4.25rem)/1.02 "Inter",Arial,sans-serif; letter-spacing:-.055em; text-wrap:balance; }
+.gallery-page-intro p { max-width:54ch; margin-top:1rem; line-height:1.55; }
+.gallery-page-intro--questionnaire p { margin-inline:auto; }
+@media(max-width:590px) {
+  .editorial-site #app-footer > div > div:first-child { gap:1.6rem; margin-bottom:2rem; }
+  .editorial-site #questionnaire-box { padding:1rem; }
+  .editorial-site :is(#blog-section,#canine-news-section,#newsletter-insights-section) { padding-block:2.5rem; }
 }
