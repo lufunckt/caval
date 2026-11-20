@@ -21,6 +21,7 @@ const tabs = ["inicio", "metodo", "sobre", "conteudo", "diagnostico", "tutor"];
 
 function readTab() {
   if (window.location.pathname.replace(/\/$/, "") === questionnairePath) return "diagnostico";
+  if (window.location.pathname.replace(/\/$/, "") === "/area-do-tutor") return "tutor";
   const hash = window.location.hash.slice(1);
   return tabs.includes(hash) ? hash : "inicio";
 }
@@ -71,6 +72,8 @@ export default function App() {
     setActiveTab(tabId);
     window.scrollTo({ top: 0, behavior: "instant" });
   }
+
+  if (activeTab === "tutor") return <Suspense fallback={<p role="status">Carregando Área do Tutor…</p>}><TutorArea /></Suspense>;
 
   return (
     <div className="relative min-h-screen selection:bg-forest selection:text-charcoal bg-charcoal" id="main-landing-app">

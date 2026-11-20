@@ -7,18 +7,21 @@ import { GoogleGenAI } from "@google/genai";
 import { initializeApp } from "firebase-admin/app";
 import { getFirestore, FieldValue } from "firebase-admin/firestore";
 import { randomUUID } from "crypto";
-
-initializeApp();
-const db = getFirestore();
+import tutorRouter from "./server/tutor-api";
+import firebaseConfig from "./firebase-applet-config.json";
 
 dotenv.config();
+initializeApp({ projectId: firebaseConfig.projectId });
+const db = getFirestore(firebaseConfig.firestoreDatabaseId);
 
 async function startServer() {
   const app = express();
-  const PORT = 3000;
+  const PORT = Number(process.env.PORT) || 3000;
 
-  app.use(express.json());
+  app.use(express.json({ limit: "400kb" }));
+  app.use("/api/tutor", tutorRouter);
   app.use((req, res, next) => {
+    if (req.path.startsWith("/area-do-tutor")) res.setHeader("X-Robots-Tag", "noindex, nofollow");
     if (req.hostname === "previa.ericoadestrador.com.br" || req.hostname.endsWith(".sslip.io")) {
       res.setHeader("X-Robots-Tag", "noindex");
     }
