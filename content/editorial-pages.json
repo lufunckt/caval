@@ -1,0 +1,50 @@
+[
+  {
+    "path": "/",
+    "file": "index.html"
+  },
+  {
+    "path": "/editorial/metodo.html",
+    "file": "metodo.html"
+  },
+  {
+    "path": "/editorial/sobre.html",
+    "file": "sobre.html"
+  },
+  {
+    "path": "/editorial/conteudos.html",
+    "file": "conteudos.html"
+  },
+  {
+    "path": "/consulta-comportamento-canino-online",
+    "file": "consulta-comportamento-canino-online.html"
+  },
+  {
+    "path": "/questionario-comportamento-canino",
+    "file": "questionario-comportamento-canino.html"
+  },
+  {
+    "path": "/editorial/privacidade.html",
+    "file": "privacidade.html"
+  },
+  {
+    "path": "/editorial/reatividade-na-guia.html",
+    "file": "reatividade-na-guia.html"
+  },
+  {
+    "path": "/editorial/agitacao-com-visitas.html",
+    "file": "agitacao-com-visitas.html"
+  },
+  {
+    "path": "/editorial/medo-de-barulhos.html",
+    "file": "medo-de-barulhos.html"
+  },
+  {
+    "path": "/editorial/cachorro-puxa-a-guia.html",
+    "file": "cachorro-puxa-a-guia.html"
+  },
+  {
+    "path": "/editorial/ansiedade-de-separacao.html",
+    "file": "ansiedade-de-separacao.html"
+  }
+]

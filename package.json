@@ -4,12 +4,15 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "tsx server.ts",
+    "dev": "node --import tsx server.ts",
     "build": "vite build && esbuild server.ts --bundle --platform=node --format=cjs --packages=external --sourcemap --outfile=dist/server.cjs",
     "start": "node dist/server.cjs",
     "preview": "vite preview",
     "clean": "rm -rf dist server.js",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "build:editorial": "python3 scripts/build-editorial.py",
+    "test:seo": "node --test tests/editorial-seo.test.mjs",
+    "test:seo:http": "node --test tests/editorial-http.test.mjs"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",
