@@ -7,6 +7,7 @@ import { GoogleGenAI } from "@google/genai";
 import { initializeApp } from "firebase-admin/app";
 import { getFirestore, FieldValue } from "firebase-admin/firestore";
 import { randomUUID } from "crypto";
+import { editorialRoutes } from "./server/editorial-routes";
 
 initializeApp();
 const db = getFirestore();
@@ -15,7 +16,7 @@ dotenv.config();
 
 async function startServer() {
   const app = express();
-  const PORT = 3000;
+  const PORT = Number(process.env.PORT) || 3000;
 
   app.use(express.json());
   app.use((req, res, next) => {
@@ -24,12 +25,7 @@ async function startServer() {
     }
     next();
   });
-  app.get("/sitemap.xml", (_req, res) => res.type("application/xml").send(`<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://ericoadestrador.com.br/</loc></url>
-  <url><loc>https://ericoadestrador.com.br/questionario-comportamento-canino</loc></url>
-</urlset>`));
-  app.get("/robots.txt", (_req, res) => res.type("text/plain").send("User-agent: *\nSitemap: https://ericoadestrador.com.br/sitemap.xml\n"));
+  app.use(editorialRoutes(path.join(process.cwd(), process.env.NODE_ENV === "production" ? "dist" : "public")));
 
   // API Route for Ebook Lead Capture
   app.post("/api/capture-email", async (req, res) => {
