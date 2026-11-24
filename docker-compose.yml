@@ -45,7 +45,9 @@ services:
       timeout: 5s
       retries: 10
   backup:
-    image: postgres:17-alpine
+    build:
+      context: ./scripts
+      dockerfile: Dockerfile.backup
     restart: unless-stopped
     environment:
       PGHOST: database
@@ -54,8 +56,6 @@ services:
       PGPASSWORD: ${SERVICE_PASSWORD_64_DATABASE}
     volumes:
       - tutor-backups:/backups
-      - ./scripts/backup-db.sh:/opt/backup-db.sh:ro
-    entrypoint: ["sh", "/opt/backup-db.sh"]
     depends_on:
       database:
         condition: service_healthy

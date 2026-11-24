@@ -48,11 +48,28 @@ jobs:
       - run: '"$RUNNER_TEMP/erico-browser-qa/node_modules/.bin/playwright" test --config tests/public-browser.config.mjs'
       - run: docker compose -p erico-tutor-ci config --quiet
       - run: docker compose -p erico-tutor-ci up --build -d --wait
-      - name: Verify database backup and restore in disposable database
+      - name: Verify backup without checkout files and restore its generated dump
         run: |
+          backup_container="$(docker compose -p erico-tutor-ci ps -q backup)"
+          test -n "$backup_container"
+          test -z "$(docker inspect --format '{{range .Mounts}}{{if eq .Type "bind"}}{{.Source}}{{end}}{{end}}' "$backup_container")"
+          docker compose -p erico-tutor-ci exec -T backup test -s /opt/backup-db.sh
+          docker compose -p erico-tutor-ci exec -T database psql -U erico -d erico -v ON_ERROR_STOP=1 -c "CREATE TABLE backup_probe (id integer PRIMARY KEY); INSERT INTO backup_probe VALUES (1), (2);"
           docker compose -p erico-tutor-ci exec -T database createdb -U erico erico_restore
-          docker compose -p erico-tutor-ci exec -T backup sh -c 'pg_dump -Fc -f /backups/restore-test.dump && pg_restore --dbname=erico_restore /backups/restore-test.dump'
+          mv scripts/backup-db.sh "$RUNNER_TEMP/erico-backup-source.sh"
+          trap 'mv "$RUNNER_TEMP/erico-backup-source.sh" scripts/backup-db.sh' EXIT
+          docker compose -p erico-tutor-ci exec -T backup touch /backups/checkout-test-marker
+          docker compose -p erico-tutor-ci restart backup
+          dump_file=""
+          for attempt in $(seq 1 20); do
+            dump_file="$(docker compose -p erico-tutor-ci exec -T backup sh -c 'find /backups -maxdepth 1 -type f -name "erico-*.dump" -newer /backups/checkout-test-marker | head -n 1')"
+            if [ -n "$dump_file" ]; then break; fi
+            sleep 2
+          done
+          test -n "$dump_file"
+          docker compose -p erico-tutor-ci exec -T backup pg_restore --exit-on-error --dbname=erico_restore "$dump_file"
           test "$(docker compose -p erico-tutor-ci exec -T database psql -U erico -d erico_restore -tAc "SELECT count(*) FROM information_schema.tables WHERE table_name='tutor_accounts'")" = "1"
+          test "$(docker compose -p erico-tutor-ci exec -T database psql -U erico -d erico_restore -tAc "SELECT count(*) FROM backup_probe")" = "2"
       - name: Show container diagnostics if verification fails
         if: failure()
         run: docker compose -p erico-tutor-ci logs --tail=40

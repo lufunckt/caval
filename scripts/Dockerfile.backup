@@ -1,0 +1,5 @@
+FROM postgres:17-alpine
+COPY --chmod=0555 backup-db.sh /opt/backup-db.sh
+RUN test -s /opt/backup-db.sh && sh -n /opt/backup-db.sh
+ENTRYPOINT ["sh", "/opt/backup-db.sh"]
+CMD []

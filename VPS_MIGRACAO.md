@@ -62,6 +62,25 @@ tutor-backups. Uma cópia na mesma VPS não protege contra perda do servidor:
 configurar cópia externa antes da abertura ampla. Testar a restauração em banco
 separado usando pg_restore, sem sobrescrever o banco de produção.
 
+## Backup no Coolify sem arquivos externos
+
+O serviço backup agora é construído com scripts/Dockerfile.backup. O script
+backup-db.sh é copiado para a imagem durante o build; não há bind mount de
+./scripts/backup-db.sh. Isso evita depender do checkout que o Coolify pode remover
+depois da construção ou resolver como diretório no servidor de implantação.
+Não é necessário habilitar Preserve repository para este serviço.
+
+Para atualizar uma instalação já criada, manter o mesmo recurso, branch e volumes.
+Usar Reload compose na configuração para carregar o arquivo atualizado, salvar e
+fazer Redeploy. Manter os valores das senhas geradas e APP_ORIGIN. Os volumes
+tutor-database e tutor-backups conservam os mesmos nomes; não excluir o recurso
+ou os volumes. Em Logs > backup, conferir Database backup service started. e
+Database backup completed. antes de considerar o backup validado na VPS.
+
+A validação automatizada reinicia o backup com o arquivo do checkout removido,
+confirma a geração de um novo dump e restaura esse arquivo em um banco descartável,
+verificando uma tabela com dados e as tabelas do portal. Esse teste não usa produção.
+
 ## Contas e dados anteriores
 
 Esta versão começa com um banco PostgreSQL novo. Não acessa, apaga ou importa
