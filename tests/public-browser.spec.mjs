@@ -1,7 +1,7 @@
 import { test, expect } from '@playwright/test';
 import fs from 'node:fs';
 const pages = JSON.parse(fs.readFileSync('content/editorial-pages.json', 'utf8'));
-for (const width of [1440, 768, 390]) {
+for (const width of [1440, 768, 390, 320]) {
   for (const pageInfo of pages) {
     test(`public layout ${width}: ${pageInfo.path}`, async ({ page }) => {
       await page.setViewportSize({ width, height: 1000 });
