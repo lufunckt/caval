@@ -150,7 +150,7 @@ test('the visible portal can register, onboard and publish against PostgreSQL',a
   await page.getByRole('button',{name:'Já confirmei',exact:true}).click();
   await page.getByRole('button',{name:'Já confirmei',exact:true}).waitFor({state:'hidden'});
   const menu=page.getByRole('button',{name:'Abrir menu',exact:true});await menu.waitFor({state:'visible'});await menu.click();
-  await page.getByRole('button',{name:'Comunidade',exact:true}).click();
+  await page.getByRole('navigation',{name:'Área do Tutor',exact:true}).getByRole('button',{name:'Comunidade',exact:true}).click();
   const textarea=page.locator('textarea[name=content]');await textarea.fill('Publicação de teste do navegador.');
   await page.getByRole('button',{name:/Publicar/}).click();
   await page.getByText('Publicação de teste do navegador.',{exact:true}).waitFor({timeout:15000});

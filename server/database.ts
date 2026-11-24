@@ -4,7 +4,8 @@ let pool: pg.Pool | undefined, ready: Promise<void> | undefined;
 export const failure = (status:number,message:string):never=>{throw Object.assign(new Error(message),{status});};
 export function database() {
   if(!process.env.DATABASE_URL) failure(503,'O cadastro ainda está em configuração. Tente novamente mais tarde.');
-  return pool ??= new pg.Pool({connectionString:process.env.DATABASE_URL,max:10,connectionTimeoutMillis:5000,idleTimeoutMillis:30000});
+  if(!pool){pool=new pg.Pool({connectionString:process.env.DATABASE_URL,max:10,connectionTimeoutMillis:5000,idleTimeoutMillis:30000});pool.on('error',(error:any)=>console.error('Database connection unavailable:',error.code||'connection'));}
+  return pool;
 }
 export async function migrateDatabase() {
   if(!ready) ready=(async()=>{

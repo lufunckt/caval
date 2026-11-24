@@ -29,10 +29,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 24
-      - run: npm install --ignore-scripts --no-audit --no-fund
-      - name: Export resolved public dependency lockfile for source synchronization
-        run: |
-          node -e "for (const line of require('fs').readFileSync('package-lock.json','utf8').split('\n')) console.log('TUTOR_LOCK_LINE:'+line)"
+      - run: npm ci --ignore-scripts --no-audit --no-fund
       - uses: actions/upload-artifact@v4
         with:
           name: postgres-lockfile
