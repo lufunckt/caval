@@ -25,7 +25,7 @@ HEADER = re.sub(r' aria-current="page"', '', HEADER)
 FOOTER = re.search(r'<footer\b.*?</footer>', template, re.S).group()
 FLOATING = re.search(r'<a class="whatsapp-flutuante".*?</a>', template, re.S).group()
 WHATSAPP = re.search(r'href="([^"]+)"', FLOATING).group(1)
-FLOAT_STYLE = re.search(r'<style id="whatsapp-flutuante-css">.*?</style>', template, re.S).group()
+FLOAT_STYLE = ''  # Floating contact button is styled by the public stylesheet.
 
 def absolute_links(html):
     def replace(m):
@@ -98,6 +98,8 @@ index_main=index_main.replace('<aside class="article-cta">','<aside class="wrap 
 
 # Apply shared URL/metadata fixes to imported pages and newly generated documents.
 for file in OUT.glob('*.html'):
+    if file.name == 'area-do-tutor.html':
+        continue
     html=absolute_links(file.read_text())
     html=html.replace('/editorial/questionario-comportamento-canino.html',QUIZ)
     html=re.sub(r'<header\b[^>]*id="inicio".*?</header>',HEADER,html,count=1,flags=re.S)
@@ -151,3 +153,6 @@ ET.indent(xml)
 (ROOT/'public/sitemap.xml').write_bytes(ET.tostring(xml,encoding='utf-8',xml_declaration=True))
 (ROOT/'public/robots.txt').write_text('User-agent: *\nAllow: /\n\nSitemap: '+ORIGIN+'/sitemap.xml\n')
 print(f'Generated {len(ARTICLES)} articles, service page, contents index and {len(pages)} sitemap entries.')
+
+import runpy
+runpy.run_path(str(ROOT / 'scripts/style-public.py'), run_name='__main__')

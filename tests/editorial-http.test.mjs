@@ -41,7 +41,7 @@ test('preview and private entry stay noindex; original React portal remains avai
 });
 test('missing editorial pages return 404 and assets have expected MIME types', async () => {
   assert.equal((await fetch(base + '/editorial/does-not-exist.html')).status, 404);
-  for (const [file, type] of [['passeio.webp', 'image/webp'],['questionario.js','javascript'],['editorial.css','text/css']]) {
+  for (const [file, type] of [['passeio.webp', 'image/webp'],['questionario.js','javascript'],['editorial.css','text/css'],['public-design.css','text/css'],['navigation.js','javascript']]) {
     const r = await fetch(base + '/editorial/' + file); assert.equal(r.status, 200); assert.ok(r.headers.get('content-type').includes(type));
   }
 });
