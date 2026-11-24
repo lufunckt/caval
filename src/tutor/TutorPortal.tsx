@@ -278,6 +278,7 @@ function AuthScreen() {
               Senha
               <input
                 name="password"
+                aria-label="Senha"
                 type="password"
                 autoComplete={
                   mode === "signup" ? "new-password" : "current-password"
