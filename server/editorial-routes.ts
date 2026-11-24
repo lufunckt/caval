@@ -20,6 +20,7 @@ export function editorialRoutes(publicRoot: string): Router {
   });
   router.get('/sitemap.xml', (_req, res) => res.type('application/xml').sendFile(path.join(publicRoot, 'sitemap.xml')));
   router.get('/editorial/index.html', (_req, res) => res.redirect(301, '/'));
+  router.get('/editorial/area-do-tutor.html', (_req, res) => res.redirect(302, '/area-do-tutor'));
   router.get('/editorial/questionario-comportamento-canino.html', (_req, res) => res.redirect(301, '/questionario-comportamento-canino'));
   router.get('/editorial/consulta-comportamento-canino-online.html', (_req, res) => res.redirect(301, '/consulta-comportamento-canino-online'));
   for (const page of pages) {

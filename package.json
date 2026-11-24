@@ -12,7 +12,9 @@
     "lint": "tsc --noEmit",
     "build:editorial": "python3 scripts/build-editorial.py",
     "test:seo": "node --test tests/editorial-seo.test.mjs",
-    "test:seo:http": "node --test tests/editorial-http.test.mjs"
+    "test:seo:http": "node --test tests/editorial-http.test.mjs",
+    "test:tutor": "node --import tsx --test tests/tutor-policy.test.ts",
+    "test:rules": "firebase emulators:exec --only firestore --project demo-tutor-portal --config firebase.tutor.json \"node --import tsx --test --test-concurrency=1 tests/tutor-rules.test.ts\""
   },
   "dependencies": {
     "@google/genai": "^2.4.0",
@@ -30,10 +32,14 @@
   },
   "devDependencies": {
     "@firebase/eslint-plugin-security-rules": "^0.0.2",
+    "@firebase/rules-unit-testing": "^5.0.2",
     "@types/express": "^4.17.21",
     "@types/node": "^22.14.0",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
     "autoprefixer": "^10.4.21",
     "esbuild": "^0.25.0",
+    "firebase-tools": "^15.37.0",
     "tailwindcss": "^4.1.14",
     "tsx": "^4.21.0",
     "typescript": "~5.8.2",

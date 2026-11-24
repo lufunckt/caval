@@ -22,6 +22,21 @@ service cloud.firestore {
              request.auth.token.email_verified == true;
     }
 
+    function verified() { return isSignedIn() && request.auth.token.email_verified == true; }
+    function tutored(userId) {
+      return get(/databases/$(database)/documents/users/$(userId)).data.isAuthorized == true;
+    }
+    function hasProfile() {
+      return exists(/databases/$(database)/documents/users/$(request.auth.uid));
+    }
+    function ownAuthor(data) {
+      return data.authorId == request.auth.uid &&
+        data.author == get(/databases/$(database)/documents/users/$(request.auth.uid)).data.name;
+    }
+    function validPhoto(data, field) {
+      return !(field in data) || (data[field] is string && data[field].size() <= 260000 &&
+        (data[field] == '' || data[field].matches('^data:image/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$')));
+    }
     function incoming() {
       return request.resource.data;
     }
@@ -48,7 +63,7 @@ service cloud.firestore {
              data.xpPoints is number && data.xpPoints >= 0 &&
              data.streakCount is number && data.streakCount >= 0 &&
              data.unlockedBadges is list && data.unlockedBadges.size() <= 50 &&
-             data.isAuthorized is bool;
+             data.isAuthorized is bool && validPhoto(data, 'dogPhoto') && validPhoto(data, 'dogAvatar');
     }
 
     function isValidTrainingLog(data, userId) {
@@ -102,6 +117,7 @@ service cloud.firestore {
 
       allow create: if isOwner(userId) && 
                        isValidUserProfile(incoming(), userId) &&
+                       incoming().keys().hasOnly(['uid', 'name', 'dogName', 'dogBreed', 'dogAge', 'focusArea', 'nextConsult', 'consultProgress', 'xpPoints', 'streakCount', 'unlockedBadges', 'isAuthorized', 'createdAt', 'updatedAt', 'dogPhoto', 'dogAvatar']) &&
                        (isErico() || incoming().isAuthorized == false) &&
                        incoming().createdAt == request.time;
 
@@ -110,6 +126,7 @@ service cloud.firestore {
                         incoming().uid == existing().uid &&
                         incoming().isAuthorized == existing().isAuthorized && // User cannot change authorization
                         incoming().createdAt == existing().createdAt &&
+                        incoming().diff(existing()).affectedKeys().hasOnly(['name', 'dogName', 'dogBreed', 'dogAge', 'dogPhoto', 'dogAvatar', 'updatedAt']) &&
                         incoming().updatedAt == request.time) ||
                        (isErico() && 
                         isValidUserProfile(incoming(), userId) &&
@@ -138,42 +155,78 @@ service cloud.firestore {
       allow delete: if isOwner(userId) || isErico();
     }
 
-    // 3. Sub-collection: ChatMessages (Private Clinical Communication)
+    // Individual chat: tutor access is granted by the educator, never by the client.
     match /users/{userId}/messages/{messageId} {
-      allow read: if isOwner(userId) || isErico();
-      
-      allow create: if (isOwner(userId) || isErico()) &&
-                        isValidId(messageId) &&
-                        isValidChatMessage(incoming()) &&
-                        incoming().createdAt == request.time;
-                        
-      allow update: if false; // Messages are immutable once sent
-      allow delete: if isErico(); // Only Érico can archive/moderate private logs
+      allow read: if isErico() || (verified() && isOwner(userId) && tutored(userId));
+      allow create: if verified() && (isErico() || (isOwner(userId) && tutored(userId))) &&
+        isValidId(messageId) && isValidChatMessage(incoming()) && incoming().id == messageId &&
+        incoming().authorId == request.auth.uid && incoming().createdAt == request.time &&
+        ((isErico() && incoming().sender == 'erico') || (!isErico() && incoming().sender == 'tutor'));
+      allow update: if false;
+      allow delete: if isErico();
     }
 
-    // 4. Closed Forum / Public Community Collection
-    match /forum_posts/{postId} {
-      allow read: if isSignedIn();
-      
-      allow create: if isSignedIn() &&
-                        isValidId(postId) &&
-                        isValidForumPost(incoming()) &&
-                        incoming().likes == 0 &&
-                        incoming().createdAt == request.time;
-                        
-      allow update: if isSignedIn() &&
-                        isValidId(postId) &&
-                        isValidForumPost(incoming()) &&
-                        incoming().createdAt == existing().createdAt &&
-                        (
-                          // Action: Like increment/decrement
-                          incoming().diff(existing()).affectedKeys().hasOnly(['likes']) ||
-                          // Action: Poster edits content
-                          (incoming().author == existing().author && isErico())
-                        );
-                        
-      allow delete: if isErico(); // Moderation ONLY
+    // Appointments and summaries are written through the authenticated server API.
+    match /users/{userId}/consultations/{consultationId} {
+      allow read: if isOwner(userId) || isErico();
+      allow write: if false;
     }
+
+    // Only an explicitly selected avatar is shared; private profile fields stay private.
+    match /tutor_public_profiles/{uid} {
+      allow read: if verified();
+      allow create, update: if isOwner(uid) &&
+        incoming().keys().hasOnly(['uid', 'avatar', 'updatedAt']) && incoming().uid == uid &&
+        incoming().avatar is string && incoming().avatar.size() <= 100000 &&
+        (incoming().avatar == '' || incoming().avatar.matches('^data:image/jpeg;base64,[A-Za-z0-9+/=]+$')) &&
+        incoming().updatedAt == request.time;
+      allow delete: if isOwner(uid) || isErico();
+    }
+
+    // Community available to all verified tutors.
+    match /forum_posts/{postId} {
+      allow read: if verified();
+      allow create: if verified() && hasProfile() && isValidId(postId) &&
+        incoming().keys().hasOnly(['id', 'authorId', 'author', 'dog', 'content', 'topic', 'likes', 'createdAt']) &&
+        incoming().id == postId && ownAuthor(incoming()) && isValidForumPost(incoming()) &&
+        incoming().dog == get(/databases/$(database)/documents/users/$(request.auth.uid)).data.dogName &&
+        incoming().topic in ['geral', 'passeios', 'sozinho', 'convivencia', 'latidos'] &&
+        incoming().likes == 0 && incoming().createdAt == request.time;
+      allow update: if false;
+      allow delete: if isErico() || (verified() && resource.data.authorId == request.auth.uid);
+      match /comments/{commentId} {
+        allow read: if verified();
+        allow create: if verified() && hasProfile() &&
+          exists(/databases/$(database)/documents/forum_posts/$(postId)) &&
+          incoming().keys().hasOnly(['authorId', 'author', 'text', 'createdAt']) &&
+          ownAuthor(incoming()) && incoming().text is string && incoming().text.size() > 0 &&
+          incoming().text.size() <= 1500 && incoming().createdAt == request.time;
+        allow update: if false;
+        allow delete: if isErico() || (verified() && resource.data.authorId == request.auth.uid);
+      }
+      match /likes/{uid} {
+        allow read: if verified();
+        allow create: if verified() && isOwner(uid) &&
+          exists(/databases/$(database)/documents/forum_posts/$(postId)) &&
+          incoming().keys().hasOnly(['uid', 'createdAt']) && incoming().uid == uid && incoming().createdAt == request.time;
+        allow delete: if isOwner(uid);
+        allow update: if false;
+      }
+    }
+
+    // Shared conversations: immutable messages, moderation by the educator.
+    match /tutor_rooms/{roomId}/messages/{messageId} {
+      allow read: if verified() && roomId in ['geral', 'passeios', 'sozinho', 'convivencia', 'latidos'];
+      allow create: if verified() && hasProfile() && isValidId(messageId) &&
+        roomId in ['geral', 'passeios', 'sozinho', 'convivencia', 'latidos'] &&
+        incoming().keys().hasOnly(['id', 'authorId', 'author', 'text', 'createdAt']) &&
+        incoming().id == messageId && ownAuthor(incoming()) &&
+        incoming().text is string && incoming().text.size() > 0 && incoming().text.size() <= 4000 &&
+        incoming().createdAt == request.time;
+      allow update: if false;
+      allow delete: if isErico();
+    }
+    match /_avatar_quotas/{quotaId} { allow read, write: if false; }
 
     // 5. Dog Questionnaire persistence (Diagnóstico de Vínculo Canino)
     match /dog_questionnaires/{questionnaireId} {

@@ -1,0 +1,25 @@
+name: Validate SEO and Tutor release
+
+on:
+  push:
+    branches: [release/seo-area-tutor]
+
+permissions:
+  contents: read
+
+jobs:
+  integrated-release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      - run: npm run lint
+      - run: npm run test:tutor
+      - run: npm run test:seo
+      - run: npm run build
+      - run: npm run test:seo:http

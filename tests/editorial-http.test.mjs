@@ -45,3 +45,31 @@ test('missing editorial pages return 404 and assets have expected MIME types', a
     const r = await fetch(base + '/editorial/' + file); assert.equal(r.status, 200); assert.ok(r.headers.get('content-type').includes(type));
   }
 });
+
+test('editorial tutor link redirects to the integrated portal with private metadata', async () => {
+  const legacy = await fetch(base + '/editorial/area-do-tutor.html', { redirect: 'manual' });
+  assert.equal(legacy.status, 302);
+  assert.equal(legacy.headers.get('location'), '/area-do-tutor');
+  for (const route of ['/area-do-tutor', '/area-do-tutor/']) {
+    const portal = await fetch(base + route);
+    assert.equal(portal.status, 200);
+    assert.match(portal.headers.get('x-robots-tag'), /noindex/);
+    const html = await portal.text();
+    assert.match(html, /<title>Área do Tutor/);
+    assert.match(html, /href="https:\/\/ericoadestrador.com.br\/area-do-tutor"/);
+    assert.match(html, /id="root"/);
+    assert.doesNotMatch(html, /<title>Adestrador Online/);
+  }
+});
+
+test('tutor API remains protected while public content is available without credentials', async () => {
+  const api = await fetch(base + '/api/tutor/consultations', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}',
+  });
+  assert.equal(api.status, 401);
+  assert.match(api.headers.get('cache-control'), /no-store/);
+  assert.ok((await api.json()).message);
+  const mascot = await fetch(base + '/tutor/biscoito.webp');
+  assert.equal(mascot.status, 200);
+  assert.match(mascot.headers.get('content-type'), /image\/webp/);
+});

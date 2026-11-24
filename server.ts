@@ -8,18 +8,21 @@ import { initializeApp } from "firebase-admin/app";
 import { getFirestore, FieldValue } from "firebase-admin/firestore";
 import { randomUUID } from "crypto";
 import { editorialRoutes } from "./server/editorial-routes";
-
-initializeApp();
-const db = getFirestore();
+import tutorRouter from "./server/tutor-api";
+import firebaseConfig from "./firebase-applet-config.json";
 
 dotenv.config();
+initializeApp({ projectId: firebaseConfig.projectId });
+const db = getFirestore(firebaseConfig.firestoreDatabaseId);
 
 async function startServer() {
   const app = express();
   const PORT = Number(process.env.PORT) || 3000;
 
-  app.use(express.json());
+  app.use(express.json({ limit: "400kb" }));
+  app.use("/api/tutor", tutorRouter);
   app.use((req, res, next) => {
+    if (req.path.startsWith("/area-do-tutor")) res.setHeader("X-Robots-Tag", "noindex, nofollow");
     if (req.hostname === "previa.ericoadestrador.com.br" || req.hostname.endsWith(".sslip.io")) {
       res.setHeader("X-Robots-Tag", "noindex");
     }
@@ -184,6 +187,17 @@ async function startServer() {
   } else {
     const distPath = path.join(process.cwd(), "dist");
     const indexHtml = await readFile(path.join(distPath, "index.html"), "utf8");
+    const tutorUrl = "https://ericoadestrador.com.br/area-do-tutor";
+    const tutorTitle = "Área do Tutor | Érico Cavalheiro";
+    const tutorDescription = "Acesse sua conta para acompanhar seu cão, participar da comunidade e consultar seus encontros com Érico.";
+    const tutorHtml = indexHtml
+      .replace(/<title>[^<]*<\/title>/, `<title>${tutorTitle}</title>`)
+      .replace(/(<meta (?:name="description"|property="(?:og:description|twitter:description)") content=")[^"]*"/g, `$1${tutorDescription}"`)
+      .replace(/(<meta property="(?:og:title|twitter:title)" content=")[^"]*"/g, `$1${tutorTitle}"`)
+      .replace(/(<(?:link rel="canonical" href|meta property="(?:og:url|twitter:url)" content)=")[^"]*"/g, `$1${tutorUrl}"`)
+      .replace(/<meta name="robots"[^>]*>/, '<meta name="robots" content="noindex, nofollow">')
+      .replace(/<script type="application\/ld\+json">[\s\S]*?<\/script>/g, '');
+    app.get("/area-do-tutor", (_req, res) => res.type("html").send(tutorHtml));
     const questionnaireUrl = "https://ericoadestrador.com.br/questionario-comportamento-canino";
     const questionnaireTitle = "Questionário de comportamento canino | Érico Cavalheiro";
     const questionnaireDescription = "Seu cachorro late, avança no passeio ou fica agitado com visitas? Responda sobre a rotina dele e envie um resumo ao Érico pelo WhatsApp.";

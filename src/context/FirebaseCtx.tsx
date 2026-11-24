@@ -1,20 +1,25 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { 
-  User, 
-  onAuthStateChanged, 
-  signInWithPopup, 
+import {
+  User,
+  onAuthStateChanged,
+  signInWithPopup,
   signOut,
   setPersistence,
-  browserLocalPersistence
+  browserLocalPersistence,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  sendPasswordResetEmail,
+  sendEmailVerification,
+  updateProfile,
 } from "firebase/auth";
-import { 
-  doc, 
-  getDoc, 
+import {
+  doc,
+  onSnapshot,
   setDoc,
   updateDoc,
-  serverTimestamp
+  serverTimestamp,
 } from "firebase/firestore";
-import { auth, db, googleProvider, handleFirestoreError, OperationType } from "../lib/firebase";
+import { auth, db, googleProvider } from "../lib/firebase";
 
 export interface UserProfile {
   uid: string;
@@ -29,190 +34,151 @@ export interface UserProfile {
   streakCount: number;
   unlockedBadges: string[];
   isAuthorized: boolean;
+  dogPhoto?: string;
+  dogAvatar?: string;
   createdAt: any;
   updatedAt: any;
 }
-
 interface FirebaseContextType {
   user: User | null;
   userProfile: UserProfile | null;
   isAuthLoading: boolean;
+  profileError: string;
   loginWithGoogle: () => Promise<void>;
+  loginWithEmail: (email: string, password: string) => Promise<void>;
+  registerWithEmail: (
+    name: string,
+    email: string,
+    password: string,
+  ) => Promise<void>;
+  resetPassword: (email: string) => Promise<void>;
   logout: () => Promise<void>;
-  createProfile: (name: string, dogName: string, dogBreed: string, dogAge: string) => Promise<void>;
-  updateXpAndProgress: (xpToAdd: number, progressChg: number) => Promise<void>;
+  createProfile: (
+    name: string,
+    dogName: string,
+    breed: string,
+    age: string,
+  ) => Promise<void>;
+  updateXpAndProgress: (xp: number, progress: number) => Promise<void>;
 }
-
 const FirebaseCtx = createContext<FirebaseContextType | undefined>(undefined);
-
-export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const FirebaseProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
   const [user, setUser] = useState<User | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [isAuthLoading, setIsAuthLoading] = useState(true);
-
-  // Set persistence and watch auth state change
+  const [profileError, setProfileError] = useState("");
   useEffect(() => {
-    let unsubscribeProfile: (() => void) | undefined;
-
-    const runInit = async () => {
-      try {
-        await setPersistence(auth, browserLocalPersistence);
-      } catch (err) {
-        console.error("Local persistence config error: ", err);
+    let stopProfile: undefined | (() => void);
+    setPersistence(auth, browserLocalPersistence).catch(() => undefined);
+    const stopAuth = onAuthStateChanged(auth, (current) => {
+      stopProfile?.();
+      setUser(current);
+      setUserProfile(null);
+      setProfileError("");
+      if (!current) {
+        setIsAuthLoading(false);
+        return;
       }
-    };
-    runInit();
-
-    const unsubscribeAuth = onAuthStateChanged(auth, async (currentUser) => {
-      setUser(currentUser);
-      
-      if (currentUser) {
-        // Fetch Profile from Firestore
-        const profileRef = doc(db, "users", currentUser.uid);
-        try {
-          const profileSnap = await getDoc(profileRef);
-          if (profileSnap.exists()) {
-            setUserProfile(profileSnap.data() as UserProfile);
-          } else {
-            setUserProfile(null);
-          }
-        } catch (error) {
-          console.error("Error loading profile snap", error);
-          setUserProfile(null);
-        }
-      } else {
-        setUserProfile(null);
-      }
-      setIsAuthLoading(false);
+      setIsAuthLoading(true);
+      stopProfile = onSnapshot(
+        doc(db, "users", current.uid),
+        (snapshot) => {
+          setUserProfile(
+            snapshot.exists() ? (snapshot.data() as UserProfile) : null,
+          );
+          setIsAuthLoading(false);
+        },
+        () => {
+          setProfileError(
+            "Não foi possível carregar seu perfil. Tente novamente.",
+          );
+          setIsAuthLoading(false);
+        },
+      );
     });
-
     return () => {
-      unsubscribeAuth();
+      stopAuth();
+      stopProfile?.();
     };
   }, []);
-
   const loginWithGoogle = async () => {
-    setIsAuthLoading(true);
-    try {
-      const result = await signInWithPopup(auth, googleProvider);
-      const loggedUser = result.user;
-      
-      // Look up profile instantly
-      const profileRef = doc(db, "users", loggedUser.uid);
-      const profileSnap = await getDoc(profileRef);
-      if (profileSnap.exists()) {
-        setUserProfile(profileSnap.data() as UserProfile);
-      } else {
-        setUserProfile(null);
-      }
-    } catch (err: any) {
-      if (err.code === 'auth/popup-closed-by-user') {
-        console.log("Popup closed by user.");
-      } else {
-        console.error("Popup Sign in Error: ", err);
-      }
-    } finally {
-      setIsAuthLoading(false);
-    }
+    await signInWithPopup(auth, googleProvider);
   };
-
+  const loginWithEmail = async (email: string, password: string) => {
+    await signInWithEmailAndPassword(auth, email, password);
+  };
+  const registerWithEmail = async (
+    name: string,
+    email: string,
+    password: string,
+  ) => {
+    const result = await createUserWithEmailAndPassword(auth, email, password);
+    await updateProfile(result.user, { displayName: name });
+    await sendEmailVerification(result.user);
+  };
+  const resetPassword = (email: string) => sendPasswordResetEmail(auth, email);
   const logout = async () => {
-    setIsAuthLoading(true);
-    try {
-      await signOut(auth);
-      setUser(null);
-      setUserProfile(null);
-    } catch (err) {
-      console.error("Sign out error", err);
-    } finally {
-      setIsAuthLoading(false);
-    }
+    await signOut(auth);
   };
-
-  // Helper inside clinical space to create a brand new tutor/dog card
   const createProfile = async (
     name: string,
     dogName: string,
     dogBreed: string,
-    dogAge: string
+    dogAge: string,
   ) => {
-    if (!user) return;
-    setIsAuthLoading(true);
-    
-    const profileRef = doc(db, "users", user.uid);
-    const newProfile: UserProfile = {
+    if (!user) throw new Error("Entre para continuar.");
+    await setDoc(doc(db, "users", user.uid), {
       uid: user.uid,
-      name,
-      dogName,
-      dogBreed,
-      dogAge,
-      focusArea: "Engajamento Relacional & Tolerância a Frustração",
-      nextConsult: "A agendar pelo WhatsApp com Érico",
-      consultProgress: 65,
-      xpPoints: 380,
-      streakCount: 5,
-      unlockedBadges: ["foco-absoluto", "passeio-nobre", "tutor-guardiao"],
-      isAuthorized: user.email === "ericocavalheiro.psico@gmail.com",
-      createdAt: new Date().toISOString(), // Static representation readable on client, matches rules validations
-      updatedAt: new Date().toISOString()
-    };
-
-    try {
-      // Create document
-      await setDoc(profileRef, {
-        ...newProfile,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp()
-      });
-      setUserProfile(newProfile);
-    } catch (err) {
-      handleFirestoreError(err, OperationType.CREATE, `users/${user.uid}`);
-    } finally {
-      setIsAuthLoading(false);
-    }
+      name: name.trim(),
+      dogName: dogName.trim(),
+      dogBreed: dogBreed.trim() || "Não informado",
+      dogAge: dogAge.trim() || "Não informado",
+      focusArea: "",
+      nextConsult: "",
+      consultProgress: 0,
+      xpPoints: 0,
+      streakCount: 0,
+      unlockedBadges: [],
+      isAuthorized: false,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    });
   };
-
-  // Quick rewards connector
-  const updateXpAndProgress = async (xpToAdd: number, progressChg: number) => {
+  const updateXpAndProgress = async (xp: number, progress: number) => {
     if (!user || !userProfile) return;
-    const profileRef = doc(db, "users", user.uid);
-    
-    const nextProg = Math.max(65, Math.min(100, userProfile.consultProgress + progressChg));
-    const nextXp = userProfile.xpPoints + xpToAdd;
-    
-    // Optimistic UI updates
-    setUserProfile(prev => prev ? { ...prev, xpPoints: nextXp, consultProgress: nextProg } : null);
-
-    try {
-      await updateDoc(profileRef, {
-        xpPoints: nextXp,
-        consultProgress: nextProg,
-        updatedAt: serverTimestamp()
-      });
-    } catch (err) {
-      handleFirestoreError(err, OperationType.UPDATE, `users/${user.uid}`);
-    }
+    await updateDoc(doc(db, "users", user.uid), {
+      xpPoints: Math.max(0, userProfile.xpPoints + xp),
+      consultProgress: Math.max(
+        0,
+        Math.min(100, userProfile.consultProgress + progress),
+      ),
+      updatedAt: serverTimestamp(),
+    });
   };
-
   return (
-    <FirebaseCtx.Provider value={{
-      user,
-      userProfile,
-      isAuthLoading,
-      loginWithGoogle,
-      logout,
-      createProfile,
-      updateXpAndProgress,
-    }}>
+    <FirebaseCtx.Provider
+      value={{
+        user,
+        userProfile,
+        isAuthLoading,
+        profileError,
+        loginWithGoogle,
+        loginWithEmail,
+        registerWithEmail,
+        resetPassword,
+        logout,
+        createProfile,
+        updateXpAndProgress,
+      }}
+    >
       {children}
     </FirebaseCtx.Provider>
   );
 };
-
 export const useFirebase = () => {
-  const context = useContext(FirebaseCtx);
-  if (!context) {
-    throw new Error("useFirebase must be used inside a FirebaseProvider");
-  }
-  return context;
+  const ctx = useContext(FirebaseCtx);
+  if (!ctx) throw new Error("FirebaseProvider necessário.");
+  return ctx;
 };
