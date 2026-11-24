@@ -23,3 +23,5 @@ body[data-page=library] .intro,body[data-page=service] .intro{position:relative;
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*:before,*:after{transition:none!important;animation:none!important}.problem-links a:hover{transform:none}}
 
 .hero-strip a span{display:none}
+
+@media(max-width:360px){.intro h1{font-size:2rem;overflow-wrap:anywhere}}

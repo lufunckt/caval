@@ -23,7 +23,7 @@ ao final do gerador editorial. O CSS está em public/editorial/public-design.css
 o CSS anterior continua disponível por compatibilidade com o documento legado.
 
 O workflow verifica TypeScript, políticas do portal, SEO, build, rotas HTTP
-e o visual no Chromium em 1440, 768 e 390 pixels. Verifica também o menu por
+e o visual no Chromium em 1440, 768, 390 e 320 pixels. Verifica também o menu por
 teclado, navegação sem JavaScript e questionário até criar o link de WhatsApp,
 sem enviar mensagem. Capturas da home ficam no artefato public-design-preview.
 
