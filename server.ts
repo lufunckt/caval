@@ -4,22 +4,30 @@ import { readFile } from "node:fs/promises";
 import dotenv from "dotenv";
 import { createServer as createViteServer } from "vite";
 import { GoogleGenAI } from "@google/genai";
-import { initializeApp } from "firebase-admin/app";
-import { getFirestore, FieldValue } from "firebase-admin/firestore";
 import { randomUUID } from "crypto";
 import { editorialRoutes } from "./server/editorial-routes";
 import tutorRouter from "./server/tutor-api";
-import firebaseConfig from "./firebase-applet-config.json";
+import { documentStore, timestamp, migrateDatabase, sql } from "./server/database";
+import { authRouter, apiError } from "./server/local-auth";
+import { dataRouter } from "./server/local-data";
+const FieldValue = { serverTimestamp: timestamp };
 
 dotenv.config();
-initializeApp({ projectId: firebaseConfig.projectId });
-const db = getFirestore(firebaseConfig.firestoreDatabaseId);
+const db = documentStore;
 
 async function startServer() {
   const app = express();
   const PORT = Number(process.env.PORT) || 3000;
 
-  app.use(express.json({ limit: "400kb" }));
+  app.set("trust proxy", 1);
+  if (process.env.DATABASE_URL) await migrateDatabase();
+  app.use(express.json({ limit: "800kb" }));
+  app.use("/api/auth", authRouter);
+  app.use("/api/data", dataRouter);
+  app.get("/api/health", async (_req, res) => {
+    try { await sql("SELECT 1"); res.json({ status: "ok" }); }
+    catch { res.status(503).json({ status: "unavailable" }); }
+  });
   app.use("/api/tutor", tutorRouter);
   app.use((req, res, next) => {
     if (req.path.startsWith("/area-do-tutor")) res.setHeader("X-Robots-Tag", "noindex, nofollow");
@@ -46,7 +54,7 @@ async function startServer() {
       });
       
       // TODO: Integrate with Mailchimp/similar here
-      console.log(`Lead captured: ${email}`);
+      // Leads stay in the VPS database; do not log personal information.
       
       res.json({ success: true, downloadUrl: "/ebook.pdf" });
     } catch (error) {
@@ -213,6 +221,7 @@ async function startServer() {
     });
   }
 
+  app.use(apiError);
   app.listen(PORT, "0.0.0.0", () => {
     console.log(`Server running on http://localhost:${PORT}`);
   });

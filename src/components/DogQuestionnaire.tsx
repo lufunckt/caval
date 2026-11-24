@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Dog, ArrowRight, ArrowLeft, Send, CheckCircle2, ShieldAlert, Sparkles, MessageSquare } from "lucide-react";
-import { db } from "../lib/firebase";
-import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
-import { useFirebase } from "../context/FirebaseCtx";
+import { db } from "../lib/local-data";
+import { doc, getDoc, setDoc, serverTimestamp } from "../lib/local-data";
+import { useAuth } from "../context/AuthCtx";
 import { motion, AnimatePresence } from "motion/react";
 
 interface DiagnosticsState {
@@ -46,7 +46,7 @@ const ISSUES = [
 ];
 
 export const DogQuestionnaire: React.FC<{ embedded?: boolean }> = ({ embedded = false }) => {
-  const { user } = useFirebase();
+  const { user } = useAuth();
   const [step, setStep] = useState(1);
   const [form, setForm] = useState<DiagnosticsState>(DEFAULT_STATE);
   const [submitted, setSubmitted] = useState(false);

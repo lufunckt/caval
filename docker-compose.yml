@@ -1,0 +1,64 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    expose: ["3000"]
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+      DATABASE_URL: postgres://erico:${SERVICE_PASSWORD_64_DATABASE}@database:5432/erico
+      APP_ORIGIN: ${APP_ORIGIN:?Set APP_ORIGIN to the public HTTPS URL}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-ericocavalheiro.psico@gmail.com}
+      ADMIN_BOOTSTRAP_TOKEN: ${SERVICE_PASSWORD_64_BOOTSTRAP}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_SECURE: ${SMTP_SECURE:-false}
+      SMTP_REQUIRE_TLS: "true"
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      MAIL_FROM: ${MAIL_FROM:-}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GEMINI_AVATAR_MODEL: ${GEMINI_AVATAR_MODEL:-gemini-3.1-flash-image}
+      DAILY_API_KEY: ${DAILY_API_KEY:-}
+    depends_on:
+      database:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 6s
+      retries: 3
+      start_period: 40s
+  database:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: erico
+      POSTGRES_USER: erico
+      POSTGRES_PASSWORD: ${SERVICE_PASSWORD_64_DATABASE}
+    volumes: ["tutor-database:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U erico -d erico"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+  backup:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      PGHOST: database
+      PGUSER: erico
+      PGDATABASE: erico
+      PGPASSWORD: ${SERVICE_PASSWORD_64_DATABASE}
+    volumes:
+      - tutor-backups:/backups
+      - ./scripts/backup-db.sh:/opt/backup-db.sh:ro
+    entrypoint: ["sh", "/opt/backup-db.sh"]
+    depends_on:
+      database:
+        condition: service_healthy
+volumes:
+  tutor-database:
+  tutor-backups:

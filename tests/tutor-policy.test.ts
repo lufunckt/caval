@@ -17,6 +17,7 @@ test("only a verified educator gets admin permissions", () => {
   assert.equal(
     educator({
       email: "ericocavalheiro.psico@gmail.com",
+      isAdmin: true,
       email_verified: false,
     }),
     false,
@@ -24,11 +25,16 @@ test("only a verified educator gets admin permissions", () => {
   assert.equal(
     educator({
       email: "ericocavalheiro.psico@gmail.com",
+      isAdmin: true,
       email_verified: true,
     }),
     true,
   );
 });
+test("an email alone never grants administrator privileges", () => {
+  assert.equal(educator({ email: "ericocavalheiro.psico@gmail.com", email_verified: true }), false);
+});
+
 test("consultation access binds participant, status, verification and time window", () => {
   assert.equal(canJoin(tutor, "alice", session, start), true);
   assert.equal(
@@ -55,6 +61,7 @@ test("consultation access binds participant, status, verification and time windo
       {
         uid: "educator",
         email: "ericocavalheiro.psico@gmail.com",
+      isAdmin: true,
         email_verified: true,
       },
       "alice",

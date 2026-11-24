@@ -56,5 +56,5 @@ export interface Log {
   createdAt?: any;
 }
 export const isEducator = (
-  user: { email: string | null; emailVerified: boolean } | null,
-) => !!user?.emailVerified && user.email === "ericocavalheiro.psico@gmail.com";
+  user: { email: string | null; emailVerified: boolean; isAdmin?: boolean } | null,
+) => !!user?.emailVerified && user.isAdmin === true;

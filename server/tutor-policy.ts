@@ -1,9 +1,9 @@
 export const EDUCATOR_EMAIL = "ericocavalheiro.psico@gmail.com";
-export function educator(token: { email?: string; email_verified?: boolean }) {
-  return token.email_verified === true && token.email === EDUCATOR_EMAIL;
+export function educator(token: { email?: string; email_verified?: boolean; isAdmin?: boolean }) {
+  return token.email_verified === true && token.isAdmin === true;
 }
 export function canJoin(
-  token: { uid: string; email?: string; email_verified?: boolean },
+  token: { uid: string; email?: string; email_verified?: boolean; isAdmin?: boolean },
   tutorId: string,
   session: {
     tutorId: string;

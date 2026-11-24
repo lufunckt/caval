@@ -1,14 +1,15 @@
 import { Router, Request, Response, NextFunction } from "express";
-import { getAuth, DecodedIdToken } from "firebase-admin/auth";
-import { getFirestore, FieldValue } from "firebase-admin/firestore";
+import { authenticated, requireVerified, sameOrigin, apiError, type AuthRequest } from "./local-auth";
+import { documentStore, timestamp } from "./database";
+const FieldValue = { serverTimestamp: timestamp };
 import { GoogleGenAI } from "@google/genai";
 import { createHash } from "node:crypto";
 import { educator, canJoin, safePhoto } from "./tutor-policy";
-import firebaseConfig from "../firebase-applet-config.json";
 
-type AuthRequest = Request & { identity?: DecodedIdToken };
+
+
 const router = Router();
-const db = () => getFirestore(firebaseConfig.firestoreDatabaseId);
+const db = () => documentStore;
 const validId = (id: unknown): id is string =>
   typeof id === "string" && /^[a-zA-Z0-9_-]{1,128}$/.test(id);
 const wrap =
@@ -21,26 +22,10 @@ router.use((_req, res, next) => {
   res.setHeader("Referrer-Policy", "no-referrer");
   next();
 });
-router.use(async (req: AuthRequest, res, next) => {
-  const bearer = req.headers.authorization?.match(/^Bearer (.+)$/)?.[1];
-  if (!bearer) {
-    res.status(401).json({ message: "Entre na sua conta para continuar." });
-    return;
-  }
-  try {
-    req.identity = await getAuth().verifyIdToken(bearer, true);
-  } catch {
-    res.status(401).json({ message: "Sua sessão expirou. Entre novamente." });
-    return;
-  }
-  if (!req.identity.email_verified) {
-    res
-      .status(403)
-      .json({ message: "Confirme seu e-mail antes de continuar." });
-    return;
-  }
-  next();
+router.use((req: AuthRequest, _res, next) => {
+  authenticated(req).then(identity => { requireVerified(identity); req.identity = identity; next(); }).catch(next);
 });
+router.use(sameOrigin);
 router.post(
   "/consultations",
   wrap(async (req, res) => {
@@ -324,18 +309,5 @@ router.post(
     }
   }),
 );
-router.use(
-  (error: unknown, _req: Request, res: Response, _next: NextFunction) => {
-    console.error(
-      "Tutor API request failed:",
-      error instanceof Error ? error.name : "UnknownError",
-    );
-    res
-      .status(500)
-      .json({
-        message:
-          "Não foi possível concluir agora. Tente novamente em instantes.",
-      });
-  },
-);
+router.use(apiError);
 export default router;

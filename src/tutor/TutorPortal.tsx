@@ -12,8 +12,10 @@ import {
   setDoc,
   updateDoc,
   writeBatch,
-} from "firebase/firestore";
-import { sendEmailVerification } from "firebase/auth";
+} from "../lib/local-data";
+import { localRequest } from "../lib/local-client";
+import { AccountAction } from "./AccountAction";
+const sendEmailVerification = (_user: unknown) => localRequest("/api/auth/verification-email", {});
 import {
   Home,
   Users,
@@ -35,8 +37,8 @@ import {
   Check,
   Menu,
 } from "lucide-react";
-import { useFirebase, UserProfile } from "../context/FirebaseCtx";
-import { db } from "../lib/firebase";
+import { useAuth, UserProfile } from "../context/AuthCtx";
+import { db } from "../lib/local-data";
 import { CONFIG } from "../config";
 import { tutorApi, compressPhoto } from "./api";
 import {
@@ -89,15 +91,11 @@ const errorText = (e: any) => {
   if (code.includes("invalid-credential") || code.includes("wrong-password"))
     return "Confira seu e-mail e sua senha.";
   if (code.includes("weak-password"))
-    return "Use uma senha com pelo menos 8 caracteres.";
-  if (code.includes("unauthorized-domain"))
-    return "Este domínio precisa ser autorizado no Firebase para o login.";
+    return "Use uma senha com pelo menos 12 caracteres.";
   if (code.includes("permission-denied"))
     return "Você não tem permissão para esta ação. Confirme seu e-mail e tente novamente.";
   if (code.includes("popup-closed"))
     return "O login foi fechado. Você pode tentar novamente.";
-  if (code.includes("operation-not-allowed"))
-    return "Este método de login ainda precisa ser ativado no Firebase.";
   return e?.message || "Não foi possível concluir. Tente novamente.";
 };
 const dateLabel = (n: number) =>
@@ -175,8 +173,8 @@ function Brand() {
   );
 }
 function AuthScreen() {
-  const { loginWithGoogle, loginWithEmail, registerWithEmail, resetPassword } =
-    useFirebase();
+  const { loginWithEmail, registerWithEmail, resetPassword } =
+    useAuth();
   const [mode, setMode] = useState<"signup" | "login" | "reset">("signup");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -285,11 +283,11 @@ function AuthScreen() {
                   mode === "signup" ? "new-password" : "current-password"
                 }
                 required
-                minLength={mode === "signup" ? 8 : 1}
+                minLength={mode === "signup" ? 12 : 1}
                 maxLength={128}
               />
               <small>
-                {mode === "signup" ? "Use pelo menos 8 caracteres." : ""}
+                {mode === "signup" ? "Use pelo menos 12 caracteres." : ""}
               </small>
             </label>
           )}
@@ -311,14 +309,7 @@ function AuthScreen() {
                   : "Enviar instruções"}
           </button>
         </form>
-        <div className="tp-or">ou</div>
-        <button
-          className="tp-secondary"
-          disabled={busy}
-          onClick={() => action(loginWithGoogle)}
-        >
-          Continuar com Google
-        </button>
+
         <button
           className="tp-text-button"
           disabled={busy}
@@ -349,7 +340,7 @@ function AuthScreen() {
   );
 }
 function Onboarding() {
-  const { user, createProfile, logout } = useFirebase();
+  const { user, createProfile, logout } = useAuth();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   async function submit(e: React.FormEvent<HTMLFormElement>) {
@@ -1299,7 +1290,7 @@ function Journal({ profile }: { profile: UserProfile }) {
   );
 }
 function AdminPanel() {
-  const { user } = useFirebase();
+  const { user } = useAuth();
   const { rows: tutors, error } = useRecords<UserProfile>("users");
   const [uid, setUid] = useState("");
   const [failure, setFailure] = useState("");
@@ -1570,12 +1561,14 @@ export function TutorPortal() {
     };
   }, []);
   const { user, userProfile, isAuthLoading, profileError, logout } =
-    useFirebase();
+    useAuth();
   const [tab, setTab] = useState<Tab>("inicio");
   const [menu, setMenu] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const admin = isEducator(user);
+  const accountAction = new URLSearchParams(location.search).get("acao") || "";
+  if (["configurar", "verificar", "redefinir"].includes(accountAction)) return <AccountAction action={accountAction} />;
   if (isAuthLoading)
     return (
       <div className="tp-root">
@@ -1710,7 +1703,7 @@ export function TutorPortal() {
                   <button
                     onClick={async () => {
                       await user.reload();
-                      await user.getIdToken(true);
+                      
                       window.location.reload();
                     }}
                   >

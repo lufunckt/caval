@@ -1,0 +1,67 @@
+name: Validate VPS PostgreSQL Tutor
+on:
+  push:
+    branches: [feat/vps-postgres-tutor]
+permissions:
+  contents: read
+jobs:
+  postgres-tutor:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_DB: tutor_test
+          POSTGRES_USER: tutor_test
+          POSTGRES_PASSWORD: ci-only-disposable-database
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U tutor_test -d tutor_test"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      DATABASE_URL: postgres://tutor_test:ci-only-disposable-database@127.0.0.1:5432/tutor_test
+      SERVICE_PASSWORD_64_DATABASE: ci-only-disposable-compose-database-password
+      SERVICE_PASSWORD_64_BOOTSTRAP: ci-only-disposable-compose-bootstrap-key
+      APP_ORIGIN: https://example.invalid
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - run: npm install --ignore-scripts --no-audit --no-fund
+      - uses: actions/upload-artifact@v4
+        with:
+          name: postgres-lockfile
+          path: package-lock.json
+          retention-days: 7
+      - run: npm run lint
+      - run: npm run test:tutor
+      - run: npm run test:seo
+      - run: npm run build
+      - run: npm run test:seo:http
+      - name: Install isolated browser test tools
+        run: |
+          npm install --prefix "$RUNNER_TEMP/erico-browser-qa" --ignore-scripts --no-audit --no-fund @playwright/test@1.56.1
+          ln -s "$RUNNER_TEMP/erico-browser-qa/node_modules/@playwright" node_modules/@playwright
+      - run: npm run test:backend
+      - run: '"$RUNNER_TEMP/erico-browser-qa/node_modules/.bin/playwright" test --config tests/public-browser.config.mjs'
+      - run: docker compose -p erico-tutor-ci config --quiet
+      - run: docker compose -p erico-tutor-ci up --build -d --wait
+      - name: Verify database backup and restore in disposable database
+        run: |
+          docker compose -p erico-tutor-ci exec -T database createdb -U erico erico_restore
+          docker compose -p erico-tutor-ci exec -T backup sh -c 'pg_dump -Fc -f /backups/restore-test.dump && pg_restore --dbname=erico_restore /backups/restore-test.dump'
+          test "$(docker compose -p erico-tutor-ci exec -T database psql -U erico -d erico_restore -tAc "SELECT count(*) FROM information_schema.tables WHERE table_name='tutor_accounts'")" = "1"
+      - name: Show container diagnostics if verification fails
+        if: failure()
+        run: docker compose -p erico-tutor-ci logs --tail=40
+      - name: Remove disposable CI containers and volumes
+        if: always()
+        run: docker compose -p erico-tutor-ci down --volumes
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: postgres-browser-preview
+          path: test-results/
+          retention-days: 7

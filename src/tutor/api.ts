@@ -1,23 +1,5 @@
-import { auth } from "../lib/firebase";
-export async function tutorApi(path: string, body?: unknown) {
-  const user = auth.currentUser;
-  if (!user) throw new Error("Entre na sua conta para continuar.");
-  const token = await user.getIdToken();
-  const response = await fetch(`/api/tutor/${path}`, {
-    method: body === undefined ? "GET" : "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
-    },
-    ...(body === undefined ? {} : { body: JSON.stringify(body) }),
-  });
-  const data = await response.json();
-  if (!response.ok)
-    throw new Error(
-      data.message || "Não foi possível concluir. Tente novamente.",
-    );
-  return data;
-}
+import { localRequest } from "../lib/local-client";
+export const tutorApi = (path: string, body?: unknown) => localRequest("/api/tutor/" + path, body);
 export async function compressPhoto(
   file: File | Blob,
   max = 600,
